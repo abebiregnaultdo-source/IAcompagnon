@@ -1,0 +1,80 @@
+{
+  "crisis_protocol": {
+    "id": "crisis_protocol", 
+    "intent": "Stabilisation immédiate TOUT en donnant accès direct à l'aide humaine",
+    "entry_condition": "detresse >= 75 OR bouton_urgence = true",
+    "safety": "Double action : techniques de grounding + boutons d'appel directs visibles",
+    "actions": {
+      "stabilisation_immediate": [
+        "respiration_courte_5_secondes",
+        "grounding_5_4_3_2_1",
+        "ancrage_corporel_urgent"
+      ],
+      "urgence_humaine_immediate": [
+        "bouton_appel_3114_actif",
+        "bouton_appel_SAMU_15_actif", 
+        "bouton_contact_urgence_utilisateur_actif",
+        "bouton_redirection_urgence_psy_actif"
+      ]
+    },
+    "protocol": "Lancer les techniques de stabilisation tout en AFFICHANT et ACTIVANT les boutons d'urgence en permanence à l'écran",
+    "exit_signal": "detresse <= 60 AND utilisateur_refuse_aide_urgence = true",
+    "priority": 1000,
+    "type": "urgence_hybride"
+  },
+
+  "validation_emotionnelle": {
+    "id": "validation_emotionnelle", 
+    "intent": "Accueil inconditionnel et normalisation des émotions",
+    "entry_condition": "detresse >= 40",
+    "safety": "Reflets purs. Aucune interprétation. 'C'est normal de ressentir...'",
+    "exit_signal": "utilisateur se sent compris",
+    "priority": 90,
+    "type": "fondation"
+  },
+  "respiration_regulation": {
+    "id": "respiration_regulation",
+    "intent": "Régulation physiologique du système nerveux",
+    "entry_condition": "detresse >= 50 or agitation >= 70",
+    "safety": "Invitation non contraignante. Sortie facile.",
+    "exit_signal": "respiration ralentie, sentiment de calme",
+    "priority": 80,
+    "type": "regulation"
+  },
+  "tipi_regulation": {
+    "id": "tipi_regulation",
+    "intent": "Désensibilisation sensorielle des émotions bloquées",
+    "entry_condition": "detresse > 60 and stabilite_emotionnelle >= 30",
+    "safety": "UNIQUEMENT sensations présentes. Pas de mémoire traumatique.",
+    "exit_signal": "relâchement corporel, baisse tension physique",
+    "priority": 70,
+    "type": "regulation"
+  },
+  "expression_narrative": {
+    "id": "expression_narrative",
+    "intent": "Expression verbale sécurisée du vécu",
+    "entry_condition": "detresse <= 50 and besoin_expression >= 60",
+    "safety": "Éviter les détails traumatiques. Rester dans le ressenti actuel.",
+    "exit_signal": "soulagement verbal, sentiment d'allègement",
+    "priority": 60,
+    "type": "exploration"
+  },
+  "sens_logotherapie": {
+    "id": "sens_logotherapie",
+    "intent": "Recherche de sens et reconstruction identitaire",
+    "entry_condition": "detresse <= 40 and recherche_sens >= 50",
+    "safety": "Pas de positivité toxique. Honnêteté radicale.",
+    "exit_signal": "émergence de sens personnel, connexion aux valeurs",
+    "priority": 50,
+    "type": "reconstruction"
+  },
+  "reconstruction_rituel": {
+    "id": "reconstruction_rituel", 
+    "intent": "Matérialisation symbolique du processus",
+    "entry_condition": "detresse <= 30 and energie_creatrice >= 40",
+    "safety": "Rituels simples et personnels. Pas d'obligation.",
+    "exit_signal": "engagement dans un geste symbolique personnel",
+    "priority": 40,
+    "type": "reconstruction"
+  }
+}

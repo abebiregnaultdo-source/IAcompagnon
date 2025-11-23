@@ -1,0 +1,746 @@
+/**
+ * Styles pour le Protocole de Crise
+ * Design thérapeutique avec urgence douce
+ */
+
+/* === OVERLAY DE CRISE === */
+.crisis-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(58, 64, 72, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-md);
+  animation: fadeIn var(--transition-medium);
+  overflow-y: auto;
+}
+
+.crisis-container {
+  background: var(--color-bg-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp var(--transition-medium);
+}
+
+/* Banner d'urgence dans le protocole de crise */
+.crisis-container .emergency-banner {
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  margin-bottom: 0;
+  position: relative;
+  top: 0;
+}
+
+/* === HEADER === */
+.crisis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xl);
+  border-bottom: 1px solid var(--color-accent-calm);
+  background: var(--color-surface-1);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.crisis-header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.crisis-icon {
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.crisis-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.crisis-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.crisis-close:hover {
+  background: var(--color-accent-calm);
+  color: var(--color-text-primary);
+}
+
+/* === MESSAGE DE SOUTIEN === */
+.crisis-message {
+  padding: var(--space-xl);
+  background: var(--color-accent-info);
+  border-left: 4px solid var(--color-primary);
+  margin: var(--space-xl);
+  border-radius: var(--radius-md);
+}
+
+.crisis-message p {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+}
+
+.crisis-message p + p {
+  margin-top: var(--space-md);
+}
+
+/* === SECTIONS === */
+.crisis-section {
+  padding: var(--space-xl);
+  border-bottom: 1px solid var(--color-accent-calm);
+}
+
+.crisis-section:last-of-type {
+  border-bottom: none;
+}
+
+.crisis-section-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.crisis-section-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--space-lg) 0;
+  line-height: var(--line-height-relaxed);
+}
+
+/* === BOUTONS D'URGENCE === */
+.emergency-buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.emergency-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: var(--color-white-soft);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+}
+
+.emergency-btn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.emergency-btn:active {
+  transform: translateY(0);
+  background: var(--color-primary);
+}
+
+.emergency-btn:active .emergency-btn-icon {
+  background: var(--color-primary-dark);
+}
+
+.emergency-btn:active .emergency-btn-number {
+  color: var(--color-primary-dark);
+}
+
+.emergency-btn-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-white-soft);
+  border-radius: var(--radius-md);
+}
+
+.emergency-btn-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.emergency-btn-label {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-xs);
+  line-height: var(--line-height-tight);
+}
+
+.emergency-btn-number {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  font-family: var(--font-family-display);
+  margin-bottom: var(--space-xs);
+}
+
+.emergency-btn-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+/* === SÉLECTEUR D'EXERCICE === */
+.exercise-selector {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  border-bottom: 2px solid var(--color-accent-calm);
+}
+
+.exercise-tab {
+  padding: var(--space-md) var(--space-lg);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-bottom: -2px;
+}
+
+.exercise-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-1);
+}
+
+.exercise-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* === EXERCICES DE GROUNDING === */
+.grounding-exercise {
+  background: var(--color-white-soft);
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.grounding-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-lg) 0;
+  text-align: center;
+}
+
+/* === BANNER D'URGENCE === */
+.emergency-banner {
+  background: #fef2f2; /* red-50 */
+  border-left: 4px solid #f87171; /* red-400 */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+}
+
+.emergency-banner.full {
+  padding: var(--space-md);
+}
+
+.emergency-banner.compact {
+  padding: var(--space-sm) var(--space-md);
+}
+
+.emergency-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.emergency-banner-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.emergency-banner-icon {
+  font-size: var(--font-size-lg);
+  line-height: 1;
+}
+
+.emergency-banner-text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: #991b1b; /* red-700 */
+}
+
+.emergency-banner-button {
+  background: #ef4444; /* red-500 */
+  color: white;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.emergency-banner-button:hover {
+  background: #dc2626; /* red-600 */
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.emergency-banner-description {
+  font-size: var(--font-size-xs);
+  color: #991b1b; /* red-600 */
+  margin: var(--space-xs) 0 0 0;
+  padding-left: calc(var(--space-sm) + var(--font-size-lg) + var(--space-xs));
+}
+
+/* Respiration avec cercles concentriques */
+.grounding-breathing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-2xl) 0;
+}
+
+.breathing-circles {
+  position: relative;
+  width: 192px; /* 48 * 4 */
+  height: 192px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: var(--space-xl) 0;
+}
+
+.breathing-circle {
+  position: absolute;
+  border-radius: 50%;
+  transition: all 3000ms ease-in-out;
+}
+
+.breathing-circle-outer {
+  width: 192px;
+  height: 192px;
+  background: rgba(123, 168, 192, 0.3); /* var(--color-primary) avec opacity */
+  inset: 0;
+}
+
+.breathing-circle-middle {
+  width: 144px; /* 192 - 48 */
+  height: 144px;
+  background: rgba(
+    165,
+    197,
+    216,
+    0.4
+  ); /* var(--color-primary-light) avec opacity */
+  inset: 24px;
+}
+
+.breathing-circle-inner {
+  width: 96px; /* 192 - 96 */
+  height: 96px;
+  background: var(
+    --color-primary
+  ); /* #7BA8C0 - couleur primaire de la charte */
+  inset: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.breathing-instruction-text {
+  color: white;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+}
+
+.breathing-message {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-align: center;
+  line-height: var(--line-height-relaxed);
+  margin: 0;
+  max-width: 300px;
+}
+
+/* Grounding Steps */
+.grounding-steps {
+  padding: var(--space-md) 0;
+}
+
+.grounding-intro {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-lg) 0;
+  line-height: var(--line-height-relaxed);
+}
+
+.grounding-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.grounding-list li {
+  padding: var(--space-md);
+  margin-bottom: var(--space-sm);
+  background: var(--color-surface-1);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+}
+
+.grounding-list li strong {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.grounding-note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
+  margin: 0;
+  text-align: center;
+  padding: var(--space-md);
+  background: var(--color-accent-info);
+  border-radius: var(--radius-md);
+}
+
+/* === CONFIRMATION DE SORTIE === */
+.crisis-exit-confirm {
+  padding: var(--space-xl);
+  background: var(--color-accent-warm);
+  border-top: 2px solid var(--color-primary);
+  text-align: center;
+}
+
+.crisis-exit-confirm p {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.crisis-exit-actions {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* === PAGE DE DÉMO === */
+.crisis-demo-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-lg);
+  background: var(--color-surface-1);
+  border-radius: var(--radius-lg);
+}
+
+.crisis-demo-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.crisis-demo-content {
+  padding: var(--space-xl);
+}
+
+.crisis-demo-info {
+  margin-bottom: var(--space-2xl);
+}
+
+.crisis-demo-info h2 {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: var(--space-md) 0;
+}
+
+.crisis-demo-info p {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+  margin: var(--space-md) 0;
+}
+
+.crisis-demo-list {
+  margin: var(--space-md) 0;
+  padding-left: var(--space-xl);
+  color: var(--color-text-primary);
+}
+
+.crisis-demo-list li {
+  margin-bottom: var(--space-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.crisis-demo-actions {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-2xl) 0;
+}
+
+.crisis-demo-log {
+  margin-top: var(--space-2xl);
+  padding: var(--space-lg);
+  background: var(--color-surface-1);
+  border-radius: var(--radius-md);
+}
+
+.crisis-demo-log h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-md) 0;
+}
+
+.crisis-demo-log ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.crisis-demo-log li {
+  padding: var(--space-sm);
+  margin-bottom: var(--space-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.crisis-demo-note {
+  margin-top: var(--space-2xl);
+  padding: var(--space-lg);
+  background: var(--color-accent-info);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+}
+
+.crisis-demo-note p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === MESSAGE D'URGENCE === */
+.crisis-urgent-message {
+  background: #fef2f2; /* red-50 désaturé */
+  border-left: 4px solid #f87171; /* red-400 */
+  margin: var(--space-xl);
+  border-radius: var(--radius-md);
+}
+
+.crisis-urgent-alert {
+  padding: var(--space-lg);
+}
+
+.crisis-urgent-title {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: #991b1b; /* red-700 */
+  margin: 0 0 var(--space-md) 0;
+  text-align: center;
+}
+
+.crisis-urgent-text {
+  font-size: var(--font-size-lg);
+  color: #991b1b; /* red-700 */
+  margin: 0 0 var(--space-sm) 0;
+  text-align: center;
+  line-height: var(--line-height-relaxed);
+}
+
+.crisis-urgent-text strong {
+  font-weight: var(--font-weight-bold);
+  color: #7f1d1d; /* red-800 */
+}
+
+.crisis-urgent-subtext {
+  font-size: var(--font-size-base);
+  color: #b91c1c; /* red-600 */
+  margin: var(--space-md) 0 0 0;
+  text-align: center;
+  line-height: var(--line-height-relaxed);
+}
+
+/* === SECTION URGENCE === */
+.crisis-emergency-section {
+  background: var(--color-surface-1);
+  margin: 0;
+  border-radius: 0;
+  border-top: 2px solid #f87171; /* red-400 */
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .crisis-overlay {
+    padding: 0;
+  }
+
+  .crisis-container {
+    max-height: 100vh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .crisis-header {
+    border-radius: 0;
+    flex-shrink: 0;
+  }
+
+  .crisis-title {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Section d'urgence fixe en bas sur mobile */
+  .crisis-emergency-section {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-white-soft);
+    border-top: 2px solid var(--color-primary);
+    box-shadow: 0 -4px 20px rgba(100, 100, 110, 0.15);
+    z-index: 100;
+    padding: var(--space-lg);
+    margin: 0;
+  }
+
+  .emergency-buttons-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  /* Boutons d'urgence plus compacts sur mobile */
+  .emergency-btn {
+    padding: var(--space-md);
+  }
+
+  .emergency-btn-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .emergency-btn-label {
+    font-size: var(--font-size-sm);
+  }
+
+  .emergency-btn-number {
+    font-size: var(--font-size-xl);
+  }
+
+  .emergency-btn-description {
+    font-size: var(--font-size-xs);
+  }
+
+  .exercise-selector {
+    flex-direction: column;
+    border-bottom: none;
+  }
+
+  .exercise-tab {
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    text-align: left;
+  }
+
+  .exercise-tab.active {
+    border-left-color: var(--color-primary);
+    background: var(--color-surface-1);
+  }
+
+  /* Ajouter du padding en bas pour éviter que le contenu soit caché par la section fixe */
+  .crisis-container
+    > .crisis-section:not(.crisis-emergency-section):last-of-type {
+    padding-bottom: calc(var(--space-xl) + 300px);
+  }
+}
+
+/* === ACCESSIBILITÉ === */
+@media (prefers-reduced-motion: reduce) {
+  .crisis-overlay,
+  .crisis-container,
+  .breathing-icon svg {
+    animation: none;
+    transition: none;
+  }
+}

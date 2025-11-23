@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <defs>
+    <style>.st0{fill:none;stroke:#0f172a;stroke-width:2}</style>
+  </defs>
+  <g>
+    <circle class="st0" cx="300" cy="300" r="280"/>
+    <g transform="translate(300,300)">
+      <!-- snowflake-like spokes -->
+      <g>
+        <g>
+          <path class="st0" d="M0,-260 L0,-200"/>
+          <path class="st0" d="M0,260 L0,200" transform="rotate(90)"/>
+        </g>
+      </g>
+      <!-- concentric rings -->
+      <circle class="st0" cx="0" cy="0" r="200"/>
+      <circle class="st0" cx="0" cy="0" r="140"/>
+      <circle class="st0" cx="0" cy="0" r="80"/>
+    </g>
+  </g>
+</svg>

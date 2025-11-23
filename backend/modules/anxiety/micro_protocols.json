@@ -1,0 +1,42 @@
+{
+  "grounding_5_4_3_2_1": {
+    "summary": "Technique 5-4-3-2-1 : Nomme 5 choses que tu vois, 4 que tu touches, 3 que tu entends, 2 que tu sens, 1 que tu goûtes. Cela stabilise le système nerveux en l'ancrant au présent.",
+    "metadata": {
+      "technique": "5_4_3_2_1_grounding",
+      "phase": "ancrage",
+      "duration_seconds": 180
+    }
+  },
+  "box_breathing_protocol": {
+    "summary": "Respiration en carré : inspire 4s, retiens 4s, expire 4s, pause 4s. Répète doucement. Calme l'activation sympathique et restaure le contrôle.",
+    "metadata": {
+      "technique": "box_breathing",
+      "phase": "ancrage",
+      "duration_seconds": 120
+    }
+  },
+  "worry_containment": {
+    "summary": "Fixe une « heure de soucis » (p.ex. 17h-17h15). Quand l'inquiétude revient, dis-toi : « Je y penserai à mon heure. » Continue. À l'heure, explore sans retenue. Cela réduit l'intrusion.",
+    "metadata": {
+      "technique": "worry_time",
+      "phase": "exploration",
+      "duration_seconds": 900
+    }
+  },
+  "thought_as_cloud": {
+    "summary": "Les pensées anxieuses sont des nuages qui passent. Observe-les sans les croire ni les combattre. « Voilà une pensée. Je note. Elle passe. »",
+    "metadata": {
+      "technique": "thought_observation",
+      "phase": "exploration",
+      "duration_seconds": 180
+    }
+  },
+  "values_anchoring": {
+    "summary": "Malgré l'anxiété, qu'est-ce qui compte vraiment ? Identifie une valeur (relation, projet, présence) et un petit acte pour l'honorer aujourd'hui.",
+    "metadata": {
+      "technique": "values_compass",
+      "phase": "sens",
+      "duration_seconds": 300
+    }
+  }
+}

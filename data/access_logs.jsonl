@@ -1,0 +1,2 @@
+{"user_id": null, "ts": "2025-11-16T15:37:29.044090", "resource": "/", "action": "GET", "purpose": "care", "ip": "127.0.0.1"}
+{"user_id": null, "ts": "2025-11-16T15:37:29.627519", "resource": "/favicon.ico", "action": "GET", "purpose": "care", "ip": "127.0.0.1"}

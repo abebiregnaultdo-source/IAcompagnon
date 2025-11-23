@@ -1,0 +1,31 @@
+{
+  "name": "ia-compagnon",
+  "version": "1.0.0",
+  "description": "IA Compagnon - Plateforme thérapeutique avec FastAPI et React",
+  "private": true,
+  "workspaces": [
+    "backend/api-gateway",
+    "backend/ai-engine",
+    "backend/emotions-service",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:gateway\" \"npm run dev:ai-engine\" \"npm run dev:emotions\" \"npm run dev:frontend\"",
+    "dev:gateway": "cd backend/api-gateway && python -m uvicorn app.main:app --reload --port 8000",
+    "dev:ai-engine": "cd backend/ai-engine && python -m uvicorn app.main:app --reload --port 8001",
+    "dev:emotions": "cd backend/emotions-service && python -m uvicorn app.main:app --reload --port 8002",
+    "dev:frontend": "cd frontend && npm run dev",
+    "setup": "npm run setup:venv:gateway && npm run setup:venv:ai-engine && npm run setup:venv:emotions && npm run setup:frontend",
+    "setup:venv:gateway": "cd backend/api-gateway && python -m venv .venv && .venv\\Scripts\\python -m pip install -r requirements.txt",
+    "setup:venv:ai-engine": "cd backend/ai-engine && python -m venv .venv && .venv\\Scripts\\python -m pip install -r requirements.txt",
+    "setup:venv:emotions": "cd backend/emotions-service && python -m venv .venv && .venv\\Scripts\\python -m pip install -r requirements.txt",
+    "setup:frontend": "cd frontend && npm install",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "preview": "cd frontend && npm run preview"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.0",
+    "concurrently": "^8.2.2"
+  }
+}

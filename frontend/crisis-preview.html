@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocole de Crise - Aperçu</title>
+    <link rel="stylesheet" href="src/styles/therapeutic-design.css">
+    <link rel="stylesheet" href="src/styles/crisis.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-family-base);
+        }
+        .preview-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 10000;
+            display: flex;
+            gap: 10px;
+        }
+        .preview-btn {
+            padding: 10px 20px;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .preview-btn:hover {
+            background: var(--color-primary-dark);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-controls">
+        <button class="preview-btn" onclick="showCrisis()">Afficher Protocole</button>
+        <button class="preview-btn" onclick="hideCrisis()">Masquer</button>
+    </div>
+
+    <!-- Protocole de Crise -->
+    <div id="crisis-protocol" class="crisis-overlay hidden" role="dialog" aria-labelledby="crisis-title" aria-modal="true">
+        <div class="crisis-container">
+            <!-- Header -->
+            <div class="crisis-header">
+                <div class="crisis-header-content">
+                    <svg class="crisis-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <h1 id="crisis-title" class="crisis-title">
+                        Protocole de soutien immédiat
+                    </h1>
+                </div>
+                <button class="crisis-close" onclick="hideCrisis()" aria-label="Fermer le protocole d'urgence">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Message de soutien -->
+            <div class="crisis-message">
+                <p>Sophie, je suis là avec toi. Tu n'es pas seul·e.</p>
+                <p>Prends un moment pour te stabiliser avec ces exercices.</p>
+            </div>
+            
+            <!-- Section 1: Techniques de stabilisation EN HAUT -->
+            <section class="crisis-section" aria-labelledby="stabilization-title">
+                <h2 id="stabilization-title" class="crisis-section-title">
+                    Stabilisation immédiate
+                </h2>
+                <p class="crisis-section-subtitle">
+                    Ces exercices peuvent t'aider à t'ancrer dans le moment présent :
+                </p>
+                
+                <!-- Sélecteur d'exercice -->
+                <div class="exercise-selector" role="tablist">
+                    <button role="tab" class="exercise-tab active" onclick="showExercise('respiration')">
+                        Respiration
+                    </button>
+                    <button role="tab" class="exercise-tab" onclick="showExercise('grounding')">
+                        5-4-3-2-1
+                    </button>
+                    <button role="tab" class="exercise-tab" onclick="showExercise('ancrage')">
+                        Ancrage corporel
+                    </button>
+                </div>
+                
+                <!-- Exercice Respiration -->
+                <div id="exercise-respiration" class="grounding-exercise">
+                    <h3 class="grounding-title">Respiration courte (5 secondes)</h3>
+                    <div class="grounding-breathing">
+                        <div class="breathing-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="breathing-in">
+                                <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
+                            </svg>
+                        </div>
+                        <div class="breathing-instruction" id="breath-instruction">Inspire doucement</div>
+                        <div class="breathing-count" id="breath-count">5</div>
+                    </div>
+                </div>
+                
+                <!-- Exercice 5-4-3-2-1 -->
+                <div id="exercise-grounding" class="grounding-exercise hidden">
+                    <h3 class="grounding-title">Technique 5-4-3-2-1</h3>
+                    <div class="grounding-steps">
+                        <p class="grounding-intro">Sophie, ancrons-nous ici et maintenant :</p>
+                        <ul class="grounding-list">
+                            <li><strong>5 choses</strong> que tu vois autour de toi</li>
+                            <li><strong>4 choses</strong> que tu peux toucher</li>
+                            <li><strong>3 sons</strong> que tu entends</li>
+                            <li><strong>2 odeurs</strong> que tu sens</li>
+                            <li><strong>1 goût</strong> dans ta bouche</li>
+                        </ul>
+                        <p class="grounding-note">Prends tout ton temps. Nomme-les doucement.</p>
+                    </div>
+                </div>
+                
+                <!-- Exercice Ancrage -->
+                <div id="exercise-ancrage" class="grounding-exercise hidden">
+                    <h3 class="grounding-title">Ancrage corporel urgent</h3>
+                    <div class="grounding-steps">
+                        <p class="grounding-intro">Pose ton attention sur ton corps :</p>
+                        <ul class="grounding-list">
+                            <li>Sens tes <strong>pieds</strong> sur le sol</li>
+                            <li>Sens ton <strong>dos</strong> contre le siège</li>
+                            <li>Sens tes <strong>mains</strong> posées</li>
+                            <li>Respire <strong>naturellement</strong></li>
+                        </ul>
+                        <p class="grounding-note">Rien à changer. Juste sentir.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Section 2: Boutons d'urgence EN BAS (fixes sur mobile) -->
+            <section class="crisis-section crisis-emergency-section" aria-labelledby="emergency-contacts-title">
+                <h2 id="emergency-contacts-title" class="crisis-section-title">
+                    Besoin d'aide humaine maintenant ?
+                </h2>
+                <p class="crisis-section-subtitle">
+                    Clique pour appeler directement :
+                </p>
+                <div class="emergency-buttons-grid">
+                    <!-- Bouton 3114 -->
+                    <a href="tel:3114" class="emergency-btn" aria-label="Appeler Prévention du Suicide au 3114">
+                        <div class="emergency-btn-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                        </div>
+                        <div class="emergency-btn-content">
+                            <div class="emergency-btn-label">Prévention du Suicide</div>
+                            <div class="emergency-btn-number">📞 3114</div>
+                            <div class="emergency-btn-description">Gratuit, 24h/24, 7j/7</div>
+                        </div>
+                    </a>
+                    
+                    <!-- Bouton SAMU -->
+                    <a href="tel:15" class="emergency-btn" aria-label="Appeler SAMU au 15">
+                        <div class="emergency-btn-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="12" y1="18" x2="12" y2="12"></line>
+                                <line x1="9" y1="15" x2="15" y2="15"></line>
+                            </svg>
+                        </div>
+                        <div class="emergency-btn-content">
+                            <div class="emergency-btn-label">SAMU</div>
+                            <div class="emergency-btn-number">📞 15</div>
+                            <div class="emergency-btn-description">Urgence médicale</div>
+                        </div>
+                    </a>
+                    
+                    <!-- Bouton Contact personnel -->
+                    <a href="#" class="emergency-btn" onclick="alert('Configurez votre contact d\'urgence dans les paramètres'); return false;" aria-label="Contact d'urgence personnel">
+                        <div class="emergency-btn-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                        </div>
+                        <div class="emergency-btn-content">
+                            <div class="emergency-btn-label">Contact d'urgence personnel</div>
+                            <div class="emergency-btn-number">Configurer</div>
+                            <div class="emergency-btn-description">Ton contact de confiance</div>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Gestion de l'affichage du protocole
+        function showCrisis() {
+            document.getElementById('crisis-protocol').classList.remove('hidden');
+            startBreathing();
+        }
+        
+        function hideCrisis() {
+            if (confirm('Es-tu sûr·e de vouloir fermer ce protocole ?')) {
+                document.getElementById('crisis-protocol').classList.add('hidden');
+                stopBreathing();
+            }
+        }
+        
+        // Gestion des exercices
+        function showExercise(type) {
+            // Masquer tous les exercices
+            document.querySelectorAll('.grounding-exercise').forEach(ex => ex.classList.add('hidden'));
+            document.querySelectorAll('.exercise-tab').forEach(tab => tab.classList.remove('active'));
+            
+            // Afficher l'exercice sélectionné
+            if (type === 'respiration') {
+                document.getElementById('exercise-respiration').classList.remove('hidden');
+                document.querySelectorAll('.exercise-tab')[0].classList.add('active');
+                startBreathing();
+            } else if (type === 'grounding') {
+                document.getElementById('exercise-grounding').classList.remove('hidden');
+                document.querySelectorAll('.exercise-tab')[1].classList.add('active');
+                stopBreathing();
+            } else if (type === 'ancrage') {
+                document.getElementById('exercise-ancrage').classList.remove('hidden');
+                document.querySelectorAll('.exercise-tab')[2].classList.add('active');
+                stopBreathing();
+            }
+        }
+        
+        // Animation de respiration
+        let breathingInterval = null;
+        let breathCount = 5;
+        let breathPhase = 'inspire';
+        
+        function startBreathing() {
+            stopBreathing();
+            breathCount = 5;
+            breathPhase = 'inspire';
+            updateBreathing();
+            
+            breathingInterval = setInterval(() => {
+                breathCount--;
+                if (breathCount <= 0) {
+                    breathPhase = breathPhase === 'inspire' ? 'expire' : 'inspire';
+                    breathCount = 5;
+                }
+                updateBreathing();
+            }, 1000);
+        }
+        
+        function stopBreathing() {
+            if (breathingInterval) {
+                clearInterval(breathingInterval);
+                breathingInterval = null;
+            }
+        }
+        
+        function updateBreathing() {
+            const instruction = document.getElementById('breath-instruction');
+            const count = document.getElementById('breath-count');
+            const icon = document.querySelector('.breathing-icon svg');
+            
+            if (instruction) instruction.textContent = breathPhase === 'inspire' ? 'Inspire doucement' : 'Expire lentement';
+            if (count) count.textContent = breathCount;
+            if (icon) {
+                icon.classList.remove('breathing-in', 'breathing-out');
+                icon.classList.add(breathPhase === 'inspire' ? 'breathing-in' : 'breathing-out');
+            }
+        }
+        
+        // Afficher automatiquement au chargement
+        window.addEventListener('load', () => {
+            setTimeout(showCrisis, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="300" height="80" role="img" aria-label="HELŌ logotype">
+  <defs>
+    <style><![CDATA[
+      .word { font-family: 'Fraunces', serif; font-weight: 600; fill: #3A4048; font-size:48px }
+      .o { font-family: 'Inter', sans-serif; font-weight:700; fill: white }
+    ]]></style>
+  </defs>
+  <text x="10" y="55" class="word">HEL</text>
+  <!-- circle for the ō -->
+  <g transform="translate(165,20)">
+    <circle cx="24" cy="24" r="24" fill="#D4A574" />
+    <text x="18" y="38" class="o">ō</text>
+  </g>
+</svg>

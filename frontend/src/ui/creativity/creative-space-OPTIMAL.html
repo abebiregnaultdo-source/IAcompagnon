@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace créatif - helō (Version OPTIMALE)</title>
+    <style>
+        /* ============================================ */
+        /* VARIABLES HELŌ                               */
+        /* ============================================ */
+        :root {
+            --helo-blue: #7BA8C0;
+            --helo-blue-light: #A5C5D8;
+            --helo-blue-dark: #5A8AA5;
+            
+            --surface-main: #F2F6F7;
+            --surface-secondary: #F9F5F0;
+            --surface-calm: #E8EFF2;
+            --surface-warm: #F5EFE6;
+            --white: #FFFFFF;
+            
+            --text-primary: #3A4048;
+            --text-secondary: #5A6068;
+            --text-tertiary: #7A8088;
+            
+            --accent-calm: #C5D9E3;
+            --accent-warm: #E0CDB8;
+            
+            --space-xs: 8px;
+            --space-sm: 12px;
+            --space-md: 20px;
+            --space-lg: 32px;
+            --space-xl: 48px;
+            --space-2xl: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--surface-main);
+            color: var(--text-primary);
+            padding: var(--space-xl);
+            line-height: 1.6;
+        }
+
+        /* ============================================ */
+        /* CONTAINER                                    */
+        /* ============================================ */
+        .creative-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* ============================================ */
+        /* BACK BUTTON                                  */
+        /* ============================================ */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-sm) var(--space-md);
+            background: var(--white);
+            border: 1px solid var(--accent-calm);
+            border-radius: 10px;
+            color: var(--helo-blue);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: var(--space-xl);
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            border-color: var(--helo-blue);
+            background: var(--accent-calm);
+        }
+
+        /* ============================================ */
+        /* HEADER                                       */
+        /* ============================================ */
+        .creative-header {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            padding: var(--space-xl);
+            background: linear-gradient(135deg, var(--surface-calm) 0%, var(--surface-warm) 100%);
+            border-radius: 24px;
+            border: 1px solid var(--accent-calm);
+        }
+
+        .creative-icon {
+            font-size: 56px;
+            margin-bottom: var(--space-md);
+        }
+
+        .creative-title {
+            font-family: 'Nunito', sans-serif;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .creative-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ============================================ */
+        /* QUESTION CENTRALE                            */
+        /* ============================================ */
+        .central-question {
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            padding: var(--space-lg);
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .question-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* ============================================ */
+        /* JOURNEY SECTIONS                             */
+        /* ============================================ */
+        .journey-container {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+            position: relative;
+        }
+
+        /* Ligne de connexion entre sections */
+        .journey-container::before {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 80px;
+            bottom: 80px;
+            width: 2px;
+            background: linear-gradient(180deg, 
+                var(--accent-calm) 0%, 
+                var(--helo-blue) 50%, 
+                var(--accent-warm) 100%);
+            opacity: 0.3;
+        }
+
+        .journey-section {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            position: relative;
+        }
+
+        .journey-section:nth-child(1) { animation-delay: 0.1s; }
+        .journey-section:nth-child(2) { animation-delay: 0.2s; }
+        .journey-section:nth-child(3) { animation-delay: 0.3s; }
+        .journey-section:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            position: relative;
+        }
+
+        .section-emoji {
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            background: var(--white);
+            border-radius: 50%;
+            border: 2px solid var(--accent-calm);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-text {
+            flex: 1;
+        }
+
+        .section-stage {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .section-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Tool Cards */
+        .tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            margin-left: 70px;
+        }
+
+        .tool-card {
+            background: var(--white);
+            border: 2px solid var(--accent-calm);
+            border-radius: 16px;
+            padding: var(--space-lg);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--helo-blue);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tool-card:hover {
+            border-color: var(--helo-blue);
+            transform: translateX(8px);
+            box-shadow: 0 8px 24px rgba(123, 168, 192, 0.2);
+        }
+
+        .tool-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .tool-content {
+            display: grid;
+            grid-template-columns: 48px 1fr auto;
+            gap: var(--space-md);
+            align-items: center;
+        }
+
+        .tool-icon {
+            font-size: 36px;
+            text-align: center;
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .tool-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .tool-arrow {
+            color: var(--helo-blue);
+            font-size: 20px;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .tool-card:hover .tool-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Couleurs spécifiques par section */
+        .journey-section:nth-child(1) .section-emoji {
+            background: linear-gradient(135deg, #E8EFF2 0%, #FFFFFF 100%);
+        }
+
+        .journey-section:nth-child(2) .section-emoji {
+            background: linear-gradient(135deg, #F5EFE6 0%, #FFFFFF 100%);
+        }
+
+        .journey-section:nth-child(3) .section-emoji {
+            background: linear-gradient(135deg, #C5D9E3 0%, #FFFFFF 100%);
+        }
+
+        .journey-section:nth-child(4) .section-emoji {
+            background: linear-gradient(135deg, #E0CDB8 0%, #FFFFFF 100%);
+        }
+
+        /* ============================================ */
+        /* PORTFOLIO SECTION                            */
+        /* ============================================ */
+        .portfolio-section {
+            background: var(--surface-warm);
+            border: 2px solid var(--accent-warm);
+            border-radius: 20px;
+            padding: var(--space-xl);
+            text-align: center;
+            animation: fadeInUp 0.6s ease 0.5s forwards;
+            opacity: 0;
+        }
+
+        .portfolio-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-md);
+        }
+
+        .portfolio-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+        }
+
+        .portfolio-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--space-lg);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .portfolio-btn {
+            display: inline-block;
+            padding: var(--space-md) var(--space-xl);
+            background: var(--white);
+            color: var(--text-primary);
+            border: 2px solid var(--accent-warm);
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .portfolio-btn:hover {
+            border-color: var(--helo-blue);
+            background: var(--accent-calm);
+            color: var(--helo-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(123, 168, 192, 0.15);
+        }
+
+        /* ============================================ */
+        /* ANIMATIONS                                   */
+        /* ============================================ */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================ */
+        /* RESPONSIVE                                   */
+        /* ============================================ */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--space-md);
+            }
+
+            .creative-title {
+                font-size: 26px;
+            }
+
+            .journey-container::before {
+                display: none;
+            }
+
+            .tools-list {
+                margin-left: 0;
+            }
+
+            .tool-content {
+                grid-template-columns: 40px 1fr 24px;
+            }
+
+            .tool-icon {
+                font-size: 28px;
+            }
+
+            .tool-arrow {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="creative-container">
+        
+        <!-- BOUTON RETOUR -->
+        <button class="btn-back" onclick="goBack()">
+            ← Retour à l'accueil
+        </button>
+
+        <!-- HEADER -->
+        <div class="creative-header">
+            <div class="creative-icon">✨</div>
+            <h1 class="creative-title">Votre espace d'expression</h1>
+            <p class="creative-subtitle">
+                Un parcours d'outils thérapeutiques pour explorer, comprendre et transformer votre expérience.
+            </p>
+        </div>
+
+        <!-- QUESTION CENTRALE -->
+        <div class="central-question">
+            <div class="question-text">Où en êtes-vous aujourd'hui ?</div>
+            <div class="question-subtitle">Choisissez l'outil qui résonne avec votre état présent</div>
+        </div>
+
+        <!-- JOURNEY (Parcours thérapeutique) -->
+        <div class="journey-container">
+            
+            <!-- 1. APAISER -->
+            <div class="journey-section">
+                <div class="section-header">
+                    <div class="section-emoji">🌊</div>
+                    <div class="section-text">
+                        <div class="section-stage">Étape 1 · Apaiser</div>
+                        <div class="section-title">Retrouver le calme</div>
+                        <div class="section-description">
+                            Quand les émotions sont trop intenses, commencez par vous ancrer dans le présent.
+                        </div>
+                    </div>
+                </div>
+                <div class="tools-list">
+                    <div class="tool-card" onclick="openTool('coloring')">
+                        <div class="tool-content">
+                            <div class="tool-icon">🎨</div>
+                            <div class="tool-info">
+                                <div class="tool-name">Coloriage méditatif</div>
+                                <div class="tool-description">
+                                    Méditation active par la couleur. Apaisez votre esprit avec des mandalas thérapeutiques.
+                                </div>
+                            </div>
+                            <div class="tool-arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. EXPLORER -->
+            <div class="journey-section">
+                <div class="section-header">
+                    <div class="section-emoji">🔍</div>
+                    <div class="section-text">
+                        <div class="section-stage">Étape 2 · Explorer</div>
+                        <div class="section-title">Comprendre ce que vous ressentez</div>
+                        <div class="section-description">
+                            Un espace sûr pour plonger dans vos émotions et leur donner de l'espace.
+                        </div>
+                    </div>
+                </div>
+                <div class="tools-list">
+                    <div class="tool-card" onclick="openTool('journal')">
+                        <div class="tool-content">
+                            <div class="tool-icon">📖</div>
+                            <div class="tool-info">
+                                <div class="tool-name">Journal guidé</div>
+                                <div class="tool-description">
+                                    Questions adaptées à votre contexte. L'écriture comme dialogue avec soi-même.
+                                </div>
+                            </div>
+                            <div class="tool-arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. EXPRIMER -->
+            <div class="journey-section">
+                <div class="section-header">
+                    <div class="section-emoji">✍️</div>
+                    <div class="section-text">
+                        <div class="section-stage">Étape 3 · Exprimer</div>
+                        <div class="section-title">Mettre des mots sur l'indicible</div>
+                        <div class="section-description">
+                            Racontez votre histoire, trouvez les images qui parlent pour vous.
+                        </div>
+                    </div>
+                </div>
+                <div class="tools-list">
+                    <div class="tool-card" onclick="openTool('narrative')">
+                        <div class="tool-content">
+                            <div class="tool-icon">📝</div>
+                            <div class="tool-info">
+                                <div class="tool-name">Récit narratif</div>
+                                <div class="tool-description">
+                                    Reconstruisez votre temporalité. Donnez du sens à votre parcours.
+                                </div>
+                            </div>
+                            <div class="tool-arrow">→</div>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card" onclick="openTool('poem')">
+                        <div class="tool-content">
+                            <div class="tool-icon">🪶</div>
+                            <div class="tool-info">
+                                <div class="tool-name">Poésie thérapeutique</div>
+                                <div class="tool-description">
+                                    Assistance discrète pour formuler des images poétiques. Les mots comme chemin.
+                                </div>
+                            </div>
+                            <div class="tool-arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. TRANSFORMER -->
+            <div class="journey-section">
+                <div class="section-header">
+                    <div class="section-emoji">🌟</div>
+                    <div class="section-text">
+                        <div class="section-stage">Étape 4 · Transformer</div>
+                        <div class="section-title">Ritualiser les passages</div>
+                        <div class="section-description">
+                            Quand vous êtes prêt·e à marquer symboliquement une transition importante.
+                        </div>
+                    </div>
+                </div>
+                <div class="tools-list">
+                    <div class="tool-card" onclick="openTool('ritual')">
+                        <div class="tool-content">
+                            <div class="tool-icon">🕯️</div>
+                            <div class="tool-info">
+                                <div class="tool-name">Rituels d'écriture</div>
+                                <div class="tool-description">
+                                    Créez vos propres cérémonies symboliques. Ritualisez les moments importants.
+                                </div>
+                            </div>
+                            <div class="tool-arrow">→</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PORTFOLIO SECTION -->
+        <div class="portfolio-section">
+            <div class="portfolio-icon">📚</div>
+            <h2 class="portfolio-title">Votre portfolio créatif</h2>
+            <p class="portfolio-text">
+                Toutes vos créations sont sauvegardées ici. Relisez votre parcours, 
+                exportez vos textes, et contemplez votre progression au fil du temps.
+            </p>
+            <button class="portfolio-btn" onclick="openPortfolio()">
+                Voir mon portfolio
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        function openTool(tool) {
+            console.log('Outil sélectionné:', tool);
+            alert('🎨 Ouverture de l\'outil: ' + tool.toUpperCase() + 
+                  '\n\nCeci est une prévisualisation. ' +
+                  '\nDans l\'app, cela ouvrirait l\'éditeur correspondant.');
+        }
+
+        function openPortfolio() {
+            console.log('Ouverture du portfolio');
+            alert('📚 Ouverture du portfolio\n\nVous verriez ici toutes vos créations passées.');
+        }
+
+        function goBack() {
+            alert('← Retour à l\'accueil');
+        }
+    </script>
+</body>
+</html>

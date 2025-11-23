@@ -1,0 +1,28 @@
+[
+  {
+    "name": "Arctic Harmony",
+    "src": "/mandalas/arctic-harmony.svg",
+    "tags": ["calm", "cool", "ice"]
+  },
+  {
+    "name": "Solar Bloom",
+    "src": "/mandalas/solar-bloom.svg",
+    "tags": ["warm", "energy", "sun"]
+  }
+  ,
+  {
+    "name": "Kaleidoscope",
+    "src": "/mandalas/kaleidoscope.svg",
+    "tags": ["kaleidoscope", "geometry", "contrast"]
+  },
+  {
+    "name": "Geometric Lace",
+    "src": "/mandalas/geometric-lace.svg",
+    "tags": ["lace", "delicate", "pattern"]
+  },
+  {
+    "name": "Lotus Pattern",
+    "src": "/mandalas/lotus-pattern.svg",
+    "tags": ["lotus", "balance", "nature"]
+  }
+]

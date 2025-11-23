@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <defs>
+    <style>.st0{fill:none;stroke:#2d2a32;stroke-width:2}</style>
+  </defs>
+  <g transform="translate(300,300)">
+    <circle class="st0" cx="0" cy="0" r="260"/>
+    <!-- 16 petals -->
+    <g>
+      <g transform="rotate(0)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(22.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(45)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(67.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(90)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(112.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(135)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(157.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(180)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(202.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(225)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(247.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(270)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(292.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(315)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+      <g transform="rotate(337.5)"><path class="st0" d="M0,-260 C40,-220 80,-220 120,-180 C80,-140 40,-140 0,-100 Z"/></g>
+    </g>
+    <circle class="st0" cx="0" cy="0" r="100"/>
+  </g>
+</svg>

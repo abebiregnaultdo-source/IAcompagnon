@@ -1,0 +1,82 @@
+/* Minimal dashboard styles to replace inline repetitions */
+.dc-container {
+  min-height: 100vh;
+  background: var(--color-background);
+  padding: var(--space-xl);
+}
+.dc-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.dc-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.dc-btn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+}
+.dc-btn.active {
+  background: var(--color-accent-calm);
+}
+.dc-grid {
+  display: flex;
+  gap: 12px;
+}
+.dc-panel {
+  flex: 1;
+  background: var(--color-surface-2);
+  padding: 12px;
+  border-radius: 10px;
+}
+.dc-aside {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dc-card {
+  background: var(--color-surface-2);
+  padding: 12px;
+  border-radius: 8px;
+}
+.dc-card-title {
+  font-weight: 600;
+}
+.dc-card-meta {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+.dc-card-body {
+  margin-top: 8px;
+  color: var(--color-text);
+}
+.dc-card-actions {
+  margin-top: 8px;
+}
+.dc-link {
+  color: var(--color-primary);
+}
+.dc-audio-bar {
+  height: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.dc-audio-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-accent), #f4a261);
+}

@@ -1,0 +1,281 @@
+{
+  "tipi_protocol": {
+    "metadata": {
+      "name": "TIPI - Technique d'Identification des Peurs Inconscientes",
+      "author": "Luc Nicon (2013)",
+      "adaptation": "Contexte de deuil - Helō",
+      "evidence_base": "Régulation sensorielle, neurosciences affectives",
+      "duration_typical_seconds": 180,
+      "duration_range_seconds": [60, 600]
+    },
+    
+    "core_principles": [
+      "Accueil sans jugement de la sensation corporelle",
+      "Attention au sensoriel pur (pas d'interprétation)",
+      "Non-intervention (laisser évoluer naturellement)",
+      "Temporalité naturelle (pas de forcing)",
+      "Présence bienveillante du thérapeute/compagnon"
+    ],
+    
+    "contraindications": {
+      "absolues": [
+        {
+          "condition": "detresse_extreme",
+          "threshold": "detresse > 90",
+          "reason": "Besoin de stabilisation immédiate d'abord",
+          "alternative": "protocole_crise"
+        },
+        {
+          "condition": "dissociation_severe",
+          "threshold": "dissociation > 0.7",
+          "reason": "Risque d'aggravation de la déconnexion",
+          "alternative": "ancrage_polyvagal"
+        },
+        {
+          "condition": "trauma_recent_non_stabilise",
+          "threshold": "trauma_hours < 48",
+          "reason": "Système nerveux en état de choc",
+          "alternative": "stabilisation_polyvagale"
+        }
+      ],
+      "relatives": [
+        {
+          "condition": "body_avoidance_high",
+          "threshold": "body_avoidance > 0.8",
+          "reason": "Évitement somatique trop important",
+          "adaptation": "use_gentle_variation"
+        },
+        {
+          "condition": "dissociation_moderate",
+          "threshold": "0.4 < dissociation < 0.7",
+          "reason": "Risque de déconnexion",
+          "adaptation": "use_gentle_variation_with_grounding"
+        }
+      ]
+    },
+    
+    "variations": {
+      "standard": {
+        "name": "TIPI Standard",
+        "indication": "Utilisateur avec conscience corporelle moyenne, détresse modérée",
+        "duration_seconds": 180,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Identification de la localisation",
+            "duration_seconds": 30,
+            "instruction": "Identifiez où dans votre corps vous ressentez cette émotion difficile.",
+            "guidance": "Prenez le temps de scanner votre corps. Poitrine ? Gorge ? Ventre ? Épaules ?",
+            "success_indicators": ["mention d'une zone corporelle", "description spatiale"],
+            "adjustment_if_blocked": "gentle_redirection"
+          },
+          {
+            "step": 2,
+            "name": "Description sensorielle",
+            "duration_seconds": 45,
+            "instruction": "Décrivez cette sensation physique sans la juger.",
+            "guidance": "Est-ce lourd ? Serré ? Chaud ? Froid ? Juste observer, sans chercher à changer.",
+            "success_indicators": ["adjectifs sensoriels", "description qualitative"],
+            "adjustment_if_blocked": "provide_sensory_examples"
+          },
+          {
+            "step": 3,
+            "name": "Observation de l'évolution",
+            "duration_seconds": 90,
+            "instruction": "Restez avec cette sensation, laissez-la évoluer naturellement.",
+            "guidance": "Ne forcez rien. Observez simplement ce qui se passe dans votre corps. La sensation peut changer, bouger, ou rester stable.",
+            "success_indicators": ["mention de changement", "description d'évolution", "patience"],
+            "adjustment_if_blocked": "validate_and_extend_time"
+          },
+          {
+            "step": 4,
+            "name": "Intégration",
+            "duration_seconds": 30,
+            "instruction": "Notez les changements, même subtils.",
+            "guidance": "La sensation a-t-elle bougé ? Changé d'intensité ? De qualité ? Même un petit changement compte.",
+            "success_indicators": ["reconnaissance de changement", "description de différence"],
+            "adjustment_if_blocked": "validate_process_even_if_no_change"
+          }
+        ]
+      },
+      
+      "gentle": {
+        "name": "TIPI Doux",
+        "indication": "Haute sensibilité, dissociation légère, évitement corporel",
+        "duration_seconds": 240,
+        "pacing": "très lent, avec pauses fréquentes",
+        "steps": [
+          {
+            "step": 1,
+            "name": "Ancrage préalable",
+            "duration_seconds": 45,
+            "instruction": "Très doucement, si vous le souhaitez, commençons par sentir vos pieds sur le sol.",
+            "guidance": "Pas d'obligation. Juste une invitation à être présent·e ici, maintenant.",
+            "success_indicators": ["acceptation", "description d'ancrage"],
+            "adjustment_if_blocked": "offer_alternative_grounding"
+          },
+          {
+            "step": 2,
+            "name": "Approche douce de la sensation",
+            "duration_seconds": 60,
+            "instruction": "Si c'est confortable, portez attention à une zone de votre corps où vous ressentez quelque chose.",
+            "guidance": "Même une toute petite sensation. Ou même l'absence de sensation. Tout est bienvenu.",
+            "success_indicators": ["mention d'une zone", "acceptation du vide"],
+            "adjustment_if_blocked": "tipi_of_emptiness"
+          },
+          {
+            "step": 3,
+            "name": "Observation très douce",
+            "duration_seconds": 90,
+            "instruction": "Restez avec cette sensation aussi longtemps que c'est confortable.",
+            "guidance": "Vous pouvez vous éloigner à tout moment. Vous êtes en sécurité.",
+            "success_indicators": ["engagement doux", "sentiment de sécurité"],
+            "adjustment_if_blocked": "return_to_grounding"
+          },
+          {
+            "step": 4,
+            "name": "Validation du processus",
+            "duration_seconds": 45,
+            "instruction": "Vous avez fait un beau travail d'observation.",
+            "guidance": "Peu importe ce qui s'est passé ou non. Le simple fait d'être présent·e compte.",
+            "success_indicators": ["reconnaissance de l'effort", "validation"],
+            "adjustment_if_blocked": "unconditional_validation"
+          }
+        ]
+      },
+      
+      "focused": {
+        "name": "TIPI Focalisé",
+        "indication": "Émotion bien localisée, haute clarté somatique",
+        "duration_seconds": 120,
+        "pacing": "direct, efficace",
+        "steps": [
+          {
+            "step": 1,
+            "name": "Confirmation de la localisation",
+            "duration_seconds": 15,
+            "instruction": "Vous avez mentionné une sensation au niveau de {location}. Pouvez-vous y porter votre attention ?",
+            "guidance": "Directement là où c'est présent.",
+            "success_indicators": ["confirmation", "focus immédiat"],
+            "adjustment_if_blocked": "return_to_standard"
+          },
+          {
+            "step": 2,
+            "name": "Description précise",
+            "duration_seconds": 30,
+            "instruction": "Décrivez cette sensation avec précision.",
+            "guidance": "Quelle est sa texture ? Sa température ? Son intensité ?",
+            "success_indicators": ["description détaillée", "vocabulaire sensoriel riche"],
+            "adjustment_if_blocked": "provide_sensory_vocabulary"
+          },
+          {
+            "step": 3,
+            "name": "Suivi de l'évolution",
+            "duration_seconds": 60,
+            "instruction": "Observez comment cette sensation évolue.",
+            "guidance": "Reste-t-elle stable ? Se déplace-t-elle ? Change-t-elle d'intensité ?",
+            "success_indicators": ["description de changement", "tracking précis"],
+            "adjustment_if_blocked": "validate_stability"
+          },
+          {
+            "step": 4,
+            "name": "Intégration rapide",
+            "duration_seconds": 15,
+            "instruction": "Notez ce qui a changé.",
+            "guidance": "Même un changement subtil.",
+            "success_indicators": ["reconnaissance de changement"],
+            "adjustment_if_blocked": "validate_process"
+          }
+        ]
+      },
+
+      "extended": {
+        "name": "TIPI Étendu",
+        "indication": "Processus lent, émotion complexe, besoin de temps",
+        "duration_seconds": 360,
+        "pacing": "très lent, avec pauses longues",
+        "steps": [
+          {
+            "step": 1,
+            "name": "Exploration corporelle large",
+            "duration_seconds": 60,
+            "instruction": "Prenez tout le temps dont vous avez besoin pour explorer ce qui se passe dans votre corps.",
+            "guidance": "Il n'y a aucune urgence. Scannez votre corps lentement, de la tête aux pieds.",
+            "success_indicators": ["exploration méthodique", "patience"],
+            "adjustment_if_blocked": "guided_body_scan"
+          },
+          {
+            "step": 2,
+            "name": "Identification progressive",
+            "duration_seconds": 90,
+            "instruction": "Quand vous êtes prêt·e, identifiez une zone où quelque chose se manifeste.",
+            "guidance": "Même une sensation très subtile. Prenez votre temps.",
+            "success_indicators": ["identification d'une zone", "description émergente"],
+            "adjustment_if_blocked": "validate_difficulty_and_continue"
+          },
+          {
+            "step": 3,
+            "name": "Observation prolongée",
+            "duration_seconds": 150,
+            "instruction": "Restez avec cette sensation aussi longtemps que nécessaire.",
+            "guidance": "Le processus peut être lent. C'est parfaitement normal. Observez les micro-changements.",
+            "success_indicators": ["patience", "description de micro-changements"],
+            "adjustment_if_blocked": "validate_slowness_as_normal"
+          },
+          {
+            "step": 4,
+            "name": "Intégration douce",
+            "duration_seconds": 60,
+            "instruction": "Prenez le temps d'intégrer ce qui s'est passé.",
+            "guidance": "Qu'avez-vous remarqué ? Même les plus petits changements comptent.",
+            "success_indicators": ["reconnaissance de changement", "intégration narrative"],
+            "adjustment_if_blocked": "validate_entire_process"
+          }
+        ]
+      }
+    },
+
+    "adaptive_responses": {
+      "tipi_of_emptiness": {
+        "trigger": "user reports numbness or 'feeling nothing'",
+        "response": "Parfois le vide est une sensation en soi. Si vous le souhaitez, nous pouvons simplement porter attention à cette absence de sensation, cet espace vide dans le corps. Sans attente, juste être présent à ce qui est.",
+        "next_step": "observe emptiness as valid sensation"
+      },
+      "grounding_first": {
+        "trigger": "user reports overwhelming intensity",
+        "response": "C'est très intense. Prenons d'abord un moment pour vous ancrer. Sentez vos pieds sur le sol, votre dos contre le support. Puis, si vous le souhaitez, nous pourrons revenir à cette sensation.",
+        "next_step": "polyvagal grounding, then gentle TIPI"
+      },
+      "redirect_to_sensation": {
+        "trigger": "user intellectualizes or seeks understanding",
+        "response": "Il n'y a rien à comprendre, juste à observer. Comme si vous regardiez un paysage. Où dans votre corps ressentez-vous quelque chose en ce moment ?",
+        "next_step": "refocus on somatic experience"
+      },
+      "validate_and_extend_time": {
+        "trigger": "user reports no change but is engaged",
+        "response": "C'est parfait. Parfois la sensation reste stable. Continuez simplement à observer, sans attente. Prenez tout le temps dont vous avez besoin.",
+        "next_step": "extend observation time"
+      },
+      "transition_to_other_method": {
+        "trigger": "TIPI not progressing after adjustments",
+        "response": "Je sens que cette approche ne vous convient pas en ce moment. C'est tout à fait normal. Voulez-vous qu'on explore autrement ?",
+        "next_step": "therapeutic_transition_decision"
+      }
+    },
+
+    "success_patterns": {
+      "effective_transitions_to_tipi": [
+        "Après validation émotionnelle (l'utilisateur se sent entendu)",
+        "Quand l'utilisateur mentionne spontanément une sensation corporelle",
+        "Après une phase de rumination mentale (besoin de descendre dans le corps)"
+      ],
+      "effective_transitions_from_tipi": [
+        "Vers logothérapie quand le sens émerge après régulation",
+        "Vers expression narrative quand besoin de verbaliser l'expérience",
+        "Vers respiration/polyvagal pour consolider la régulation"
+      ]
+    }
+  }
+}
+
+

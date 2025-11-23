@@ -1,0 +1,225 @@
+/* Styles for avatar and consultation room */
+.avatar-room {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 16px;
+  width: 100%;
+  align-items: start;
+}
+
+.avatar-canvas {
+  position: relative;
+  width: 240px;
+  height: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  /* Ombre douce, jamais noire pure - gris chaud désaturé */
+  box-shadow: 0 6px 24px rgba(100, 100, 110, 0.06);
+}
+
+/* Vignette douce pour effet de pièce intérieure sécurisée */
+.avatar-canvas::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(230, 230, 235, 0.15) 100%
+  );
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+.avatar-canvas.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  z-index: 0;
+}
+.chat-overlay {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 900px) {
+  .avatar-controls {
+    display: none;
+  }
+}
+
+.room-bg {
+  position: absolute;
+  inset: 0;
+  transition: background 2s ease-in-out; /* Transition douce des thèmes */
+}
+
+.room-elements {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.8; /* Éléments subtils, non-intrusifs */
+}
+
+/* Les formes du décor ont des transitions douces */
+.room-elements * {
+  transition:
+    opacity 2s ease-in-out,
+    fill 2s ease-in-out;
+}
+
+.avatar-figure {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Simplified presence styling - no facial features */
+.head-shape {
+  filter: blur(0.5px); /* Very subtle softness */
+}
+
+.hair {
+  fill: #333;
+  opacity: 0.9;
+}
+
+.presence-silhouette {
+  transform-origin: center;
+}
+
+/* Gentle breathing animation */
+@keyframes gentle-breath {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.015);
+    opacity: 0.93;
+  }
+}
+
+.avatar-figure {
+  animation: gentle-breath 6s ease-in-out infinite;
+}
+
+/* Subtle posture elements */
+.chair-element {
+  opacity: 0.85;
+}
+
+.torso,
+.torso-inner {
+  transition: opacity 0.8s ease;
+}
+
+/* Lighting overlays - transitions très douces pour régulation émotionnelle 
+ * Principe : jamais de blanc pur, jamais de noir, contrastes très faibles
+ * Protection du système nerveux par des variations subtiles
+ */
+.light-overlay {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  transition: background 4s ease-in-out; /* Transition encore plus lente - 4 secondes */
+}
+
+/* Détresse élevée - lumière plus basse, enveloppante, sécurisante
+ * Tons bleu-gris très doux, jamais froids
+ * Effet de pénombre protectrice
+ */
+.light-low {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(220, 225, 230, 0.08) 0%,
+    rgba(210, 220, 228, 0.12) 50%,
+    rgba(200, 215, 225, 0.15) 100%
+  );
+}
+
+/* État neutre - lumière équilibrée, ni trop ni trop peu
+ * Tons crème très doux
+ * Effet de lumière naturelle filtrée
+ */
+.light-medium {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(250, 245, 238, 0.05) 0%,
+    rgba(245, 240, 235, 0.08) 50%,
+    rgba(240, 235, 230, 0.1) 100%
+  );
+}
+
+/* Apaisement - lumière plus chaleureuse, dorée très subtile
+ * Tons miel/ambre désaturés
+ * Effet de lumière de fin d'après-midi
+ */
+.light-bright {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 248, 235, 0.08) 0%,
+    rgba(250, 243, 230, 0.12) 50%,
+    rgba(245, 238, 225, 0.15) 100%
+  );
+}
+
+/* Controls (compact) */
+.avatar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.avatar-controls select,
+.avatar-controls button {
+  border: 1px solid #d9dee5;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.avatar-controls .spacer {
+  flex: 1;
+}
+
+/* Container used inside Chat panel */
+.avatar-chat-wrap {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .avatar-chat-wrap {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Voice visualization - subtle, non-intrusive */
+.voice-visualization {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.voice-wave {
+  transition: stroke-width 0.3s ease;
+}
+
+/* Smooth transitions for all presence changes */
+.presence-silhouette * {
+  transition:
+    opacity 0.8s ease,
+    fill 0.8s ease;
+}

@@ -1,0 +1,21 @@
+{
+  "grief": {
+    "name": "Deuil",
+    "description": "Module de soutien pour le deuil et la perte",
+    "onboarding": "/backend/modules/grief/onboarding.py",
+    "rules": "/backend/modules/grief/rules.json",
+    "intentions": "/backend/modules/grief/intentions.json",
+    "interventions": "/backend/modules/grief/interventions.json",
+    "micro_protocols": "/backend/modules/grief/micro_protocols.json",
+    "active": true
+  },
+  "anxiety": {
+    "name": "Anxiété",
+    "description": "Module de gestion de l'anxiété et du stress",
+    "onboarding": "/backend/modules/anxiety/onboarding.py",
+    "rules": "/backend/modules/anxiety/rules.json",
+    "intentions": "/backend/modules/anxiety/intentions.json",
+    "interventions": "/backend/modules/anxiety/interventions.json",
+    "active": false
+  }
+}

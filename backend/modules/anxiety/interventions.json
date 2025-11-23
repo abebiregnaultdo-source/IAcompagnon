@@ -1,0 +1,99 @@
+{
+  "5_4_3_2_1_grounding": {
+    "id": "5_4_3_2_1_grounding",
+    "type": "somatic",
+    "label": "Technique 5-4-3-2-1",
+    "duration": 180,
+    "template": [
+      "{{ user_name }}, on va stabiliser ton corps ici et maintenant.",
+      "Nomme 5 choses que tu vois, 4 que tu peux toucher, 3 que tu entends, 2 que tu sens, 1 que tu goûtes.",
+      "Prends le temps. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "ancrage" }
+  },
+  "box_breathing": {
+    "id": "box_breathing",
+    "type": "mindfulness",
+    "label": "Respiration en carré",
+    "duration": 120,
+    "template": [
+      "Inspire sur 4 secondes.",
+      "Retiens sur 4 secondes.",
+      "Expire sur 4 secondes.",
+      "Pause de 4 secondes. Recommence doucement, à ton rythme. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "ancrage" }
+  },
+  "worry_time": {
+    "id": "worry_time",
+    "type": "cognitive",
+    "label": "Temps d'inquiétude intentionnel",
+    "duration": 900,
+    "template": [
+      "Si l'anxiété revient, {{ user_name }}, tu peux te dire: 'Je vais y penser à mon heure de soucis.'",
+      "Puis continue ta journée. À l'heure fixée, dédie 15 minutes à explorer sans retenue.",
+      "Cela réduit souvent l'intrusion. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "exploration" }
+  },
+  "somatic_awareness": {
+    "id": "somatic_awareness",
+    "type": "somatic",
+    "label": "Conscience corporelle progressive",
+    "duration": 240,
+    "template": [
+      "Observe ton corps sans le changer.",
+      "{% if detresse > 70 %}Commence par tes pieds sur le sol. Puis remonte lentement.{% else %}Parcours ton corps avec une attention bienveillante.{% endif %}",
+      "Aucune sensation est 'mauvaise'. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "expression" }
+  },
+  "thought_observation": {
+    "id": "thought_observation",
+    "type": "cognitive",
+    "label": "Observer les pensées",
+    "duration": 180,
+    "template": [
+      "Les pensées anxieuses sont comme des nuages qui passent.",
+      "Tu peux les voir sans les croire ni les combattre.",
+      "« Voilà une pensée d'anxiété. Je note. Elle passe. » {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "exploration" }
+  },
+  "values_compass": {
+    "id": "values_compass",
+    "type": "logotherapy",
+    "label": "Boussole des valeurs",
+    "duration": 300,
+    "template": [
+      "Malgré l'anxiété, qu'est-ce qui compte vraiment pour toi?",
+      "Une relation, un projet, une forme de présence?",
+      "Comment pourrais-tu honorer cette valeur, même modestement, aujourd'hui? {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "sens" }
+  },
+  "gradual_reengagement": {
+    "id": "gradual_reengagement",
+    "type": "behavioral",
+    "label": "Réengagement graduel",
+    "duration": 600,
+    "template": [
+      "Peu importe la taille de l'action, {{ user_name }}.",
+      "Quand l'anxiété baisse un peu, qu'une petite chose pourrait redonner de la couleur?",
+      "Un appel. Un pas dehors. Une phrase écrite. Juste un début. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "reconstruction" }
+  },
+  "future_planning": {
+    "id": "future_planning",
+    "type": "future",
+    "label": "Planification légère du futur",
+    "duration": 300,
+    "template": [
+      "Imaginez une semaine où tu gères mieux l'anxiété.",
+      "Quels seraient les premiers petits changements visibles?",
+      "On peut commencer par un seul d'entre eux. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "reconstruction" }
+  }
+}

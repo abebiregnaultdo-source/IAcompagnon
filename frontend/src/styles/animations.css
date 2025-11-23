@@ -1,0 +1,190 @@
+/**
+ * Animations Thérapeutiques
+ * Toutes les animations sont douces et respectent prefers-reduced-motion
+ */
+
+/* === ANIMATIONS D'ENTRÉE === */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* === ANIMATIONS CONTINUES === */
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes gentleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes gentlePulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* === ANIMATIONS DE CHARGEMENT === */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dots {
+  0%,
+  20% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+/* === CLASSES UTILITAIRES === */
+.fade-in-up {
+  animation: fadeInUp var(--transition-medium) ease-out;
+}
+
+.fade-in-down {
+  animation: fadeInDown var(--transition-medium) ease-out;
+}
+
+.fade-in-left {
+  animation: fadeInLeft var(--transition-medium) ease-out;
+}
+
+.fade-in-right {
+  animation: fadeInRight var(--transition-medium) ease-out;
+}
+
+.scale-in {
+  animation: scaleIn var(--transition-medium) ease-out;
+}
+
+.breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.gentle-float {
+  animation: gentleFloat 3s ease-in-out infinite;
+}
+
+.gentle-pulse {
+  animation: gentlePulse 2s ease-in-out infinite;
+}
+
+/* === ANIMATIONS AVEC DÉLAIS === */
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+
+/* === RESPECT DE PREFERS-REDUCED-MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up,
+  .fade-in-down,
+  .fade-in-left,
+  .fade-in-right,
+  .scale-in,
+  .breathe,
+  .gentle-float,
+  .gentle-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

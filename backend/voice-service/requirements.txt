@@ -1,0 +1,20 @@
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+websockets==12.0
+httpx==0.25.1
+pydantic==2.5.0
+python-multipart==0.0.6
+
+# Speech-to-Text
+openai-whisper==20231117
+# Alternative plus rapide:
+# faster-whisper==0.10.0
+
+# Text-to-Speech
+edge-tts==6.1.9
+# Piper TTS (optionnel, pour local)
+# piper-tts==1.2.0
+
+# Audio processing
+pydub==0.25.1
+

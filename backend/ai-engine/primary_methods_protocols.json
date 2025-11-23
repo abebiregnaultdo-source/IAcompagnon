@@ -1,0 +1,386 @@
+{
+  "act": {
+    "metadata": {
+      "name": "Thérapie d'Acceptation et d'Engagement (ACT)",
+      "authors": "Steven Hayes, Kirk Strosahl, Kelly Wilson (1999)",
+      "scientific_foundation": "Très solide - RCTs multiples, méta-analyses positives",
+      "grief_usage": "Excellente pour l'acceptation et les valeurs",
+      "core_model": "Hexaflex ACT"
+    },
+    "core_principles": [
+      "L'évitement expérientiel augmente la souffrance",
+      "L'acceptation n'est pas la résignation, c'est faire de la place",
+      "Les valeurs guident l'action engagée",
+      "La défusion cognitive réduit l'emprise des pensées",
+      "Le soi observateur permet la distance thérapeutique",
+      "Le moment présent ancre dans la réalité"
+    ],
+    "contraindications": {
+      "absolues": [
+        "Dissociation sévère (> 0.8)",
+        "Psychose active",
+        "Idéation suicidaire imminente"
+      ],
+      "relatives": [
+        "Détresse > 90 (commencer par régulation)",
+        "Alexithymie sévère (difficulté à identifier émotions)",
+        "Résistance forte à l'acceptation"
+      ]
+    },
+    "variations": {
+      "defusion_cognitive": {
+        "name": "Défusion cognitive",
+        "indication": "Pensées intrusives, rumination, fusion avec la douleur",
+        "duration_minutes": 8,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Identification de la pensée",
+            "instruction": "Quelle pensée revient souvent et vous pèse en ce moment ?",
+            "guidance": "Accueillir sans juger. La pensée n'est pas un fait, c'est un événement mental.",
+            "llm_role": "Reformuler la pensée de manière neutre, sans la valider ni l'invalider",
+            "success_indicators": ["pensée identifiée", "formulation claire", "distance émergente"]
+          },
+          {
+            "step": 2,
+            "name": "Exercice de défusion",
+            "instruction": "Essayez de dire cette pensée en ajoutant devant : 'Je remarque que j'ai la pensée que...'",
+            "guidance": "Observer comment cela change votre relation à la pensée. Vous n'êtes pas vos pensées.",
+            "llm_role": "Guider l'exercice avec douceur, valider l'expérience",
+            "success_indicators": ["exercice tenté", "distance créée", "légèreté ressentie"]
+          },
+          {
+            "step": 3,
+            "name": "Ancrage dans les valeurs",
+            "instruction": "Si cette pensée n'avait plus autant de pouvoir, qu'est-ce qui deviendrait possible pour vous ?",
+            "guidance": "Relier la défusion à une action alignée avec les valeurs.",
+            "llm_role": "Identifier les valeurs sous-jacentes, encourager l'action engagée",
+            "success_indicators": ["valeur identifiée", "action possible", "motivation émergente"]
+          }
+        ],
+        "adaptive_responses": {
+          "resistance_to_defusion": {
+            "trigger": "Utilisateur refuse l'exercice ou dit 'mais c'est vrai'",
+            "response": "C'est juste. La question n'est pas de savoir si c'est vrai ou faux, mais : est-ce que cette pensée vous aide à avancer vers ce qui compte pour vous ?"
+          },
+          "emotional_overwhelm": {
+            "trigger": "Détresse augmente pendant l'exercice",
+            "response": "Prenons une pause. Sentez vos pieds sur le sol. Nous pouvons revenir à cet exercice plus tard."
+          }
+        }
+      },
+      "valeurs_et_action": {
+        "name": "Clarification des valeurs et action engagée",
+        "indication": "Perte de sens, désorientation, besoin de direction",
+        "duration_minutes": 12,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Exploration des valeurs",
+            "instruction": "Dans votre relation avec cette personne, qu'est-ce qui comptait vraiment pour vous ?",
+            "guidance": "Les valeurs ne meurent pas avec la personne. Elles peuvent continuer à guider.",
+            "llm_role": "Identifier les valeurs (amour, loyauté, soin, etc.), reformuler avec précision",
+            "success_indicators": ["valeur nommée", "émotion présente", "connexion ressentie"]
+          },
+          {
+            "step": 2,
+            "name": "Honorer les valeurs aujourd'hui",
+            "instruction": "Comment pourriez-vous honorer cette valeur dans votre vie actuelle, même d'une toute petite manière ?",
+            "guidance": "L'action engagée n'a pas besoin d'être grande. Elle doit être alignée.",
+            "llm_role": "Proposer des micro-actions concrètes, valoriser l'intention",
+            "success_indicators": ["action identifiée", "faisabilité reconnue", "engagement émergent"]
+          },
+          {
+            "step": 3,
+            "name": "Engagement",
+            "instruction": "Seriez-vous prêt·e à essayer cette action dans les prochains jours, même si c'est difficile ?",
+            "guidance": "L'engagement n'est pas une promesse rigide, c'est une intention flexible.",
+            "llm_role": "Renforcer l'autonomie, valider l'effort, pas le résultat",
+            "success_indicators": ["engagement pris", "autonomie respectée", "espoir présent"]
+          }
+        ],
+        "adaptive_responses": {
+          "values_unclear": {
+            "trigger": "Utilisateur ne sait pas quelles sont ses valeurs",
+            "response": "C'est normal. Essayons autrement : qu'est-ce que vous auriez aimé que cette personne sache de vous ?"
+          }
+        }
+      },
+      "acceptation_experiencielle": {
+        "name": "Acceptation expériencielle",
+        "indication": "Évitement émotionnel, lutte contre la douleur",
+        "duration_minutes": 10,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Reconnaissance de l'évitement",
+            "instruction": "Qu'est-ce que vous faites pour ne pas ressentir cette douleur ?",
+            "guidance": "L'évitement est humain. Mais il a un coût.",
+            "llm_role": "Normaliser l'évitement, explorer le coût sans jugement",
+            "success_indicators": ["évitement reconnu", "coût identifié", "ouverture présente"]
+          },
+          {
+            "step": 2,
+            "name": "Faire de la place",
+            "instruction": "Et si, juste pour un instant, vous laissiez cette émotion être là, sans la changer ?",
+            "guidance": "Accepter n'est pas aimer. C'est juste arrêter de lutter.",
+            "llm_role": "Guider l'acceptation avec métaphores (vagues, météo), valider l'expérience",
+            "success_indicators": ["acceptation tentée", "lutte réduite", "soulagement émergent"]
+          }
+        ],
+        "adaptive_responses": {
+          "fear_of_acceptance": {
+            "trigger": "Utilisateur dit 'si j'accepte, ça veut dire que j'abandonne'",
+            "response": "Accepter la douleur, ce n'est pas abandonner la personne. C'est arrêter de lutter contre ce qui est déjà là."
+          }
+        }
+      }
+    }
+  },
+  "journaling_expressif": {
+    "metadata": {
+      "name": "Journaling Expressif",
+      "authors": "James Pennebaker (1986), Narrative Therapy (White & Epston)",
+      "scientific_foundation": "Bonnes preuves - Amélioration santé physique et mentale",
+      "grief_usage": "Libération émotionnelle, intégration du récit",
+      "core_model": "Écriture expressive structurée"
+    },
+    "core_principles": [
+      "L'écriture expressive réduit la charge émotionnelle",
+      "La narration donne du sens à l'expérience",
+      "L'externalisation crée de la distance thérapeutique",
+      "Les rituels symbolisent la transition",
+      "Le futur soi est un témoin bienveillant"
+    ],
+    "contraindications": {
+      "absolues": [
+        "Dissociation sévère pendant l'écriture",
+        "Réactivation traumatique incontrôlable"
+      ],
+      "relatives": [
+        "Détresse > 85 (commencer par régulation)",
+        "Difficulté à écrire (proposer oral)"
+      ]
+    },
+    "variations": {
+      "lettre_non_envoyee": {
+        "name": "Lettre non envoyée",
+        "indication": "Choses non dites, regrets, besoin de clôture",
+        "duration_minutes": 15,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Intention de la lettre",
+            "instruction": "Si vous pouviez dire une chose à cette personne aujourd'hui, ce serait quoi ?",
+            "guidance": "Il n'y a pas de bonne ou mauvaise réponse. Juste ce qui est vrai pour vous.",
+            "llm_role": "Accueillir sans juger, reformuler avec empathie",
+            "success_indicators": ["intention claire", "émotion présente", "sécurité ressentie"]
+          },
+          {
+            "step": 2,
+            "name": "Écriture guidée",
+            "instruction": "Prenez le temps d'écrire cette lettre, à votre rythme. Vous pouvez commencer par 'Cher/Chère...'",
+            "guidance": "Cette lettre est pour vous. Elle n'a pas besoin d'être parfaite.",
+            "llm_role": "Encourager l'écriture, proposer des amorces si blocage",
+            "llm_prompts": [
+              "Ce que je n'ai pas pu te dire...",
+              "Ce que je regrette...",
+              "Ce que je te remercie...",
+              "Ce que je garde de toi..."
+            ],
+            "success_indicators": ["écriture commencée", "authenticité", "libération émotionnelle"]
+          },
+          {
+            "step": 3,
+            "name": "Rituel de clôture",
+            "instruction": "Que souhaitez-vous faire de cette lettre ? La garder, la brûler symboliquement, la lire à voix haute ?",
+            "guidance": "Le rituel symbolise la transition. Choisissez ce qui résonne.",
+            "llm_role": "Proposer options, respecter le choix, valider le rituel",
+            "success_indicators": ["rituel choisi", "sens donné", "apaisement"]
+          }
+        ]
+      },
+      "journal_guide_recit": {
+        "name": "Journal guidé pour raconter son histoire",
+        "indication": "Besoin de reformuler le récit, intégrer la perte",
+        "duration_minutes": 20,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Prompt d'ouverture",
+            "instruction": "Si vous deviez décrire ce que cette personne représentait pour vous en trois mots, ce serait lesquels ?",
+            "guidance": "Les mots ont du pouvoir. Prenez le temps de les choisir.",
+            "llm_role": "Accueillir les mots, explorer leur signification",
+            "success_indicators": ["mots choisis", "signification explorée", "connexion ressentie"]
+          },
+          {
+            "step": 2,
+            "name": "Souvenir réconfortant",
+            "instruction": "Quel souvenir avec cette personne vous apporte du réconfort ?",
+            "guidance": "Se souvenir n'est pas trahir. C'est honorer.",
+            "llm_role": "Encourager le détail sensoriel, valider l'émotion",
+            "success_indicators": ["souvenir partagé", "détails sensoriels", "réconfort ressenti"]
+          },
+          {
+            "step": 3,
+            "name": "Lettre au futur soi",
+            "instruction": "Écrivez une lettre à votre futur soi, lui racontant ce que vous traversez aujourd'hui.",
+            "guidance": "Votre futur soi sera reconnaissant de cette trace.",
+            "llm_role": "Guider l'écriture, proposer structure temporelle",
+            "llm_prompts": [
+              "Aujourd'hui, je traverse...",
+              "Ce qui est le plus difficile...",
+              "Ce qui m'aide à tenir...",
+              "Ce que j'espère pour toi, futur moi..."
+            ],
+            "success_indicators": ["lettre écrite", "perspective temporelle", "espoir émergent"]
+          }
+        ]
+      },
+      "gratitude_post_traumatique": {
+        "name": "Journal de gratitude post-traumatique",
+        "indication": "Recadrer les moments de lumière, croissance post-traumatique",
+        "duration_minutes": 10,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Micro-moment de lumière",
+            "instruction": "Aujourd'hui, y a-t-il eu un tout petit moment où vous avez ressenti autre chose que de la douleur ?",
+            "guidance": "Même une seconde compte. La gratitude post-traumatique n'efface pas la douleur.",
+            "llm_role": "Normaliser la coexistence douleur/lumière, valider les deux",
+            "success_indicators": ["moment identifié", "coexistence acceptée", "nuance présente"]
+          },
+          {
+            "step": 2,
+            "name": "Écriture de gratitude",
+            "instruction": "Notez ce moment, aussi petit soit-il.",
+            "guidance": "Cette pratique ne nie pas la souffrance. Elle élargit le champ.",
+            "llm_role": "Encourager la précision, valider l'effort",
+            "success_indicators": ["moment noté", "détail présent", "élargissement du champ"]
+          }
+        ]
+      }
+    }
+  },
+  "continuing_bonds": {
+    "metadata": {
+      "name": "Continuing Bonds (Liens Continus)",
+      "authors": "Klass, Silverman, Nickman (1996)",
+      "scientific_foundation": "Émergent mais très prometteur",
+      "grief_usage": "Remplace le 'devoir de lâcher prise'",
+      "core_model": "Maintien de liens symboliques sains"
+    },
+    "core_principles": [
+      "Le lien ne meurt pas avec la personne",
+      "La connexion peut évoluer sans être pathologique",
+      "Les rituels maintiennent la présence symbolique",
+      "L'intégration remplace la séparation",
+      "La conversation intérieure est thérapeutique"
+    ],
+    "contraindications": {
+      "absolues": [
+        "Déni complet de la mort",
+        "Hallucinations pathologiques"
+      ],
+      "relatives": [
+        "Fusion identitaire excessive",
+        "Évitement de la réalité de la perte"
+      ]
+    },
+    "variations": {
+      "rituel_connexion": {
+        "name": "Rituel de connexion",
+        "indication": "Besoin de maintenir le lien, sentiment de déconnexion",
+        "duration_minutes": 12,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Identification du rituel",
+            "instruction": "Y a-t-il quelque chose que vous faisiez ensemble, ou un geste qui vous rappelle cette personne ?",
+            "guidance": "Les rituels peuvent être simples : une chanson, un lieu, un geste.",
+            "llm_role": "Explorer les rituels existants ou potentiels, normaliser le besoin",
+            "success_indicators": ["rituel identifié", "signification claire", "faisabilité"]
+          },
+          {
+            "step": 2,
+            "name": "Création du rituel",
+            "instruction": "Comment pourriez-vous transformer ce geste en un moment de connexion intentionnel ?",
+            "guidance": "Le rituel n'est pas magique. Il est symbolique et ancrant.",
+            "llm_role": "Guider la création, proposer structure (quand, où, comment)",
+            "success_indicators": ["rituel structuré", "intention claire", "engagement possible"]
+          },
+          {
+            "step": 3,
+            "name": "Pratique du rituel",
+            "instruction": "Seriez-vous prêt·e à essayer ce rituel dans les prochains jours ?",
+            "guidance": "Le rituel peut évoluer. Il n'y a pas de bonne façon.",
+            "llm_role": "Encourager l'essai, valider l'autonomie",
+            "success_indicators": ["engagement pris", "flexibilité acceptée", "espoir présent"]
+          }
+        ],
+        "adaptive_responses": {
+          "fear_of_pathology": {
+            "trigger": "Utilisateur dit 'est-ce que c'est normal de faire ça ?'",
+            "response": "Oui. Maintenir un lien symbolique est sain. Ce qui serait préoccupant, c'est de nier la réalité de la perte."
+          }
+        }
+      },
+      "conversation_interieure": {
+        "name": "Conversation intérieure",
+        "indication": "Besoin de dialogue, questions non résolues",
+        "duration_minutes": 15,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Amorce du dialogue",
+            "instruction": "Si cette personne était là maintenant, que lui diriez-vous ?",
+            "guidance": "La conversation intérieure n'est pas une hallucination. C'est une ressource.",
+            "llm_role": "Faciliter le dialogue imaginaire, normaliser la pratique",
+            "success_indicators": ["dialogue amorcé", "authenticité", "sécurité ressentie"]
+          },
+          {
+            "step": 2,
+            "name": "Réponse imaginée",
+            "instruction": "Et si vous imaginiez ce qu'elle/il vous répondrait, que serait-ce ?",
+            "guidance": "Cette réponse vient de vous, mais elle porte la sagesse de la relation.",
+            "llm_role": "Guider l'imagination, valider la réponse, explorer la signification",
+            "success_indicators": ["réponse imaginée", "sagesse reconnue", "apaisement"]
+          },
+          {
+            "step": 3,
+            "name": "Intégration",
+            "instruction": "Qu'est-ce que cette conversation vous apporte aujourd'hui ?",
+            "guidance": "Le dialogue intérieur peut devenir une ressource régulière.",
+            "llm_role": "Identifier les bénéfices, encourager la pratique autonome",
+            "success_indicators": ["bénéfice identifié", "autonomie renforcée", "ressource intégrée"]
+          }
+        ]
+      },
+      "objet_transitionnel": {
+        "name": "Objet transitionnel",
+        "indication": "Besoin de présence tangible, ancrage matériel",
+        "duration_minutes": 10,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Identification de l'objet",
+            "instruction": "Y a-t-il un objet qui vous relie à cette personne ?",
+            "guidance": "L'objet peut être un vêtement, une photo, un bijou, une lettre.",
+            "llm_role": "Explorer les objets existants, normaliser l'attachement",
+            "success_indicators": ["objet identifié", "signification claire", "connexion ressentie"]
+          },
+          {
+            "step": 2,
+            "name": "Rituel avec l'objet",
+            "instruction": "Comment pourriez-vous intégrer cet objet dans votre quotidien de manière apaisante ?",
+            "guidance": "L'objet n'est pas la personne, mais il porte le lien.",
+            "llm_role": "Proposer des usages rituels (toucher, regarder, porter)",
+            "success_indicators": ["usage identifié", "rituel créé", "apaisement possible"]
+          }
+        ]
+      }
+    }
+  }
+}
+
+

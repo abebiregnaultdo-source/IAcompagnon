@@ -1,0 +1,86 @@
+{
+  "respiration_apaisante": {
+    "id": "respiration_apaisante",
+    "type": "mindfulness",
+    "label": "Respiration apaisante",
+    "duration": 120,
+    "template": [
+      "Inspire doucement, {{ user_name }}...",
+      "{% if detresse > 80 %}Laisse le souffle descendre un peu plus profondément.{% endif %}",
+      "Et si une pensée vient, {{ tone_prompt }}."
+    ],
+    "conditions": { "phase": "ancrage" }
+  },
+  "ancrage_corps_tipi": {
+    "id": "ancrage_corps_tipi",
+    "type": "somatic",
+    "label": "Ancrage corporel",
+    "template": [
+      "Pose ton attention sur un point d’appui: pieds, dos, ou mains.",
+      "Rien à changer. Juste sentir. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "ancrage" }
+  },
+  "journal_expression": {
+    "id": "journal_expression",
+    "type": "narrative",
+    "label": "Journal d’expression",
+    "template": [
+      "Si tu veux, {{ user_name }}, tu peux écrire quelques mots sans te censurer.",
+      "Personne ne les lira. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "expression" }
+  },
+  "respiration_accompagnee": {
+    "id": "respiration_accompagnee",
+    "type": "mindfulness",
+    "label": "Respiration accompagnée",
+    "duration": 90,
+    "template": [
+      "Inspire comme si tu créais de l’espace, {{ user_name }}.",
+      "Expire en laissant les vagues passer. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "expression" }
+  },
+  "lettre_symbolique": {
+    "id": "lettre_symbolique",
+    "type": "logotherapy",
+    "label": "Lettre symbolique",
+    "template": [
+      "Tu peux écrire à la personne absente.",
+      "Ce n’est pas une lettre à envoyer, mais un espace pour dire ce que ton cœur garde.",
+      "{{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "sens" }
+  },
+  "dialogue_imaginal": {
+    "id": "dialogue_imaginal",
+    "type": "imaginal",
+    "label": "Dialogue imaginal",
+    "template": [
+      "Si tu veux, on peut imaginer un court dialogue symbolique.",
+      "Exprime ce qui compte, simplement. {{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "sens" }
+  },
+  "action_rituelle": {
+    "id": "action_rituelle",
+    "type": "behavioral",
+    "label": "Action rituelle",
+    "template": [
+      "Pense à un geste simple aujourd’hui pour honorer la vie de cette personne — sans douleur, juste avec présence.",
+      "{{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "reconstruction" }
+  },
+  "visualisation_futur": {
+    "id": "visualisation_futur",
+    "type": "future",
+    "label": "Visualisation du futur",
+    "template": [
+      "Visualise une petite action demain qui te ferait du bien, même discrètement.",
+      "{{ tone_prompt }}"
+    ],
+    "conditions": { "phase": "reconstruction" }
+  }
+}

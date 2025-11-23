@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100" width="300" height="100" role="img" aria-label="HELŌ mono">
+  <g fill="#3A4048">
+    <text x="10" y="60" style="font-family:Fraunces,serif;font-weight:600;font-size:48px">HEL</text>
+    <text x="170" y="60" style="font-family:Inter,sans-serif;font-weight:700;font-size:40px">ō</text>
+  </g>
+</svg>

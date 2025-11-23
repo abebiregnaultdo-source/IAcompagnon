@@ -1,0 +1,321 @@
+/**
+ * Système de Design Thérapeutique
+ * 
+ * Principes :
+ * - Pas de blanc pur dans les zones thérapeutiques
+ * - Pas de noir pur
+ * - Contrastes doux
+ * - Transitions apaisantes
+ * - Espacements respirants
+ */
+
+/* Import de la police douce */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@400;600;700&display=swap");
+
+:root {
+  /* === COULEURS DE BASE === */
+  /* Pas de blanc pur - crèmes désaturés */
+  --color-bg-calm: #e8eff2;
+  --color-bg-warm: #f5efe6;
+  --color-bg-pro: #edeef1;
+  --color-bg-light: #f2f6f7;
+  --color-bg-lighter: #f9f5f0;
+
+  /* Blanc cassé pour zones non-thérapeutiques (peut être utilisé hors salle) */
+  --color-white-soft: #fafbfc;
+
+  /* Texte - gris chauds, jamais noir pur */
+  --color-text-primary: #3a4048;
+  --color-text-secondary: #5a6068;
+  --color-text-tertiary: #7a8088;
+  --color-text-light: #9aa0a8;
+
+  /* Surfaces */
+  --color-surface-1: #f2f6f7;
+  --color-surface-2: #f5f2ed;
+  --color-surface-3: #f4f5f7;
+
+  /* Accents thérapeutiques - désaturés (mono-bleu) */
+  --color-accent-calm: #c5d9e3;
+  --color-accent-warm: #a5c5d8;
+  --color-accent-pro: #cdd4dd;
+  --color-accent-success: #c8dcc8;
+  --color-accent-info: #d4e8f0;
+
+  /* Alertes thérapeutiques - rouges désaturés (pas de rouge vif) */
+  --color-alert-bg: #f5e8e8;
+  --color-alert-bg-gradient-start: #f8eded;
+  --color-alert-bg-gradient-end: #f5e8e8;
+  --color-alert-border: #d4a5a5;
+  --color-alert-text: #8a5555;
+  --color-alert-text-dark: #6b4040;
+
+  /* Couleurs primaires de l'app - mono-bleu */
+  --color-primary: #7ba8c0;
+  --color-primary-light: #a5c5d8;
+  --color-primary-dark: #5a8aa5;
+
+  /* === OMBRES DOUCES === */
+  --shadow-xs: 0 2px 8px rgba(100, 100, 110, 0.03);
+  --shadow-sm: 0 4px 12px rgba(100, 100, 110, 0.04);
+  --shadow-md: 0 6px 20px rgba(100, 100, 110, 0.06);
+  --shadow-lg: 0 8px 28px rgba(100, 100, 110, 0.08);
+
+  /* === ESPACEMENTS RESPIRANTS === */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* === RAYONS DOUX === */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* === TRANSITIONS APAISANTES === */
+  --transition-fast: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-medium: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 1s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* === TYPOGRAPHIE === */
+  --font-family-base: "Inter", system-ui, -apple-system, sans-serif;
+  --font-family-display: "Nunito", "Inter", sans-serif;
+
+  --font-size-xs: 12px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+  --font-size-lg: 17px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-size-3xl: 30px;
+
+  --line-height-tight: 1.4;
+  --line-height-normal: 1.6;
+  --line-height-relaxed: 1.8;
+
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+/* === RESET & BASE === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg-light);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === UTILITAIRES === */
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+}
+
+.card {
+  background: var(--color-surface-1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+}
+
+/* === TYPOGRAPHIE === */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-md);
+}
+
+h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+}
+
+h2 {
+  font-size: var(--font-size-2xl);
+}
+
+h3 {
+  font-size: var(--font-size-xl);
+}
+
+p {
+  margin-bottom: var(--space-md);
+  line-height: var(--line-height-relaxed);
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
+@keyframes gentleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.fade-in {
+  animation: fadeIn var(--transition-medium) ease-out;
+}
+
+.slide-in {
+  animation: slideIn var(--transition-medium) ease-out;
+}
+
+.breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.gentle-float {
+  animation: gentleFloat 3s ease-in-out infinite;
+}
+
+/* === ACCESSIBILITÉ === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus visible doux */
+*:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* === AUTH PAGE === */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-light);
+  padding: var(--space-lg);
+}
+
+.auth-card {
+  background: var(--color-surface-1);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3xl);
+  max-width: 440px;
+  width: 100%;
+  animation: fadeIn var(--transition-medium) ease-out;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  right: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-sm);
+  font-size: var(--font-size-lg);
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.auth-password-toggle:hover {
+  opacity: 1;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-md);
+  }
+
+  .card {
+    padding: var(--space-lg);
+  }
+
+  .auth-card {
+    padding: var(--space-xl);
+  }
+
+  h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  h2 {
+    font-size: var(--font-size-xl);
+  }
+}

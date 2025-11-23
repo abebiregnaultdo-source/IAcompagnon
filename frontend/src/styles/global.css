@@ -1,0 +1,72 @@
+@import "./variables.css";
+
+/* Global reset and base */
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial;
+  background: linear-gradient(180deg, var(--color-background) 0%, #f9feff 100%);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  position: relative;
+  z-index: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.card {
+  background: var(--color-surface-1);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-xs);
+}
+
+.fade-in {
+  position: relative;
+  z-index: 1;
+  animation: fadeIn var(--transition-medium) ease-out;
+}
+
+/* Ensure settings and chat panels stack correctly (no unwanted overlap) */
+.settings-section,
+.settings-container,
+.settings-root {
+  position: relative;
+  z-index: 2;
+}
+.chat-container,
+.avatar-chat-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+}
+
+/* Responsive tweaks */
+@media (min-width: 1024px) {
+  body {
+    font-size: 16px;
+  }
+}

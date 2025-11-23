@@ -1,0 +1,5 @@
+packages: 
+  - 'frontend' 
+  - 'backend/api-gateway' 
+  - 'backend/ai-engine' 
+  - 'backend/emotions-service' 

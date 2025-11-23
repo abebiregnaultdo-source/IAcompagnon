@@ -1,0 +1,371 @@
+{
+  "logotherapie": {
+    "metadata": {
+      "name": "Logothérapie",
+      "author": "Viktor Frankl (1946)",
+      "adaptation": "Contexte de deuil - Recherche de sens",
+      "duration_typical_minutes": 15
+    },
+    "core_principles": [
+      "La quête de sens est la motivation humaine primaire",
+      "Le sens peut être trouvé même dans la souffrance",
+      "La liberté de choisir son attitude face à l'inévitable",
+      "Le deuil comme opportunité de découvrir un sens nouveau"
+    ],
+    "contraindications": {
+      "absolues": [
+        "Détresse extrême (> 90) - Stabilisation d'abord",
+        "Dissociation active (> 0.7) - Ancrage nécessaire",
+        "Déni complet - Validation émotionnelle d'abord"
+      ],
+      "relatives": [
+        "Colère intense non régulée - TIPI ou validation d'abord",
+        "Rumination cognitive excessive - Ancrage somatique préférable"
+      ]
+    },
+    "variations": {
+      "exploration_sens": {
+        "name": "Exploration du sens",
+        "indication": "Questionnement émergent, recherche de compréhension",
+        "duration_minutes": 10,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Accueil de la question",
+            "instruction": "Quelle question vous habite en ce moment ?",
+            "guidance": "Accueillir sans juger, sans répondre. La question elle-même est précieuse.",
+            "success_indicators": ["formulation de question", "ouverture", "curiosité"]
+          },
+          {
+            "step": 2,
+            "name": "Exploration des valeurs",
+            "instruction": "Qu'est-ce qui comptait vraiment dans cette relation ?",
+            "guidance": "Identifier les valeurs incarnées par la personne disparue.",
+            "success_indicators": ["mention de valeurs", "reconnaissance", "connexion"]
+          },
+          {
+            "step": 3,
+            "name": "Héritage vivant",
+            "instruction": "Comment ces valeurs continuent-elles de vivre en vous ?",
+            "guidance": "Transformer la perte en héritage, le passé en présent.",
+            "success_indicators": ["continuité", "intégration", "sens émergent"]
+          }
+        ]
+      },
+      "sens_dans_souffrance": {
+        "name": "Sens dans la souffrance",
+        "indication": "Souffrance intense, sentiment d'absurdité",
+        "duration_minutes": 15,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Reconnaissance de la souffrance",
+            "instruction": "Cette souffrance est réelle. Qu'est-ce qu'elle dit de l'importance de ce que vous avez perdu ?",
+            "guidance": "La souffrance comme mesure de l'amour, pas comme pathologie.",
+            "success_indicators": ["validation", "reconnaissance", "dignité"]
+          },
+          {
+            "step": 2,
+            "name": "Choix d'attitude",
+            "instruction": "Face à cette perte inévitable, quelle attitude choisissez-vous d'adopter ?",
+            "guidance": "Liberté ultime : choisir son attitude même quand on ne peut changer la situation.",
+            "success_indicators": ["agency", "choix", "responsabilité"]
+          },
+          {
+            "step": 3,
+            "name": "Mission personnelle",
+            "instruction": "Qu'est-ce que cette épreuve vous appelle à devenir ?",
+            "guidance": "Transformation possible, pas obligatoire. Sens comme possibilité, pas injonction.",
+            "success_indicators": ["ouverture au futur", "possibilité", "espoir réaliste"]
+          }
+        ]
+      },
+      "dereflexion": {
+        "name": "Déréflexion",
+        "indication": "Rumination excessive, hyper-attention à la douleur",
+        "duration_minutes": 8,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Reconnaissance de la rumination",
+            "instruction": "Je remarque que vous tournez beaucoup autour de cette question. C'est épuisant, n'est-ce pas ?",
+            "guidance": "Valider sans renforcer. Nommer le pattern.",
+            "success_indicators": ["reconnaissance", "insight"]
+          },
+          {
+            "step": 2,
+            "name": "Redirection vers l'extérieur",
+            "instruction": "Si vous pouviez faire quelque chose pour quelqu'un d'autre aujourd'hui, ce serait quoi ?",
+            "guidance": "Décentration : sortir de soi pour se retrouver.",
+            "success_indicators": ["ouverture", "altruisme", "action possible"]
+          }
+        ]
+      }
+    },
+    "adaptive_responses": {
+      "resistance_to_meaning": {
+        "trigger": "Rejet de la recherche de sens ('ça n'a aucun sens', 'c'est absurde')",
+        "response": "Vous avez raison, on ne peut pas donner un sens à cette perte. Mais peut-être que vous pouvez choisir ce que vous en faites. Pas maintenant, pas forcément. Juste... un jour, peut-être."
+      },
+      "guilt_about_meaning": {
+        "trigger": "Culpabilité de trouver du sens ('je trahis sa mémoire')",
+        "response": "Trouver un sens n'efface pas la perte. Ça ne la justifie pas non plus. C'est juste une façon de continuer à vivre avec, dignement."
+      },
+      "premature_meaning": {
+        "trigger": "Sens trop rapide, défensif ('tout arrive pour une raison')",
+        "response": "Parfois on cherche un sens trop vite pour ne pas sentir la douleur. Vous avez le droit de ne pas savoir, de ne pas comprendre. Le sens, s'il vient, viendra à son rythme."
+      }
+    }
+  },
+  "expression_narrative": {
+    "metadata": {
+      "name": "Expression Narrative",
+      "theoretical_base": "Thérapie narrative (White & Epston), Pennebaker (écriture expressive)",
+      "adaptation": "Reconstruction de l'histoire de vie après la perte",
+      "duration_typical_minutes": 20
+    },
+    "core_principles": [
+      "L'histoire n'est pas figée, elle peut être réécrite",
+      "Externaliser le problème (le deuil n'est pas l'identité)",
+      "Identifier les histoires alternatives (pas que la perte)",
+      "Donner une voix à l'expérience"
+    ],
+    "contraindications": {
+      "absolues": [
+        "Dissociation sévère (> 0.7) - Risque de déconnexion",
+        "Trauma non stabilisé (< 72h) - Trop tôt"
+      ],
+      "relatives": [
+        "Submersion émotionnelle (détresse > 85) - Régulation d'abord",
+        "Évitement narratif marqué - Respecter le rythme"
+      ]
+    },
+    "variations": {
+      "reconstruction_temporelle": {
+        "name": "Reconstruction temporelle",
+        "indication": "Sentiment de rupture, 'avant/après'",
+        "duration_minutes": 20,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Avant",
+            "instruction": "Racontez-moi un moment d'avant, un moment ordinaire avec cette personne.",
+            "guidance": "Ancrer dans le concret, les détails sensoriels. Pas d'idéalisation.",
+            "success_indicators": ["détails concrets", "présence", "émotion contenue"]
+          },
+          {
+            "step": 2,
+            "name": "Rupture",
+            "instruction": "Et puis... qu'est-ce qui s'est passé ?",
+            "guidance": "Laisser raconter à son rythme. Pas de pression. Silence OK.",
+            "success_indicators": ["narration", "cohérence", "régulation émotionnelle"]
+          },
+          {
+            "step": 3,
+            "name": "Maintenant",
+            "instruction": "Et aujourd'hui, comment vous vivez avec cette histoire ?",
+            "guidance": "Intégration, pas résolution. Vivre avec, pas oublier.",
+            "success_indicators": ["intégration", "continuité", "identité préservée"]
+          },
+          {
+            "step": 4,
+            "name": "Futur possible",
+            "instruction": "Si vous imaginez demain, que voyez-vous ?",
+            "guidance": "Ouverture douce, pas d'injonction. 'Je ne sais pas' est une réponse valide.",
+            "success_indicators": ["ouverture", "possibilité", "espoir réaliste"]
+          }
+        ]
+      },
+      "externalisation": {
+        "name": "Externalisation du deuil",
+        "indication": "Fusion identitaire ('je suis mon deuil')",
+        "duration_minutes": 12,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Nommer le deuil",
+            "instruction": "Si votre deuil avait un nom, ce serait quoi ?",
+            "guidance": "Créer une distance. Le deuil comme visiteur, pas comme identité.",
+            "success_indicators": ["externalisation", "distance", "agency"]
+          },
+          {
+            "step": 2,
+            "name": "Relation au deuil",
+            "instruction": "Comment ce deuil se comporte-t-il avec vous ? Quand est-il le plus présent ?",
+            "guidance": "Observer le pattern, reprendre du pouvoir.",
+            "success_indicators": ["observation", "patterns", "contrôle partiel"]
+          },
+          {
+            "step": 3,
+            "name": "Moments d'exception",
+            "instruction": "Y a-t-il des moments où ce deuil est moins présent ?",
+            "guidance": "Identifier les ressources, les moments de répit.",
+            "success_indicators": ["ressources", "exceptions", "espoir"]
+          }
+        ]
+      }
+    }
+  },
+  "ancrage_polyvagal": {
+    "metadata": {
+      "name": "Ancrage Polyvagal",
+      "theoretical_base": "Théorie polyvagale (Stephen Porges)",
+      "adaptation": "Régulation du système nerveux autonome dans le deuil",
+      "duration_typical_minutes": 10
+    },
+    "core_principles": [
+      "Sécurité avant tout (neuroception)",
+      "Régulation par le système nerveux ventral vagal",
+      "Co-régulation possible (présence thérapeutique)",
+      "Hiérarchie : Ventral (sécurité) > Sympathique (mobilisation) > Dorsal (immobilisation)"
+    ],
+    "contraindications": {
+      "absolues": [],
+      "relatives": [
+        "Résistance marquée aux exercices corporels - Respecter"
+      ]
+    },
+    "variations": {
+      "regulation_ventrale": {
+        "name": "Activation ventrale vagale",
+        "indication": "Hyper-activation (anxiété, panique) ou hypo-activation (engourdissement)",
+        "duration_minutes": 8,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Ancrage sensoriel",
+            "instruction": "Regardez autour de vous. Nommez 5 choses que vous voyez.",
+            "guidance": "Ramener dans le présent, activer le système d'orientation.",
+            "success_indicators": ["présence", "orientation", "calme émergent"]
+          },
+          {
+            "step": 2,
+            "name": "Respiration ventrale",
+            "instruction": "Posez une main sur votre ventre. Respirez doucement, sentez votre main se soulever.",
+            "guidance": "Activation du nerf vague ventral par respiration diaphragmatique.",
+            "success_indicators": ["respiration profonde", "ralentissement", "détente"]
+          },
+          {
+            "step": 3,
+            "name": "Auto-contact sécurisant",
+            "instruction": "Si vous le souhaitez, posez une main sur votre cœur, l'autre sur votre ventre.",
+            "guidance": "Auto-apaisement, signal de sécurité au système nerveux.",
+            "success_indicators": ["auto-compassion", "sécurité", "régulation"]
+          }
+        ]
+      },
+      "co_regulation": {
+        "name": "Co-régulation thérapeutique",
+        "indication": "Besoin de présence, solitude intense",
+        "duration_minutes": 5,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Présence explicite",
+            "instruction": "Je suis là, avec vous. Vous n'êtes pas seul·e en ce moment.",
+            "guidance": "Signal de sécurité sociale, activation ventrale par connexion.",
+            "success_indicators": ["connexion", "sécurité", "apaisement"]
+          },
+          {
+            "step": 2,
+            "name": "Synchronisation",
+            "instruction": "Respirons ensemble, doucement. Suivez mon rythme si vous voulez.",
+            "guidance": "Co-régulation par synchronisation respiratoire.",
+            "success_indicators": ["synchronisation", "régulation partagée"]
+          }
+        ]
+      },
+      "mobilisation_douce": {
+        "name": "Mobilisation douce",
+        "indication": "Immobilisation dorsale (engourdissement, léthargie)",
+        "duration_minutes": 7,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Micro-mouvements",
+            "instruction": "Bougez doucement vos doigts, vos orteils. Tout petit mouvement.",
+            "guidance": "Sortir de l'immobilisation dorsale par mobilisation progressive.",
+            "success_indicators": ["mouvement", "énergie émergente"]
+          },
+          {
+            "step": 2,
+            "name": "Étirement doux",
+            "instruction": "Étirez vos bras vers le ciel, doucement. Baillez si ça vient.",
+            "guidance": "Activation sympathique douce, puis retour ventral.",
+            "success_indicators": ["activation", "vitalité", "présence"]
+          }
+        ]
+      }
+    }
+  },
+  "pleine_conscience": {
+    "metadata": {
+      "name": "Pleine Conscience",
+      "theoretical_base": "MBSR (Kabat-Zinn), MBCT (Segal, Williams, Teasdale)",
+      "adaptation": "Présence au deuil sans jugement",
+      "duration_typical_minutes": 10
+    },
+    "core_principles": [
+      "Attention au moment présent",
+      "Sans jugement, avec bienveillance",
+      "Observer sans réagir",
+      "Acceptation radicale (ce qui est, est)"
+    ],
+    "contraindications": {
+      "absolues": [
+        "Dissociation active (> 0.7) - Risque d'aggravation",
+        "Trauma non stabilisé - Ancrage d'abord"
+      ],
+      "relatives": [
+        "Résistance marquée - Ne pas forcer",
+        "Rumination sévère - Peut renforcer"
+      ]
+    },
+    "variations": {
+      "ancrage_souffle": {
+        "name": "Ancrage dans le souffle",
+        "indication": "Agitation mentale, rumination",
+        "duration_minutes": 8,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Observation du souffle",
+            "instruction": "Portez attention à votre respiration, sans la changer. Juste observer.",
+            "guidance": "Ancre attentionnelle simple, toujours disponible.",
+            "success_indicators": ["attention", "présence", "calme"]
+          },
+          {
+            "step": 2,
+            "name": "Retour bienveillant",
+            "instruction": "Quand votre esprit s'évade, ramenez-le doucement au souffle. Sans vous juger.",
+            "guidance": "Entraînement de l'attention, auto-compassion.",
+            "success_indicators": ["retour", "bienveillance", "patience"]
+          }
+        ]
+      },
+      "body_scan_grief": {
+        "name": "Scan corporel du deuil",
+        "indication": "Douleur somatique, tension",
+        "duration_minutes": 12,
+        "steps": [
+          {
+            "step": 1,
+            "name": "Scan des pieds à la tête",
+            "instruction": "Portez attention à vos pieds, puis remontez lentement : jambes, ventre, poitrine, bras, tête.",
+            "guidance": "Observation neutre, accueil de ce qui est.",
+            "success_indicators": ["conscience corporelle", "détente"]
+          },
+          {
+            "step": 2,
+            "name": "Accueil des sensations",
+            "instruction": "Là où vous sentez de la tension ou de la douleur, restez un instant. Respirez avec.",
+            "guidance": "Acceptation, pas résolution. Être avec, pas contre.",
+            "success_indicators": ["acceptation", "présence", "apaisement"]
+          }
+        ]
+      }
+    }
+  }
+}
+
+

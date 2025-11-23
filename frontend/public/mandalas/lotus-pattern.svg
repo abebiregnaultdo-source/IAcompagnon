@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <defs>
+    <style>.st0{fill:none;stroke:#0c2733;stroke-width:2}</style>
+  </defs>
+  <g transform="translate(300,340)">
+    <circle class="st0" cx="0" cy="-40" r="220"/>
+    <!-- 8 lotus petals -->
+    <g>
+      <g transform="rotate(0)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+      <g transform="rotate(45)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+      <g transform="rotate(90)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+      <g transform="rotate(135)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+      <g transform="rotate(180)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+      <g transform="rotate(225)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+      <g transform="rotate(270)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+      <g transform="rotate(315)"><path class="st0" d="M0,-180 C30,-120 60,-120 90,-80 C60,-40 30,-40 0,0 Z"/></g>
+    </g>
+    <circle class="st0" r="40"/>
+  </g>
+</svg>

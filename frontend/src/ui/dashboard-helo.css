@@ -1,0 +1,376 @@
+/* ============================================ */
+/* HELŌ DASHBOARD - CHARTE GRAPHIQUE FINALE    */
+/* Couleurs bleues + design thérapeutique      */
+/* ============================================ */
+
+:root {
+  /* ========== COULEURS PRINCIPALES - BLEU HELŌ ========== */
+  --helo-blue: #7ba8c0;
+  --helo-blue-light: #a5c5d8;
+  --helo-blue-dark: #5a8aa5;
+
+  /* ========== SURFACES - CRÈMES ET GRIS CHAUDS ========== */
+  --surface-main: #f2f6f7; /* Air */
+  --surface-secondary: #f9f5f0; /* Lumière chaude */
+  --surface-calm: #e8eff2; /* Fond calme */
+  --surface-warm: #f5efe6; /* Fond chaleureux */
+  --white: #ffffff;
+
+  /* ========== TEXTE - GRIS CHAUDS ========== */
+  --text-primary: #3a4048;
+  --text-secondary: #5a6068;
+  --text-tertiary: #7a8088;
+
+  /* ========== ACCENTS ÉMOTIONNELS ========== */
+  --accent-calm: #c5d9e3;
+  --accent-warm: #e0cdb8;
+  --accent-success: #c8dcc8;
+  --accent-comfort: #e8d4c4;
+
+  /* ========== ESPACEMENTS ========== */
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+
+  /* ========== TYPOGRAPHIE ========== */
+  --font-main: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --font-heading: "Nunito", var(--font-main);
+}
+
+/* ============================================ */
+/* LAYOUT PRINCIPAL                             */
+/* ============================================ */
+
+.helo-container {
+  min-height: 100vh;
+  background: var(--surface-main);
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.helo-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+/* ============================================ */
+/* LOADING STATE                                */
+/* ============================================ */
+
+.helo-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.helo-spinner {
+  color: var(--text-secondary);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* ============================================ */
+/* HEADER                                       */
+/* ============================================ */
+
+.helo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--accent-calm);
+}
+
+.helo-title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.helo-btn-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--accent-calm);
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.helo-btn-close:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+
+/* ============================================ */
+/* INSIGHTS DOUX (PAS DE STATS)                */
+/* ============================================ */
+
+.helo-insights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.helo-insight-card {
+  background: var(--white);
+  padding: var(--space-md);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  border: 1px solid var(--accent-calm);
+  transition: transform 0.2s ease;
+  animation: fadeIn 0.4s ease;
+}
+
+.helo-insight-card:hover {
+  transform: translateY(-2px);
+}
+
+.helo-insight-card.variant-welcome {
+  background: linear-gradient(135deg, var(--accent-calm) 0%, var(--accent-warm) 100%);
+  border: none;
+}
+
+.helo-insight-icon {
+  font-size: 20px;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.helo-insight-text {
+  font-size: 15px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* ============================================ */
+/* SECTIONS                                     */
+/* ============================================ */
+
+.helo-section {
+  background: var(--white);
+  padding: var(--space-lg);
+  border-radius: 20px;
+  border: 1px solid var(--accent-calm);
+}
+
+.helo-creations-grid,
+.helo-resources-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* ============================================ */
+/* EMPTY STATE                                  */
+/* ============================================ */
+
+.helo-empty-state {
+  padding: var(--space-xl);
+  text-align: center;
+  background: var(--surface-calm);
+  border-radius: 12px;
+  border: 1px dashed var(--accent-calm);
+}
+
+/* ============================================ */
+/* CARDS (Créations & Ressources)              */
+/* ============================================ */
+
+.helo-card {
+  background: var(--surface-warm);
+  padding: var(--space-md);
+  border-radius: 16px;
+  border: 1px solid var(--accent-warm);
+  transition: all 0.2s ease;
+  animation: fadeIn 0.4s ease;
+}
+
+.helo-card:hover {
+  border-color: var(--helo-blue);
+  box-shadow: 0 4px 12px rgba(123, 168, 192, 0.15);
+}
+
+.helo-card-title {
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.helo-card-meta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+  display: flex;
+  gap: 12px;
+}
+
+.helo-card-body {
+  margin-top: var(--space-sm);
+  color: var(--text-primary);
+  line-height: 1.6;
+  font-size: 15px;
+}
+
+.helo-card-actions {
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--accent-calm);
+}
+
+.helo-card-link {
+  color: var(--helo-blue);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.helo-card-link:hover {
+  color: var(--helo-blue-dark);
+  text-decoration: underline;
+}
+
+/* ============================================ */
+/* AUDIO BAR (pour méditations)                 */
+/* ============================================ */
+
+.helo-audio-bar {
+  height: 6px;
+  background: rgba(123, 168, 192, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.helo-audio-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--helo-blue), var(--helo-blue-light));
+  transition: width 0.3s ease;
+}
+
+/* ============================================ */
+/* PREVIEW BOX (images/dessins)                 */
+/* ============================================ */
+
+.helo-preview-box {
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(
+    135deg,
+    var(--accent-calm) 0%,
+    var(--accent-warm) 100%
+  );
+  border-radius: 8px;
+  margin-top: 8px;
+  object-fit: cover;
+}
+
+/* ============================================ */
+/* FOOTER                                       */
+/* ============================================ */
+
+.helo-footer {
+  padding-top: var(--space-lg);
+  margin-top: var(--space-lg);
+  border-top: 1px solid var(--accent-calm);
+  text-align: center;
+}
+
+/* ============================================ */
+/* ANIMATIONS                                   */
+/* ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE MOBILE                            */
+/* ============================================ */
+
+@media (max-width: 640px) {
+  .helo-container {
+    padding: var(--space-md);
+  }
+
+  .helo-inner {
+    gap: var(--space-lg);
+  }
+
+  .helo-title {
+    font-size: 24px;
+  }
+
+  .helo-insight-card {
+    padding: var(--space-sm);
+  }
+
+  .helo-section {
+    padding: var(--space-md);
+  }
+}
+
+/* ============================================ */
+/* UTILITY CLASSES (pour composant Text)        */
+/* ============================================ */
+
+.text-xs {
+  font-size: 13px;
+}
+.text-sm {
+  font-size: 15px;
+}
+.text-md {
+  font-size: 16px;
+}
+.text-lg {
+  font-size: 22px;
+}
+.text-xl {
+  font-size: 32px;
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+.text-secondary {
+  color: var(--text-secondary);
+}
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.weight-regular {
+  font-weight: 400;
+}
+.weight-medium {
+  font-weight: 500;
+}
+.weight-semibold {
+  font-weight: 600;
+}
+.weight-bold {
+  font-weight: 700;
+}

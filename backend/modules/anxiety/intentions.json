@@ -1,0 +1,42 @@
+{
+  "grounding_exposure": {
+    "id": "grounding_exposure",
+    "intent": "permettre la tolérance graduée de l'anxiété par ancrage sensoriel",
+    "entry_condition": "phase == 'ancrage' and detresse > 50",
+    "safety": "ne pas forcer l'exposition, valider chaque petit pas, respect du rythme",
+    "exit_signal": "l'utilisateur rapporte une légère baisse d'anxiété et une amélioration du sens de contrôle",
+    "type": "intention"
+  },
+  "worry_management": {
+    "id": "worry_management",
+    "intent": "transformer l'inquiétude en action ou en acceptation",
+    "entry_condition": "phase == 'expression' or (phase == 'ancrage' and detresse > 65)",
+    "safety": "ne pas minimiser les préoccupations, pas de positvisme toxique, distinction pensée-réalité",
+    "exit_signal": "sentiment de responsabilité retrouvé ou acceptation accrue",
+    "type": "intention"
+  },
+  "breath_stabilization": {
+    "id": "breath_stabilization",
+    "intent": "stabiliser le système nerveux par régulation respiratoire",
+    "entry_condition": "phase == 'ancrage'",
+    "safety": "invitations douces sans injonction, adaptées à la capacité de l'utilisateur",
+    "exit_signal": "respiration plus régulière, sensations corporelles moins agitées",
+    "type": "intention"
+  },
+  "cognitive_flexibility": {
+    "id": "cognitive_flexibility",
+    "intent": "explorer les pensées sans les combattre ou les croire absolument",
+    "entry_condition": "phase == 'exploration' or phase == 'sens'",
+    "safety": "non-judgement, pas d'interprétation psychologique hâtive, validation de la charge",
+    "exit_signal": "capacité accrue à observer les pensées sans être submergé",
+    "type": "intention"
+  },
+  "behavioral_activation": {
+    "id": "behavioral_activation",
+    "intent": "réactiver l'engagement dans des activités significatives malgré l'anxiété",
+    "entry_condition": "phase == 'reconstruction' or (phase == 'exploration' and energie > 40)",
+    "safety": "pas de pression, valoriser les petits accomplissements, respect du pace",
+    "exit_signal": "augmentation légère du sentiment d'efficacité personnelle",
+    "type": "intention"
+  }
+}

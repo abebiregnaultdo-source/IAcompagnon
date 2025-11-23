@@ -1,0 +1,11 @@
+{
+  "adaptation": {
+    "high_distress_threshold": 70,
+    "relapse_delta": 15,
+    "improvement_detresse": 40,
+    "improvement_espoir": 60
+  },
+  "clinical": {
+    "avoid_catastrophizing": true
+  }
+}

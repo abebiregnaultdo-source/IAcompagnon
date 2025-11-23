@@ -1,0 +1,8 @@
+# Add one mandala SVG URL per line.
+# Lines starting with # are comments and ignored.
+# Example Wikimedia Commons public-domain SVGs (verify license before use):
+https://upload.wikimedia.org/wikipedia/commons/4/4b/Mandala.svg
+https://upload.wikimedia.org/wikipedia/commons/0/0b/Art_Mandala.svg
+https://upload.wikimedia.org/wikipedia/commons/3/3e/Flower_mandala.svg
+
+# You can add more URLs here (Openclipart or other PD/CC0 sources)
