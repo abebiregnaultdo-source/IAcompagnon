@@ -30,10 +30,6 @@ export default function Chat({
   const [isTyping, setIsTyping] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  
-  // État pour gérer l'affichage avatar
-  const [showAvatarFullscreen, setShowAvatarFullscreen] = useState(false);
-  
   const viewRef = useRef(null);
 
   // Charger l'historique au démarrage
@@ -46,6 +42,7 @@ export default function Chat({
         const data = await res.json();
 
         if (data.messages && data.messages.length > 0) {
+          // Convertir les logs en messages
           const historicalMessages = [];
           data.messages.forEach((log) => {
             if (log.messages && Array.isArray(log.messages)) {
@@ -186,30 +183,7 @@ export default function Chat({
           >
             ←
           </button>
-          
-          {/* Mini avatar cliquable */}
-          <div
-            onClick={() => setShowAvatarFullscreen(true)}
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #7BA8C0 0%, #5A8FA8 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              transition: "transform 0.2s",
-              fontSize: "20px",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-            onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-            title="Voir l'avatar en consultation"
-          >
-            ✨
-          </div>
-
-          <div style={{ flex: 1 }}>
+          <div>
             <Text as="h1" size="lg" style={{ margin: 0 }}>
               Conversation
             </Text>
@@ -217,45 +191,16 @@ export default function Chat({
               Explorez votre ressenti avec Helō
             </Text>
           </div>
-
-          {/* Bouton vidéo call */}
-          <button
-            onClick={() => setShowAvatarFullscreen(true)}
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "50%",
-              background: "var(--color-primary)",
-              border: "none",
-              color: "white",
-              fontSize: "20px",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "all 0.2s",
-              boxShadow: "0 2px 8px rgba(123, 168, 192, 0.3)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "scale(1.05)";
-              e.currentTarget.style.boxShadow = "0 4px 12px rgba(123, 168, 192, 0.4)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.boxShadow = "0 2px 8px rgba(123, 168, 192, 0.3)";
-            }}
-            title="Voir en consultation"
-            aria-label="Ouvrir la vue consultation avec avatar"
-          >
-            📹
-          </button>
         </div>
 
-        {/* Chat Content - SANS avatar inline */}
+        {/* Chat Content */}
         <Panel
           className="avatar-chat-wrap"
           style={{ padding: "var(--space-lg)", boxShadow: "var(--shadow-xs)" }}
         >
+          <div aria-label="Avatar thérapeutique">
+            <AvatarRoom context={{ phase: scores.phase, scores }} />
+          </div>
           <div
             style={{
               display: "flex",
@@ -269,12 +214,6 @@ export default function Chat({
               role="log"
               aria-live="polite"
               aria-label="Historique de conversation"
-              style={{
-                minHeight: "400px",
-                maxHeight: "600px",
-                overflowY: "auto",
-                padding: "var(--space-md)",
-              }}
             >
               {messages.map((m, i) => (
                 <Message key={i} role={m.role}>
@@ -323,109 +262,6 @@ export default function Chat({
           </div>
         </Panel>
       </div>
-
-      {/* Avatar en plein écran (mode overlay) - SANS transcription redondante */}
-      {showAvatarFullscreen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            zIndex: 1000,
-            background: "var(--color-background)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          {/* Header plein écran */}
-          <div
-            style={{
-              padding: "var(--space-lg)",
-              borderBottom: "1px solid var(--color-border)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              background: "rgba(255, 255, 255, 0.95)",
-              backdropFilter: "blur(10px)",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-md)" }}>
-              <Text as="h2" size="lg" style={{ margin: 0 }}>
-                Consultation
-              </Text>
-              <div
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  background: "#4CAF50",
-                  animation: "pulse 2s infinite",
-                }}
-              />
-              <Text size="sm" color="secondary">
-                En ligne
-              </Text>
-            </div>
-
-            <button
-              onClick={() => setShowAvatarFullscreen(false)}
-              style={{
-                width: "44px",
-                height: "44px",
-                borderRadius: "50%",
-                background: "var(--color-error)",
-                border: "none",
-                color: "white",
-                fontSize: "20px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"}
-              onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"}
-              aria-label="Fermer la consultation"
-              title="Retour au chat"
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Avatar Room plein écran */}
-          <div style={{ 
-            flex: 1, 
-            display: "flex", 
-            flexDirection: "column",
-            justifyContent: "center", 
-            alignItems: "center" 
-          }}>
-            <AvatarRoom 
-              context={{ phase: scores.phase, scores }} 
-              mode="overlay"
-              isSpeaking={isTyping}
-            />
-            
-            {/* État simple en bas (PAS de transcription redondante) */}
-            <div
-              style={{
-                marginTop: "var(--space-xl)",
-                textAlign: "center",
-                padding: "var(--space-md) var(--space-xl)",
-                background: "rgba(255, 255, 255, 0.9)",
-                borderRadius: "var(--radius-full)",
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              <Text size="sm" color={isTyping ? "primary" : "secondary"} weight="medium">
-                {isTyping ? "✨ Je réfléchis..." : "💭 Je vous écoute"}
-              </Text>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

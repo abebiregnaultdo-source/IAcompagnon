@@ -1,0 +1,237 @@
+/**
+ * Styles pour Chat.jsx
+ * Architecture avec avatar overlay
+ */
+
+/* Chat container */
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Avatar chat wrap - layout side by side sur desktop */
+.avatar-chat-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 900px) {
+  .avatar-chat-wrap {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--space-xl);
+  }
+}
+
+/* Avatar mini cliquable */
+.mini-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7BA8C0 0%, #5A8FA8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+  font-size: 20px;
+}
+
+.mini-avatar:hover {
+  transform: scale(1.05);
+}
+
+/* Bouton vidéo call */
+.video-call-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(123, 168, 192, 0.3);
+}
+
+.video-call-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(123, 168, 192, 0.4);
+}
+
+.video-call-btn:active {
+  transform: scale(0.95);
+}
+
+/* Avatar overlay fullscreen */
+.avatar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  background: var(--color-background);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.avatar-overlay-header {
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.avatar-overlay-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.avatar-overlay-transcript {
+  padding: var(--space-lg);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--color-border);
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+/* Close button */
+.close-avatar-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-error);
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(239, 83, 80, 0.3);
+}
+
+.close-avatar-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 83, 80, 0.4);
+}
+
+.close-avatar-btn:active {
+  transform: scale(0.95);
+}
+
+/* Transcript message bubble */
+.transcript-message {
+  padding: var(--space-sm);
+  margin-bottom: var(--space-xs);
+  border-radius: var(--radius-md);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.transcript-message.user {
+  background: var(--color-primary-light);
+}
+
+.transcript-message.assistant {
+  background: var(--color-surface-1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .avatar-chat-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .avatar-overlay-header {
+    padding: var(--space-md);
+  }
+
+  .avatar-overlay-transcript {
+    padding: var(--space-md);
+    max-height: 40vh;
+  }
+}
+
+/* Smooth transitions */
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+/* Loading state */
+.chat-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-xl);
+  color: var(--color-text-secondary);
+}
+
+/* Typing indicator */
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  padding: var(--space-sm);
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-primary);
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}

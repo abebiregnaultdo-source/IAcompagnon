@@ -31,7 +31,7 @@ export default function Chat({
   const [isSending, setIsSending] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   
-  // État pour gérer l'affichage avatar
+  // NOUVEAU: État pour gérer l'affichage avatar
   const [showAvatarFullscreen, setShowAvatarFullscreen] = useState(false);
   
   const viewRef = useRef(null);
@@ -187,7 +187,7 @@ export default function Chat({
             ←
           </button>
           
-          {/* Mini avatar cliquable */}
+          {/* NOUVEAU: Mini avatar cliquable */}
           <div
             onClick={() => setShowAvatarFullscreen(true)}
             style={{
@@ -218,7 +218,7 @@ export default function Chat({
             </Text>
           </div>
 
-          {/* Bouton vidéo call */}
+          {/* NOUVEAU: Bouton vidéo call */}
           <button
             onClick={() => setShowAvatarFullscreen(true)}
             style={{
@@ -324,7 +324,7 @@ export default function Chat({
         </Panel>
       </div>
 
-      {/* Avatar en plein écran (mode overlay) - SANS transcription redondante */}
+      {/* NOUVEAU: Avatar en plein écran (mode overlay) */}
       {showAvatarFullscreen && (
         <div
           style={{
@@ -355,15 +355,6 @@ export default function Chat({
               <Text as="h2" size="lg" style={{ margin: 0 }}>
                 Consultation
               </Text>
-              <div
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  borderRadius: "50%",
-                  background: "#4CAF50",
-                  animation: "pulse 2s infinite",
-                }}
-              />
               <Text size="sm" color="secondary">
                 En ligne
               </Text>
@@ -395,34 +386,57 @@ export default function Chat({
           </div>
 
           {/* Avatar Room plein écran */}
-          <div style={{ 
-            flex: 1, 
-            display: "flex", 
-            flexDirection: "column",
-            justifyContent: "center", 
-            alignItems: "center" 
-          }}>
+          <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
             <AvatarRoom 
               context={{ phase: scores.phase, scores }} 
               mode="overlay"
               isSpeaking={isTyping}
             />
-            
-            {/* État simple en bas (PAS de transcription redondante) */}
-            <div
-              style={{
-                marginTop: "var(--space-xl)",
-                textAlign: "center",
-                padding: "var(--space-md) var(--space-xl)",
-                background: "rgba(255, 255, 255, 0.9)",
-                borderRadius: "var(--radius-full)",
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              <Text size="sm" color={isTyping ? "primary" : "secondary"} weight="medium">
-                {isTyping ? "✨ Je réfléchis..." : "💭 Je vous écoute"}
-              </Text>
-            </div>
+          </div>
+
+          {/* Transcription en bas */}
+          <div
+            style={{
+              padding: "var(--space-lg)",
+              background: "rgba(255, 255, 255, 0.95)",
+              backdropFilter: "blur(10px)",
+              borderTop: "1px solid var(--color-border)",
+              maxHeight: "30vh",
+              overflowY: "auto",
+            }}
+          >
+            <Text size="sm" color="secondary" style={{ marginBottom: "var(--space-sm)" }}>
+              Transcription en direct
+            </Text>
+            {messages.slice(-3).map((m, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: "var(--space-sm)",
+                  marginBottom: "var(--space-xs)",
+                  borderRadius: "var(--radius-md)",
+                  background: m.role === "user" ? "var(--color-primary-light)" : "var(--color-surface-1)",
+                }}
+              >
+                <Text size="sm" weight="medium" color={m.role === "user" ? "primary" : "default"}>
+                  {m.role === "user" ? "Vous" : "Helō"}:
+                </Text>
+                <Text size="sm">{m.content}</Text>
+              </div>
+            ))}
+            {isTyping && (
+              <div
+                style={{
+                  padding: "var(--space-sm)",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--color-surface-1)",
+                }}
+              >
+                <Text size="sm" color="secondary">
+                  Helō réfléchit...
+                </Text>
+              </div>
+            )}
           </div>
         </div>
       )}
