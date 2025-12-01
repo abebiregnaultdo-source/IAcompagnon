@@ -1,6 +1,7 @@
 import Logo from "./components/Logo";
 import Button from "./components/Button";
 import UserMenu from "./components/UserMenu";
+import SubscriptionBanner from "./components/SubscriptionBanner";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 
 /**
@@ -78,6 +79,11 @@ export default function Home({
               onLogout={onLogout}
             />
           </div>
+        </div>
+
+        {/* Subscription banner */}
+        <div style={{ marginBottom: "var(--space-xl)" }}>
+          <SubscriptionBanner userId={user?.id} />
         </div>
 
         {/* Profil thérapeutique configuré */}

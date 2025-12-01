@@ -23,6 +23,9 @@ from .modules_loader import registry
 from .adjustment import adjust_tone, detect_phase
 from .creative_storage import CreativeStorage
 from .resources_catalog import ResourcesCatalog
+from .routes import subscription as subscription_routes
+from .database import Base, engine
+from .models_sql import Subscription, FeatureUsage
 # Import temporairement commenté (dossiers avec tirets non importables)
 # from ...ai-engine.app.creative_tools import (
 #     CreativeToolsDefinition,
@@ -92,6 +95,13 @@ resources_catalog = ResourcesCatalog()
 @app.on_event('startup')
 async def startup_event():
     registry.load()
+    # Init DB tables if not exist
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as e:
+        logger.error(f"DB init error: {e}")
+    # Include subscription routes
+    app.include_router(subscription_routes.router)
 
 @app.middleware('http')
 async def audit_access(request: Request, call_next):

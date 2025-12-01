@@ -1,0 +1,53 @@
+/* SubscriptionBanner.css */
+.subscription-banner {
+  padding: 12px 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.subscription-banner.trial {
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  color: #2E7D32;
+}
+.subscription-banner.trial-ending {
+  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
+  color: #E65100;
+  flex-direction: column;
+  align-items: stretch;
+}
+.subscription-banner.expired {
+  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+  color: #C62828;
+  flex-direction: column;
+  align-items: stretch;
+}
+.subscription-banner.active {
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+  color: #1565C0;
+}
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.banner-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.banner-text { flex: 1; }
+.banner-text strong { display: block; font-size: 15px; margin-bottom: 4px; }
+.banner-text p { margin: 0; font-size: 13px; opacity: 0.9; }
+.banner-button {
+  padding: 10px 24px;
+  background: white;
+  color: #E65100;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.3s;
+}
+.banner-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
