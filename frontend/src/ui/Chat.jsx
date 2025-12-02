@@ -12,6 +12,7 @@ export default function Chat({
   user,
   onEmotionalStateChange,
   onBackToHome,
+  onSwitchToVoice,
 }) {
   const device = useDeviceDetection();
   const [messages, setMessages] = useState([
@@ -318,6 +319,42 @@ export default function Chat({
                 >
                   {isSending ? "Envoi..." : "Envoyer"}
                 </Button>
+                <button
+                  onClick={() => {
+                    // Basculer vers le mode vocal (VoiceChat)
+                    if (window.confirm("Passer en mode appel vocal avec votre compagnon ?")) {
+                      if (onSwitchToVoice) {
+                        onSwitchToVoice();
+                      }
+                    }
+                  }}
+                  style={{
+                    padding: "var(--space-md) var(--space-lg)",
+                    borderRadius: "var(--radius-md)",
+                    background: "linear-gradient(135deg, #7BA8C0, #5A8FA8)",
+                    border: "none",
+                    color: "white",
+                    fontSize: "var(--font-size-lg)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.2s",
+                    boxShadow: "0 2px 8px rgba(123, 168, 192, 0.3)",
+                  }}
+                  title="Passer en mode vocal (appel)"
+                  aria-label="Basculer vers le mode vocal"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "scale(1.05)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(123, 168, 192, 0.4)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(123, 168, 192, 0.3)";
+                  }}
+                >
+                  🎤
+                </button>
               </div>
             </Panel>
           </div>

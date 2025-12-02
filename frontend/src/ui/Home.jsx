@@ -273,32 +273,48 @@ export default function Home({
           <div
             style={{
               display: "flex",
+              flexDirection: device.isMobile ? "column" : "row",
               gap: "var(--space-md)",
               justifyContent: "center",
-              alignItems: "center",
+              alignItems: "stretch",
             }}
           >
             <Button
               onClick={onStartConversation}
               style={{
                 fontSize: "var(--font-size-md)",
-                padding: "var(--space-md) var(--space-2xl)",
-                minWidth: "250px",
+                padding: "var(--space-lg) var(--space-xl)",
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "var(--space-sm)",
               }}
             >
-              Commencer une conversation
+              <span style={{ fontSize: "1.5rem" }}>💬</span>
+              <span>Écrire un message</span>
             </Button>
 
             <Button
               onClick={() => {
                 onStartCall && onStartCall();
               }}
+              variant="secondary"
               style={{
                 fontSize: "var(--font-size-md)",
-                padding: "var(--space-md) var(--space-lg)",
+                padding: "var(--space-lg) var(--space-xl)",
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "var(--space-sm)",
+                background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))",
+                border: "none",
+                color: "white",
               }}
             >
-              Lancer un appel
+              <span style={{ fontSize: "1.5rem" }}>📞</span>
+              <span>Appel visio</span>
             </Button>
           </div>
         </div>

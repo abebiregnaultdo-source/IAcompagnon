@@ -290,6 +290,7 @@ export default function App() {
             onClick={() => {
               setShowChat(false);
               setShowHome(true);
+              setConversationMode("chat"); // Reset to chat mode
             }}
             style={{
               marginBottom: "var(--space-lg)",
@@ -310,6 +311,14 @@ export default function App() {
             user={user}
             api={api}
             onEmotionalStateChange={setEmotionalState}
+            onBackToHome={() => {
+              setShowChat(false);
+              setShowHome(true);
+              setConversationMode("chat");
+            }}
+            onSwitchToVoice={() => {
+              setConversationMode("voice");
+            }}
           />
         </div>
       </EmotionalFeedback>
