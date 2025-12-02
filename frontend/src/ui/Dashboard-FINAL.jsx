@@ -1,231 +1,304 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
-import { useDashboardData } from "../hooks/useDashboardData";
-import CreationCard from "./components/CreationCard";
-import ResourceCard from "./components/ResourceCard";
-import InsightCard from "./components/InsightCard";
-import Text from "./components/Text";
-import "../styles/dashboard.css";
+import Button from "./components/Button";
 
 /**
- * Dashboard helō - Version thérapeutique
- * Sans graphiques, sans onglets, avec insights qualitatifs
+ * Page Parcours - Historique des sessions
+ * Version minimaliste centrée sur l'historique des conversations
  */
-export function Dashboard({ user, onClose }) {
+export function Dashboard({ user, onClose, onResumeSession }) {
   const device = useDeviceDetection();
-  const { history, creations, resources, loading, error } = useDashboardData(
-    user.id
-  );
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // ============================================
-  // CALCUL DES INSIGHTS QUALITATIFS
-  // ============================================
-  const insights = React.useMemo(() => {
-    if (!history || history.length === 0) {
-      return {
-        hasWrittenToday: false,
-        energyTrend: null,
-        lastCreationDate: null,
-        isEmpty: true,
-      };
+  useEffect(() => {
+    loadSessions();
+  }, [user]);
+
+  async function loadSessions() {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/history/${user.id}`);
+
+      if (!response.ok) {
+        throw new Error("Impossible de charger l'historique");
+      }
+
+      const data = await response.json();
+      setSessions(data.sessions || []);
+    } catch (err) {
+      console.error("Error loading sessions:", err);
+      setError(err.message);
+      // Mode démo si erreur
+      setSessions([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return `Aujourd'hui, ${date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    if (diffDays === 1) {
+      return `Hier, ${date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+    }
+    if (diffDays < 7) {
+      return `Il y a ${diffDays} jours`;
     }
 
-    const today = new Date().toDateString();
-    const hasWrittenToday = history.some(
-      (h) => new Date(h.date || h.created_at).toDateString() === today
-    );
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long'
+    });
+  }
 
-    // Moyenne d'énergie sur les 7 derniers jours
-    const recentSessions = history.slice(-7);
-    const avgEnergie =
-      recentSessions.length > 0
-        ? recentSessions.reduce((sum, h) => sum + (h.energie || 0), 0) /
-          recentSessions.length
-        : 0;
-
-    const energyTrend =
-      avgEnergie > 5
-        ? "semble un peu plus présente"
-        : avgEnergie > 3
-        ? "est là, même discrète"
-        : "est difficile, c'est normal";
-
-    const lastCreationDate =
-      creations && creations.length > 0
-        ? new Date(
-            creations[0].date || creations[0].created_at
-          ).toLocaleDateString("fr-FR", {
-            day: "numeric",
-            month: "long",
-          })
-        : null;
-
-    return {
-      hasWrittenToday,
-      energyTrend,
-      lastCreationDate,
-      isEmpty: false,
-    };
-  }, [history, creations]);
-
-  // ============================================
-  // LOADING STATE
-  // ============================================
   if (loading) {
     return (
-      <div className="helo-container helo-loading">
-        <div className="helo-spinner">Un instant...</div>
+      <div style={{
+        minHeight: "100vh",
+        background: "var(--color-background)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}>
+        <p style={{ color: "var(--color-text-secondary)" }}>Chargement...</p>
       </div>
     );
   }
 
-  // ============================================
-  // RENDER
-  // ============================================
   return (
     <div
-      className="helo-container"
-      style={{ padding: device.isMobile ? "20px" : undefined }}
+      style={{
+        minHeight: "100vh",
+        background: "var(--color-background)",
+        padding: device.isMobile ? "var(--space-md)" : "var(--space-xl)",
+      }}
     >
-      <div className="helo-inner">
-        {/* ============================================ */}
-        {/* HEADER                                       */}
-        {/* ============================================ */}
-        <header className="helo-header">
-          <div>
-            <Text
-              as="h1"
-              size="xl"
-              className="helo-title"
-              style={{ margin: 0, fontWeight: 500 }}
-            >
-              Votre espace
-            </Text>
-            <Text
-              size="sm"
-              color="secondary"
-              style={{ marginTop: 4, display: "block" }}
-            >
-              Un lieu pour vous, à votre rythme
-            </Text>
-          </div>
+      <div
+        style={{
+          maxWidth: "800px",
+          margin: "0 auto",
+        }}
+      >
+        {/* Header */}
+        <header
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "var(--space-2xl)",
+            paddingBottom: "var(--space-lg)",
+            borderBottom: "1px solid var(--color-border)",
+          }}
+        >
           <button
-            className="helo-btn-close"
             onClick={onClose}
-            aria-label="Fermer"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--color-text-secondary)",
+              fontSize: "var(--font-size-md)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-xs)",
+            }}
           >
-            ×
+            ← Retour
           </button>
+
+          <h1
+            style={{
+              fontSize: "var(--font-size-xl)",
+              fontWeight: "var(--font-weight-semibold)",
+              color: "var(--color-text-primary)",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-sm)",
+            }}
+          >
+            📖 Mon parcours
+          </h1>
+
+          <div style={{ width: "60px" }} /> {/* Spacer for flex centering */}
         </header>
 
-        {/* ============================================ */}
-        {/* INSIGHTS DOUX (PAS DE STATS)                */}
-        {/* ============================================ */}
-        <div className="helo-insights">
-          {insights.isEmpty ? (
-            <InsightCard
-              icon="💙"
-              text="Bienvenue dans votre espace. Prenez le temps qu'il vous faut."
-              variant="welcome"
-            />
+        {/* Sessions list */}
+        <div style={{ marginBottom: "var(--space-xl)" }}>
+          {sessions.length === 0 ? (
+            <div
+              style={{
+                background: "var(--color-surface-1)",
+                borderRadius: "var(--radius-lg)",
+                padding: "var(--space-2xl)",
+                textAlign: "center",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              <p
+                style={{
+                  fontSize: "var(--font-size-md)",
+                  color: "var(--color-text-secondary)",
+                  marginBottom: "var(--space-lg)",
+                }}
+              >
+                Vous n'avez pas encore de sessions.
+              </p>
+              <Button
+                onClick={onClose}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "var(--space-sm)",
+                }}
+              >
+                💬 Commencer maintenant
+              </Button>
+            </div>
           ) : (
-            <>
-              {insights.hasWrittenToday && (
-                <InsightCard icon="✨" text="Vous avez écrit aujourd'hui" />
-              )}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-lg)",
+              }}
+            >
+              {sessions.map((session) => {
+                const isToday = formatDate(session.created_at).startsWith("Aujourd'hui");
 
-              {insights.energyTrend && history.length > 3 && (
-                <InsightCard
-                  icon="🌊"
-                  text={`Votre énergie ${insights.energyTrend} ces derniers jours`}
-                />
-              )}
+                return (
+                  <div
+                    key={session.id}
+                    style={{
+                      background: "var(--color-surface-1)",
+                      borderRadius: "var(--radius-lg)",
+                      padding: "var(--space-xl)",
+                      border: "1px solid var(--color-border)",
+                      transition: "var(--transition-fast)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = "var(--color-primary)";
+                      e.currentTarget.style.boxShadow = "0 4px 12px rgba(123, 168, 192, 0.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = "var(--color-border)";
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    {/* Session header */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: "var(--space-md)",
+                        flexWrap: "wrap",
+                        gap: "var(--space-sm)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "var(--font-size-sm)",
+                          color: "var(--color-text-secondary)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-xs)",
+                        }}
+                      >
+                        📅 {formatDate(session.created_at)}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "var(--font-size-sm)",
+                          color: "var(--color-text-secondary)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-xs)",
+                        }}
+                      >
+                        💬 {session.message_count || 0} échanges
+                      </span>
+                    </div>
 
-              {insights.lastCreationDate && (
-                <InsightCard
-                  icon="🕊️"
-                  text={`Vous avez créé quelque chose le ${insights.lastCreationDate}`}
-                />
-              )}
-            </>
+                    {/* Session summary/themes */}
+                    {session.emotional_themes && session.emotional_themes.length > 0 && (
+                      <div
+                        style={{
+                          fontSize: "var(--font-size-md)",
+                          color: "var(--color-text-primary)",
+                          marginBottom: "var(--space-lg)",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {session.emotional_themes.join(", ")}
+                      </div>
+                    )}
+
+                    {/* Actions */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "var(--space-sm)",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {isToday && (
+                        <Button
+                          onClick={() => onResumeSession && onResumeSession(session.id)}
+                          style={{
+                            flex: "1 1 auto",
+                            minWidth: "120px",
+                          }}
+                        >
+                          Reprendre
+                        </Button>
+                      )}
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          // TODO: Implémenter vue détaillée session
+                          console.log("View session:", session.id);
+                        }}
+                        style={{
+                          flex: "1 1 auto",
+                          minWidth: "120px",
+                        }}
+                      >
+                        Relire
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
 
-        {/* ============================================ */}
-        {/* SECTION : VOS CRÉATIONS                     */}
-        {/* ============================================ */}
-        <section className="helo-section">
-          <Text
-            as="h2"
-            size="lg"
-            style={{ marginBottom: 16, fontWeight: 600 }}
-          >
-            Ce que vous avez créé
-          </Text>
-
-          {!creations || creations.length === 0 ? (
-            <div className="helo-empty-state">
-              <Text
-                size="sm"
-                color="secondary"
-                style={{ textAlign: "center", lineHeight: 1.6 }}
-              >
-                Vos créations apparaîtront ici. Il n'y a pas d'urgence.
-              </Text>
-            </div>
-          ) : (
-            <div className="helo-creations-grid">
-              {creations.map((creation, i) => (
-                <CreationCard key={creation.id || i} creation={creation} />
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* ============================================ */}
-        {/* SECTION : RESSOURCES (DISCRÈTES)           */}
-        {/* ============================================ */}
-        {resources && resources.length > 0 && (
-          <section className="helo-section">
-            <Text
-              as="h2"
-              size="lg"
-              style={{ marginBottom: 16, fontWeight: 600 }}
+        {/* Load more button */}
+        {sessions.length > 0 && sessions.length >= 10 && (
+          <div style={{ textAlign: "center" }}>
+            <Button
+              variant="secondary"
+              onClick={loadSessions}
+              style={{
+                minWidth: "200px",
+              }}
             >
-              Quelques ressources
-            </Text>
-            <div className="helo-resources-grid">
-              {resources.slice(0, 3).map((resource) => (
-                <ResourceCard key={resource.id} resource={resource} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ============================================ */}
-        {/* ERREUR (si présente)                        */}
-        {/* ============================================ */}
-        {error && (
-          <div className="helo-error-card">
-            <Text size="sm" style={{ color: "var(--text-secondary)" }}>
-              Une erreur est survenue : {error}
-            </Text>
+              Charger plus
+            </Button>
           </div>
         )}
-
-        {/* ============================================ */}
-        {/* FOOTER DOUX                                 */}
-        {/* ============================================ */}
-        <footer className="helo-footer">
-          <Text
-            size="xs"
-            color="secondary"
-            style={{ textAlign: "center", lineHeight: 1.5 }}
-          >
-            Vous avancez à votre rythme. Aucune pression.
-          </Text>
-        </footer>
       </div>
     </div>
   );
 }
+
+// Export par défaut pour compatibilité
+export default Dashboard;
