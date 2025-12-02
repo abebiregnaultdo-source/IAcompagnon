@@ -562,13 +562,12 @@ export default function Creativity({ user, api, onBackToHome }) {
           </Panel>
         )}
 
-        {activeTab === "coloring" && (
+        {activeTab === "creative" && !showEditor && (
           <div style={{ marginBottom: "var(--space-xl)" }}>
             <ColoringCanvas
               user={user}
               api={api}
               onSaved={() => {
-                setShowEditor(false);
                 loadCreations();
               }}
             />
