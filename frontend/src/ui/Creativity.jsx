@@ -4,6 +4,9 @@ import Button from "./components/Button";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
+import CreativeSpaceIntro from "./creativity/CreativeSpaceIntro";
+import ColoringCanvas from "./creativity/ColoringCanvas";
+import Portfolio from "./creativity/Portfolio";
 
 /**
  * Page Créativité - Outils d'expression thérapeutique
@@ -203,12 +206,6 @@ export default function Creativity({ user, api, onBackToHome }) {
   ];
 
   const filteredCreations = creations.filter((c) => c.type === activeTab);
-
-  // Lazy import to avoid circular dependencies
-  const CreativeSpaceIntro =
-    require("./creativity/CreativeSpaceIntro.jsx").default;
-  const ColoringCanvas = require("./creativity/ColoringCanvas.jsx").default;
-  const Portfolio = require("./creativity/Portfolio.jsx").default;
   const device = useDeviceDetection();
 
   if (showIntro) {
