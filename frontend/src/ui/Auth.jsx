@@ -79,16 +79,18 @@ export default function Auth({ onAuthenticated }) {
         return;
       }
 
-      // Créer nouvel utilisateur
+      // Créer nouvel utilisateur (sans les préférences - à compléter dans l'onboarding)
       const newUser = {
         id: Math.random().toString(36).slice(2) + Date.now().toString(36),
         email,
         password, // ⚠️ En production : hasher le mot de passe!
         first_name: firstName,
         created_at: new Date().toISOString(),
-        tone: "neutre",
-        rhythm: 2,
-        active_module: "grief",
+        onboarding_completed: false, // Force l'onboarding
+        // Les champs suivants seront définis pendant l'onboarding :
+        // tone: "neutre",
+        // rhythm: 2,
+        // active_module: "grief",
       };
 
       users[newUser.id] = newUser;

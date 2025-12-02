@@ -93,10 +93,23 @@ export default function App() {
     }
   }, [user]);
 
-  const handleUserReady = (userData) => {
+  const handleUserReady = (profileData) => {
+    // Fusionner le profil d'onboarding avec l'utilisateur existant
+    const updatedUser = { ...user, ...profileData };
+
+    // Sauvegarder dans localStorage
+    localStorage.setItem("helo_current_user", JSON.stringify(updatedUser));
+
+    // Mettre à jour aussi dans helo_users si existe
+    const users = JSON.parse(localStorage.getItem("helo_users") || "{}");
+    if (users[updatedUser.id]) {
+      users[updatedUser.id] = updatedUser;
+      localStorage.setItem("helo_users", JSON.stringify(users));
+    }
+
     setIsTransitioning(true);
     setTimeout(() => {
-      setUser(userData);
+      setUser(updatedUser);
       setIsTransitioning(false);
       setShowHome(true); // Afficher la page d'accueil après l'onboarding
     }, 600);
@@ -191,6 +204,7 @@ export default function App() {
           <main id="main-content" className="card">
             <Onboarding
               api={api}
+              user={user}
               step={step}
               setStep={setStep}
               onReady={handleUserReady}
@@ -212,6 +226,7 @@ export default function App() {
           <main id="main-content" className="card">
             <Onboarding
               api={api}
+              user={user}
               step={step}
               setStep={setStep}
               onReady={handleUserReady}

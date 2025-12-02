@@ -8,7 +8,7 @@ const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 const STEPS = ["intro", "consent", "first_name", "rhythm", "done"];
 
-export default function Onboarding({ api, step, setStep, onReady }) {
+export default function Onboarding({ api, user, step, setStep, onReady }) {
   const [firstName, setFirstName] = useState("");
   const [rhythm, setRhythm] = useState(2);
   const [status, setStatus] = useState("");
@@ -60,18 +60,21 @@ export default function Onboarding({ api, step, setStep, onReady }) {
 
   const finalize = async () => {
     const profile = {
-      id: uid(),
+      id: user?.id || uid(), // Utiliser l'ID existant de l'utilisateur
+      email: user?.email, // Garder l'email
+      password: user?.password, // Garder le mot de passe
       first_name: firstName || "Ami",
       tone: rhythm === 1 ? "lent" : rhythm === 3 ? "enveloppant" : "neutre",
       rhythm: rhythm,
       active_module: "grief",
+      onboarding_completed: true, // Marque l'onboarding comme terminé
       consent: {
         accepted: true,
         version: "v1.0",
         date: new Date().toISOString().slice(0, 10),
         scope: ["text", "emotion_scoring"],
       },
-      created_at: new Date().toISOString(),
+      created_at: user?.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
     await fetch(api.base + "/api/profile", {
