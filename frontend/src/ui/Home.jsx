@@ -142,11 +142,11 @@ export default function Home({
           </Button>
         </div>
 
-        {/* Navigation rapide en grille 2x2 */}
+        {/* Navigation rapide - 3 boutons */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            display: "flex",
+            flexDirection: "column",
             gap: "var(--space-md)",
             marginBottom: "var(--space-xl)",
           }}
@@ -224,31 +224,6 @@ export default function Home({
             }}
           >
             🎨 Créativité
-          </button>
-
-          <button
-            onClick={onOpenSettings}
-            style={{
-              padding: "var(--space-lg)",
-              background: "var(--color-surface-1)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-md)",
-              cursor: "pointer",
-              textAlign: "center",
-              transition: "var(--transition-fast)",
-              fontSize: "var(--font-size-md)",
-              color: "var(--color-text-primary)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-2)";
-              e.currentTarget.style.borderColor = "var(--color-primary)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-1)";
-              e.currentTarget.style.borderColor = "var(--color-border)";
-            }}
-          >
-            ⚙️ Paramètres
           </button>
         </div>
 
