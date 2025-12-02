@@ -20,12 +20,25 @@ class TTSEngine:
     def __init__(self):
         self.edge_available = False
         self.piper_available = False
+        self.piper_tts = None
         self._initialize_engines()
     
     def _initialize_engines(self):
         """Initialise les moteurs TTS disponibles"""
-        
-        # Edge TTS
+
+        # Piper TTS (Open Source - Priority)
+        try:
+            from .tts_piper import init_piper_tts, get_piper_tts
+            init_piper_tts()
+            self.piper_tts = get_piper_tts()
+            self.piper_available = self.piper_tts.is_available()
+            if self.piper_available:
+                logger.info("✅ Piper TTS available (Open Source)")
+        except Exception as e:
+            self.piper_available = False
+            logger.warning(f"Piper TTS not available: {e}")
+
+        # Edge TTS (Fallback cloud)
         try:
             import edge_tts
             self.edge_available = True
@@ -74,25 +87,31 @@ class TTSEngine:
     ) -> str:
         """
         Synthétise le texte en audio
-        
+
         Args:
             text: Texte à synthétiser
-            voice_id: ID de la voix (Edge ou Piper)
+            voice_id: ID de la voix (Piper, Edge, etc.)
             speed: Vitesse (0.5 - 2.0)
             pitch: Tonalité (0.5 - 2.0)
-        
+
         Returns:
             Audio encodé en base64
         """
-        # Déterminer le moteur selon le voice_id prefix
-        if voice_id.startswith("piper-"):
+        # PRIORITY 1: Piper (Open Source, gratuit, qualité 7.5/10)
+        if self.piper_available and voice_id.startswith("piper-"):
             return await self._synthesize_piper(text, voice_id, speed)
+
+        # PRIORITY 2: Si pas de préfixe spécifique, utiliser Piper par défaut
+        if self.piper_available and not any(voice_id.startswith(prefix) for prefix in ["edge-", "silero-", "coqui-"]):
+            return await self._synthesize_piper_default(text, speed)
+
+        # Autres moteurs
         if voice_id.startswith("silero-") and self.silero_available:
             return await self._synthesize_silero(text, voice_id, speed)
         if voice_id.startswith("coqui-") and self.coqui_available:
             return await self._synthesize_coqui(text, voice_id, speed)
 
-        # Par défaut, utiliser Edge (cloud) si disponible
+        # Fallback: Edge TTS (cloud) si disponible
         return await self._synthesize_edge(text, voice_id, speed, pitch)
 
     async def _synthesize_silero(self, text: str, voice_id: str, speed: float) -> str:
@@ -235,6 +254,34 @@ class TTSEngine:
             logger.error(f"Edge TTS synthesis error: {e}")
             raise
     
+    async def _synthesize_piper_default(self, text: str, speed: float = 1.0) -> str:
+        """
+        Synthèse avec Piper TTS (voix par défaut)
+        Utilisé comme moteur principal open source
+        """
+        if not self.piper_available:
+            raise RuntimeError("Piper TTS not available")
+
+        try:
+            import asyncio
+            # Piper est synchrone, on l'exécute dans un thread pool
+            loop = asyncio.get_event_loop()
+            audio_base64 = await loop.run_in_executor(
+                None,
+                self.piper_tts.synthesize_base64,
+                text
+            )
+
+            logger.info(f"Synthesized with Piper TTS (default): {len(text)} chars")
+            return audio_base64
+
+        except Exception as e:
+            logger.error(f"Piper TTS synthesis error: {e}")
+            # Fallback to Edge if available
+            if self.edge_available:
+                return await self._synthesize_edge(text, "fr-FR-DeniseNeural", 1.0, 1.0)
+            raise
+
     async def _synthesize_piper(
         self,
         text: str,
@@ -242,7 +289,7 @@ class TTSEngine:
         speed: float
     ) -> str:
         """Synthèse avec Piper TTS (local)"""
-        
+
         if not self.piper_available:
             raise RuntimeError("Piper TTS not available")
         

@@ -11,9 +11,11 @@ openai-whisper==20231117
 # faster-whisper==0.10.0
 
 # Text-to-Speech
+# Piper TTS (Open Source - Priority)
+piper-tts==1.2.0
+
+# Edge TTS (Fallback cloud)
 edge-tts==6.1.9
-# Piper TTS (optionnel, pour local)
-# piper-tts==1.2.0
 
 # Audio processing
 pydub==0.25.1
