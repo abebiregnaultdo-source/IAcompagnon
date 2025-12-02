@@ -153,21 +153,13 @@ export default function Creativity({ user, api, onBackToHome }) {
             narrative_type: "reconstruction_temporelle",
           };
           break;
-        case "poem":
+        case "creative":
+          // Création artistique (poème par défaut)
           endpoint = "/api/creations/poem";
           body = {
             user_id: user.id,
             title: currentTitle || "Sans titre",
             content: currentContent,
-          };
-          break;
-        case "ritual":
-          endpoint = "/api/creations/ritual";
-          body = {
-            user_id: user.id,
-            title: currentTitle || "Sans titre",
-            description: currentContent,
-            frequency: "ponctuel",
           };
           break;
       }
@@ -190,22 +182,18 @@ export default function Creativity({ user, api, onBackToHome }) {
   };
 
   const tabs = [
-    { id: "journal", label: "Journal", description: "Écrire librement" },
-    {
-      id: "narrative",
-      label: "Narratif",
-      description: "Raconter votre histoire",
-    },
-    { id: "poem", label: "Poème", description: "Expression poétique" },
-    {
-      id: "ritual",
-      label: "Rituel",
-      description: "Créer un rituel d'écriture",
-    },
-    { id: "coloring", label: "Coloriage", description: "Méditation active" },
+    { id: "journal", label: "📝 Journal", description: "Écriture libre quotidienne" },
+    { id: "narrative", label: "📖 Récit", description: "Raconter votre histoire" },
+    { id: "creative", label: "🎨 Création artistique", description: "Poème, coloriage, expression visuelle" },
   ];
 
-  const filteredCreations = creations.filter((c) => c.type === activeTab);
+  const filteredCreations = creations.filter((c) => {
+    if (activeTab === "creative") {
+      // L'onglet "Création artistique" regroupe poem, ritual, coloring
+      return ["poem", "ritual", "coloring"].includes(c.type);
+    }
+    return c.type === activeTab;
+  });
   const device = useDeviceDetection();
 
   if (showIntro) {
