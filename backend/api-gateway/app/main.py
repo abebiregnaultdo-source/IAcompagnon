@@ -23,9 +23,10 @@ from .modules_loader import registry
 from .adjustment import adjust_tone, detect_phase
 from .creative_storage import CreativeStorage
 from .resources_catalog import ResourcesCatalog
-from .routes import subscription as subscription_routes
-from .database import Base, engine
-from .models_sql import Subscription, FeatureUsage
+# Temporairement commenté pour tester avec Python 3.13 (incompatibilité SQLAlchemy)
+# from .routes import subscription as subscription_routes
+# from .database import Base, engine
+# from .models_sql import Subscription, FeatureUsage
 # Import temporairement commenté (dossiers avec tirets non importables)
 # from ...ai-engine.app.creative_tools import (
 #     CreativeToolsDefinition,
@@ -96,12 +97,13 @@ resources_catalog = ResourcesCatalog()
 async def startup_event():
     registry.load()
     # Init DB tables if not exist
-    try:
-        Base.metadata.create_all(bind=engine)
-    except Exception as e:
-        logger.error(f"DB init error: {e}")
-    # Include subscription routes
-    app.include_router(subscription_routes.router)
+    # Temporairement commenté (incompatibilité SQLAlchemy + Python 3.13)
+    # try:
+    #     Base.metadata.create_all(bind=engine)
+    # except Exception as e:
+    #     logger.error(f"DB init error: {e}")
+    # # Include subscription routes
+    # app.include_router(subscription_routes.router)
 
 @app.middleware('http')
 async def audit_access(request: Request, call_next):
@@ -171,6 +173,40 @@ async def onboarding_next(payload: OnboardingNextRequest):
     mod = registry.import_onboarding(module_conf['onboarding'])
     step_out = mod.next_step(payload.step, payload.payload)  # type: ignore
     return step_out
+
+# Webhook Stripe temporaire (sans SQLAlchemy pour Python 3.13)
+@app.post('/api/webhooks/stripe')
+async def stripe_webhook_temp(request: Request):
+    """Webhook Stripe temporaire pour tests - log seulement"""
+    import stripe
+    stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    try:
+        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+    except Exception as e:
+        logger.error(f"Webhook signature verification failed: {e}")
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    logger.info(f"✅ Webhook received: {event['type']}")
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        user_id = session.get('metadata', {}).get('user_id')
+        plan = session.get('metadata', {}).get('plan')
+        logger.info(f"  → Checkout completed for user {user_id}, plan: {plan}")
+
+    elif event['type'] == 'customer.subscription.updated':
+        subscription = event['data']['object']
+        status = subscription.get('status')
+        logger.info(f"  → Subscription updated: status={status}")
+
+    elif event['type'] == 'customer.subscription.deleted':
+        logger.info(f"  → Subscription canceled")
+
+    return JSONResponse({"status": "success"})
 
 @app.post('/api/analyze')
 async def analyze_text(req: AnalyzeRequest):
@@ -613,6 +649,11 @@ async def voice_input(request: Request):
         except Exception as e:
             logger.error(f"Voice input processing failed: {e}")
             raise HTTPException(500, 'Voice processing failed')
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Voice input endpoint error: {e}")
+        raise HTTPException(500, 'Internal server error')
 
 
 @app.post('/api/voice_output')
