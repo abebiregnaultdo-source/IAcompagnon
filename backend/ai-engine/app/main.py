@@ -70,14 +70,14 @@ def validate_api_keys():
     anthropic_key = os.getenv('ANTHROPIC_API_KEY')
     
     if not openai_key or openai_key.startswith('sk-your-'):
-        warnings.append("⚠️  OPENAI_API_KEY non configurée ou invalide")
+        warnings.append("WARNING: OPENAI_API_KEY non configuree ou invalide")
     else:
-        print("✅ OPENAI_API_KEY configurée")
-    
+        print("OK: OPENAI_API_KEY configuree")
+
     if not anthropic_key or anthropic_key.startswith('sk-ant-your-'):
-        warnings.append("⚠️  ANTHROPIC_API_KEY non configurée ou invalide")
+        warnings.append("WARNING: ANTHROPIC_API_KEY non configuree ou invalide")
     else:
-        print("✅ ANTHROPIC_API_KEY configurée")
+        print("OK: ANTHROPIC_API_KEY configuree")
     
     if warnings:
         print("\n" + "="*60)
@@ -88,7 +88,7 @@ def validate_api_keys():
         print("Consultez ENV_SETUP.md pour configurer les clés API")
         print("="*60 + "\n")
     else:
-        print("✅ Toutes les clés API sont configurées\n")
+        print("OK: Toutes les cles API sont configurees\n")
 
 # Valider au démarrage
 validate_api_keys()
