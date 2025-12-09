@@ -18,6 +18,7 @@ import Confidentialite from "./legal/Confidentialite";
 import Logo from "./components/Logo";
 import EmotionalFeedback from "./components/EmotionalFeedback";
 import { useDeviceClass } from "../hooks/useDeviceDetection";
+import { supabase, getProfile, updateProfile, signOut } from "../lib/supabase";
 
 export default function App() {
   // Détection d'appareil
@@ -55,29 +56,52 @@ export default function App() {
   const [showChat, setShowChat] = useState(false);
   const [conversationMode, setConversationMode] = useState("chat"); // 'chat' | 'voice'
 
-  const api = useMemo(() => ({ base: "http://localhost:8000" }), []);
+  const api = useMemo(() => ({ base: "https://helo-backend.onrender.com" }), []);
 
-  // Restore user session on mount
+  // Restore user session on mount (Supabase)
   useEffect(() => {
-    const savedUser = localStorage.getItem("helo_current_user");
-    if (savedUser) {
+    const restoreSession = async () => {
       try {
-        const userData = JSON.parse(savedUser);
-        setUser(userData);
-        setShowLanding(false);
-        setShowAuth(false);
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.user) {
+          const profile = await getProfile(session.user.id);
+          const userData = {
+            id: session.user.id,
+            email: session.user.email,
+            first_name: profile?.first_name || session.user.user_metadata?.first_name || '',
+            onboarding_completed: profile?.onboarding_completed || false,
+            preferences: profile?.preferences || {},
+            ...profile,
+          };
+          setUser(userData);
+          setShowLanding(false);
+          setShowAuth(false);
+        }
       } catch (e) {
         console.error("Error restoring user session:", e);
       }
-    }
+    };
+
+    restoreSession();
+
+    // Écouter les changements d'auth
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setShowLanding(true);
+        setShowHome(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // Ensure we show Home by default for authenticated users
   useEffect(() => {
     if (user) {
-      // Only auto-open Home if the user profile looks configured
-      const profileConfigured = user?.first_name && user?.rhythm;
-      if (!profileConfigured) return;
+      // Only auto-open Home if onboarding is completed
+      if (!user.onboarding_completed) return;
 
       const anyViewOpen =
         showHome ||
@@ -93,18 +117,23 @@ export default function App() {
     }
   }, [user]);
 
-  const handleUserReady = (profileData) => {
+  const handleUserReady = async (profileData) => {
     // Fusionner le profil d'onboarding avec l'utilisateur existant
     const updatedUser = { ...user, ...profileData };
 
-    // Sauvegarder dans localStorage
-    localStorage.setItem("helo_current_user", JSON.stringify(updatedUser));
-
-    // Mettre à jour aussi dans helo_users si existe
-    const users = JSON.parse(localStorage.getItem("helo_users") || "{}");
-    if (users[updatedUser.id]) {
-      users[updatedUser.id] = updatedUser;
-      localStorage.setItem("helo_users", JSON.stringify(users));
+    // Sauvegarder dans Supabase
+    try {
+      await updateProfile(user.id, {
+        first_name: profileData.first_name,
+        preferences: {
+          ...(profileData.preferences || {}),
+          rhythm: profileData.rhythm,
+          tone: profileData.tone,
+        },
+        onboarding_completed: true,
+      });
+    } catch (e) {
+      console.error("Error saving profile:", e);
     }
 
     setIsTransitioning(true);
@@ -116,14 +145,13 @@ export default function App() {
   };
 
   const handleAuthenticated = (userData) => {
-    localStorage.setItem("helo_current_user", JSON.stringify(userData));
     setUser(userData);
     setShowAuth(false);
     // Si l'utilisateur a déjà un profil configuré, aller à Home, sinon Onboarding
-    if (userData.first_name && userData.rhythm) {
+    if (userData.onboarding_completed) {
       setShowHome(true);
     }
-    // Sinon, l'onboarding s'affichera automatiquement (user existe mais pas de first_name)
+    // Sinon, l'onboarding s'affichera automatiquement
   };
 
   // Show landing page first
@@ -216,7 +244,7 @@ export default function App() {
   }
 
   // If user exists but hasn't completed onboarding, show Onboarding
-  if (user && (!user.first_name || !user.rhythm)) {
+  if (user && !user.onboarding_completed) {
     return (
       <EmotionalFeedback state="calm">
         <div className="container">
@@ -272,7 +300,9 @@ export default function App() {
             setShowHome(false);
             setShowCreativity(true);
           }}
-          onLogout={() => {
+          onLogout={async () => {
+            // Déconnecter de Supabase
+            await signOut();
             // Nettoyer la session localStorage
             localStorage.removeItem("helo_current_user");
             // Réinitialiser tous les états
@@ -381,7 +411,9 @@ export default function App() {
               setShowSettings(false);
               setShowLegalPage(page);
             }}
-            onLogout={() => {
+            onLogout={async () => {
+              // Déconnecter de Supabase
+              await signOut();
               // Nettoyer la session localStorage
               localStorage.removeItem("helo_current_user");
               // Réinitialiser tous les états
@@ -436,7 +468,9 @@ export default function App() {
               setShowDashboard(false);
               setShowHome(true);
             }}
-            onLogout={() => {
+            onLogout={async () => {
+              // Déconnecter de Supabase
+              await signOut();
               // Nettoyer la session localStorage
               localStorage.removeItem("helo_current_user");
               // Réinitialiser tous les états

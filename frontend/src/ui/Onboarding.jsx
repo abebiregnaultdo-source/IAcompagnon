@@ -9,7 +9,7 @@ const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 const STEPS = ["intro", "consent", "first_name", "rhythm", "done"];
 
 export default function Onboarding({ api, user, step, setStep, onReady }) {
-  const [firstName, setFirstName] = useState("");
+  const [firstName, setFirstName] = useState(user?.first_name || "");
   const [rhythm, setRhythm] = useState(2);
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -20,54 +20,58 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
 
   const currentStepIndex = STEPS.indexOf(step);
 
-  const next = async (payload = {}) => {
-    setIsLoading(true);
-    try {
-      const r = await fetch(api.base + "/api/onboarding/next", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ user_id: "temp", step, payload }),
-      });
-      const data = await r.json();
-      if (data.error) {
-        setStatus(data.error);
-        setIsLoading(false);
-        return;
-      }
-      setStatus(data.message || "");
-      setStep(data.next);
-    } catch (error) {
-      setStatus("Une difficulté est survenue. Réessayons ensemble.");
-    } finally {
-      setIsLoading(false);
+  // Navigation locale entre les étapes (sans appel backend)
+  const goToNextStep = () => {
+    const currentIndex = STEPS.indexOf(step);
+    if (currentIndex < STEPS.length - 1) {
+      setStep(STEPS[currentIndex + 1]);
     }
   };
 
-  const submitConsent = async () => {
-    await next({ accepted: true });
+  const next = async () => {
+    setIsLoading(true);
+    // Transition locale immédiate
+    setTimeout(() => {
+      goToNextStep();
+      setIsLoading(false);
+    }, 300);
   };
+
+  const submitConsent = async () => {
+    await next();
+  };
+
   const submitName = async () => {
     if (!firstName.trim()) {
       setStatus("Votre prénom nous aide à personnaliser l'accompagnement");
       return;
     }
-    await next({ first_name: firstName.trim() });
+    await next();
   };
+
   const submitRhythm = async (r) => {
     setRhythm(r);
-    await next({ rhythm: r });
+    setIsLoading(true);
+    setTimeout(() => {
+      goToNextStep();
+      setIsLoading(false);
+    }, 300);
   };
 
   const finalize = async () => {
+    setIsLoading(true);
     const profile = {
-      id: user?.id || uid(), // Utiliser l'ID existant de l'utilisateur
-      email: user?.email, // Garder l'email
-      password: user?.password, // Garder le mot de passe
+      id: user?.id || uid(),
+      email: user?.email,
       first_name: firstName || "Ami",
       tone: rhythm === 1 ? "lent" : rhythm === 3 ? "enveloppant" : "neutre",
       rhythm: rhythm,
       active_module: "grief",
-      onboarding_completed: true, // Marque l'onboarding comme terminé
+      onboarding_completed: true,
+      preferences: {
+        rhythm: rhythm,
+        tone: rhythm === 1 ? "lent" : rhythm === 3 ? "enveloppant" : "neutre",
+      },
       consent: {
         accepted: true,
         version: "v1.0",
@@ -77,11 +81,9 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
       created_at: user?.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-    await fetch(api.base + "/api/profile", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(profile),
-    });
+
+    // Appeler onReady directement - la sauvegarde Supabase est gérée par App.jsx
+    setIsLoading(false);
     onReady(profile);
   };
 

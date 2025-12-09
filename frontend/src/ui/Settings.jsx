@@ -48,64 +48,31 @@ export default function Settings({
   const [saveMessage, setSaveMessage] = useState("");
   const device = useDeviceDetection();
 
-  // Charger le contact de confiance au montage
+  // Charger le contact de confiance depuis localStorage
   useEffect(() => {
-    const loadTrustedContact = async () => {
-      try {
-        const response = await fetch(
-          `${api.base}/api/trusted-contact/${user.id}`,
-        );
-        if (response.ok) {
-          const data = await response.json();
-          if (data.contact) {
-            setSettings((prev) => ({ ...prev, trustedContact: data.contact }));
-          }
-        }
-      } catch (error) {
-        console.error("Error loading trusted contact:", error);
+    try {
+      const saved = localStorage.getItem(`helo_settings_${user.id}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setSettings((prev) => ({ ...prev, ...parsed }));
       }
-    };
-    loadTrustedContact();
-  }, [user.id, api.base]);
+    } catch (error) {
+      console.error("Error loading settings:", error);
+    }
+  }, [user.id]);
 
   const handleSave = async () => {
     setIsSaving(true);
     setSaveMessage("");
 
     try {
-      // Sauvegarder les préférences thérapeutiques
-      const prefsResponse = await fetch(api.base + "/api/prefs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id_hash: user.id,
-          prefs: {
-            tone: settings.tone,
-            rhythm: settings.rhythm,
-            avatar: settings.avatar,
-          },
-        }),
-      });
-
-      // Sauvegarder le contact de confiance
-      const contactResponse = await fetch(api.base + "/api/trusted-contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          user_id: user.id,
-          contact: settings.trustedContact,
-        }),
-      });
-
-      if (prefsResponse.ok && contactResponse.ok) {
-        setSaveMessage("✓ Paramètres sauvegardés");
-        onSave && onSave(settings);
-      } else {
-        setSaveMessage("✗ Erreur lors de la sauvegarde");
-      }
+      // Sauvegarder dans localStorage
+      localStorage.setItem(`helo_settings_${user.id}`, JSON.stringify(settings));
+      setSaveMessage("Paramètres sauvegardés");
+      onSave && onSave(settings);
     } catch (error) {
       console.error("Save error:", error);
-      setSaveMessage("✗ Erreur de connexion");
+      setSaveMessage("Erreur lors de la sauvegarde");
     } finally {
       setIsSaving(false);
       setTimeout(() => setSaveMessage(""), 3000);

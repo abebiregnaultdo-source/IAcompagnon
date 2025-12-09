@@ -1,5 +1,6 @@
 from __future__ import annotations
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Literal, Dict, Any
 import os
@@ -59,6 +60,20 @@ class PrefsSet(BaseModel):
     prefs: Dict[str, Any]
 
 app = FastAPI(title='AI Engine')
+
+# CORS configuration for Vercel frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://ia-compagnon.vercel.app",
+        "https://ia-compagnon-1.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:5174",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Validation des clés API au démarrage
 def validate_api_keys():
@@ -442,3 +457,12 @@ async def voice_input():
 @app.get('/api/voice_output')
 async def voice_output():
     return { 'status': 'stub', 'message': 'voice output not yet implemented' }
+
+# Health check endpoint for Railway
+@app.get('/')
+async def health_check():
+    return { 'status': 'healthy', 'service': 'AI Engine', 'version': '1.0.0' }
+
+@app.get('/health')
+async def health():
+    return { 'status': 'ok' }

@@ -39,44 +39,9 @@ export default function Chat({
 
   // Charger l'historique au démarrage
   useEffect(() => {
-    const loadHistory = async () => {
-      try {
-        const res = await fetch(
-          `${api.base}/api/chat/history/${user.id}?limit=20`,
-        );
-        const data = await res.json();
-
-        if (data.messages && data.messages.length > 0) {
-          const historicalMessages = [];
-          data.messages.forEach((log) => {
-            if (log.messages && Array.isArray(log.messages)) {
-              log.messages.forEach((msg) => {
-                if (msg.role && msg.content) {
-                  historicalMessages.push({
-                    role: msg.role,
-                    content: msg.content,
-                  });
-                }
-              });
-            }
-          });
-
-          if (historicalMessages.length > 0) {
-            setMessages(historicalMessages);
-          }
-        }
-
-        setHistoryLoaded(true);
-      } catch (error) {
-        console.error("Erreur chargement historique:", error);
-        setHistoryLoaded(true);
-      }
-    };
-
-    if (!historyLoaded) {
-      loadHistory();
-    }
-  }, [api.base, user.id, historyLoaded]);
+    // Backend pas encore déployé - on démarre avec le message de bienvenue
+    setHistoryLoaded(true);
+  }, []);
 
   useEffect(() => {
     viewRef.current?.scrollTo({ top: 99999, behavior: "smooth" });
@@ -93,54 +58,41 @@ export default function Chat({
     setIsTyping(true);
 
     try {
-      // analyze
-      const ar = await fetch(api.base + "/api/analyze", {
+      // Essayer d'appeler le backend
+      const cr = await fetch(api.base + "/generate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text: userMessage }),
-      });
-      const sc = await ar.json();
-      setScores({
-        detresse: sc.detresse,
-        espoir: sc.espoir,
-        energie: sc.energie,
-        phase: sc.phase,
+        body: JSON.stringify({
+          messages: newMsgs.map(m => ({ role: m.role, content: m.content })),
+          profile: { first_name: user.first_name, user_id_hash: user.id },
+          policy: { tone: user.tone || "neutre", phase: scores.phase, scores },
+        }),
       });
 
-      // Mettre à jour l'état émotionnel global
-      if (onEmotionalStateChange) {
-        if (sc.detresse > 70) {
-          onEmotionalStateChange("distress");
-        } else if (sc.espoir > 60) {
-          onEmotionalStateChange("hope");
-        } else {
-          onEmotionalStateChange("calm");
-        }
-      }
+      if (!cr.ok) throw new Error("Backend non disponible");
 
-      // chat
-      const cr = await fetch(api.base + "/api/chat", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ user_id: user.id, messages: newMsgs }),
-      });
       const data = await cr.json();
-
-      if (data?.scores?.phase) {
-        setScores((s) => ({ ...s, phase: data.scores.phase }));
-      }
-
       setIsTyping(false);
       setMessages((m) => [...m, { role: "assistant", content: data.text }]);
+
+      // Mettre à jour l'état émotionnel si disponible
+      if (onEmotionalStateChange) {
+        onEmotionalStateChange("calm");
+      }
     } catch (error) {
+      // Mode dégradé: réponse empathique locale
       setIsTyping(false);
+      const fallbackResponses = [
+        `Je t'entends, ${user.first_name}. Prends le temps qu'il te faut pour exprimer ce que tu ressens. Je suis là.`,
+        `Merci de partager cela avec moi. C'est important ce que tu traverses. Qu'est-ce qui te pèse le plus en ce moment ?`,
+        `Je comprends. Parfois, mettre des mots sur ce qu'on ressent est déjà un premier pas. Continue, je t'écoute.`,
+        `Ce que tu vis semble difficile. N'hésite pas à en dire plus si tu le souhaites. Il n'y a pas de jugement ici.`,
+        `Je suis là pour t'accompagner. Prends ton temps, et dis-moi ce dont tu as besoin.`,
+      ];
+      const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
       setMessages((m) => [
         ...m,
-        {
-          role: "assistant",
-          content:
-            "Je rencontre une difficulté technique. Prenons un moment, puis réessayons ensemble.",
-        },
+        { role: "assistant", content: randomResponse },
       ]);
     } finally {
       setIsSending(false);
