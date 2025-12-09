@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(vercel:*)",
+      "Bash(cat:*)",
+      "Bash(npm install:*)",
+      "Bash(railway:*)",
+      "Bash(start cmd /k \"railway login\")",
+      "Bash(curl:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: configure backend for Render deployment and connect frontend\n\n- Add CORS for Vercel frontend URLs\n- Add health check endpoints (/ and /health)\n- Add Procfile for Render deployment\n- Update frontend API URL to use Render backend\n- Add Supabase auth integration\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(timeout:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix(backend): improve empathy response quality and personalization\n\n- Add OpenAI fallback when Claude is unavailable for empathy model\n- Fix user name not being used in responses (was showing \"Marie\" for everyone)\n- Remove prompt instructions from visible responses\n- Personalize micro-protocols with actual user name\n- Better system prompts for empathetic, non-directive responses\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: add silent analytics tracking and admin dashboard\n\n- Add silent tracking in Chat (session duration, message count, reading time)\n- Add /analytics/track endpoint for collecting user behavior data\n- Add /admin/analytics endpoint with metrics dashboard\n- Create AdminDashboard page accessible via /?admin=helo2024admin\n- Track: sessions, messages, techniques used, response times, fallbacks\n\nThis helps improve user accompaniment by understanding what works best.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git fetch:*)",
+      "Bash(npx vercel --prod)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
