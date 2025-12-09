@@ -59,6 +59,17 @@ class PrefsSet(BaseModel):
     user_id_hash: str
     prefs: Dict[str, Any]
 
+class AnalyticsEvent(BaseModel):
+    user_id_hash: str
+    event_type: str  # session_start, session_end, message_exchange, fallback_used
+    session_duration_ms: int | None = None
+    message_count: int | None = None
+    timestamp: str | None = None
+    technique: str | None = None
+    response_time_ms: int | None = None
+    phase: str | None = None
+    reason: str | None = None
+
 app = FastAPI(title='AI Engine')
 
 # CORS configuration for Vercel frontend
@@ -466,3 +477,120 @@ async def health_check():
 @app.get('/health')
 async def health():
     return { 'status': 'ok' }
+
+# ==================== ANALYTICS ====================
+ANALYTICS_PATH = os.path.join(os.path.dirname(__file__), 'analytics_logs.jsonl')
+
+@app.post('/analytics/track')
+async def analytics_track(req: AnalyticsEvent):
+    """Track analytics events (silent, non-blocking for frontend)"""
+    try:
+        entry = {
+            'ts': time.time(),
+            'user_id_hash': req.user_id_hash,
+            'event_type': req.event_type,
+            'session_duration_ms': req.session_duration_ms,
+            'message_count': req.message_count,
+            'timestamp': req.timestamp,
+            'technique': req.technique,
+            'response_time_ms': req.response_time_ms,
+            'phase': req.phase,
+            'reason': req.reason,
+        }
+        with open(ANALYTICS_PATH, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+    return { 'status': 'ok' }
+
+@app.get('/admin/analytics')
+async def admin_analytics(key: str = ''):
+    """Dashboard analytics pour l'admin (protégé par clé)"""
+    # Clé simple pour protéger l'accès - à changer en production
+    ADMIN_KEY = os.getenv('ADMIN_KEY', 'helo2024admin')
+    if key != ADMIN_KEY:
+        return { 'error': 'Unauthorized' }
+
+    # Charger les logs analytics
+    analytics_logs = []
+    if os.path.exists(ANALYTICS_PATH):
+        with open(ANALYTICS_PATH, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        analytics_logs.append(json.loads(line))
+                    except:
+                        pass
+
+    # Charger les logs mémoire (interactions)
+    memory_logs = []
+    mem_path = os.path.join(os.path.dirname(__file__), 'memory_store.jsonl')
+    if os.path.exists(mem_path):
+        with open(mem_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    try:
+                        memory_logs.append(json.loads(line))
+                    except:
+                        pass
+
+    # Calculer les métriques
+    now = time.time()
+    day_ago = now - 86400
+    week_ago = now - 604800
+
+    # Sessions
+    sessions_today = [e for e in analytics_logs if e.get('event_type') == 'session_start' and e.get('ts', 0) > day_ago]
+    sessions_week = [e for e in analytics_logs if e.get('event_type') == 'session_start' and e.get('ts', 0) > week_ago]
+
+    # Utilisateurs uniques
+    users_today = set(e.get('user_id_hash') for e in sessions_today if e.get('user_id_hash'))
+    users_week = set(e.get('user_id_hash') for e in sessions_week if e.get('user_id_hash'))
+
+    # Messages échangés
+    messages_today = [e for e in analytics_logs if e.get('event_type') == 'message_exchange' and e.get('ts', 0) > day_ago]
+    messages_week = [e for e in analytics_logs if e.get('event_type') == 'message_exchange' and e.get('ts', 0) > week_ago]
+
+    # Durée moyenne des sessions
+    session_ends = [e for e in analytics_logs if e.get('event_type') == 'session_end' and e.get('session_duration_ms')]
+    avg_session_duration = sum(e['session_duration_ms'] for e in session_ends) / len(session_ends) / 1000 / 60 if session_ends else 0
+
+    # Techniques les plus utilisées
+    technique_counts = {}
+    for e in memory_logs:
+        tech = e.get('technique')
+        if tech:
+            technique_counts[tech] = technique_counts.get(tech, 0) + 1
+
+    # Phases les plus fréquentes
+    phase_counts = {}
+    for e in memory_logs:
+        phase = e.get('phase')
+        if phase:
+            phase_counts[phase] = phase_counts.get(phase, 0) + 1
+
+    # Fallbacks (erreurs backend)
+    fallbacks = [e for e in analytics_logs if e.get('event_type') == 'fallback_used']
+
+    # Temps de réponse moyen
+    response_times = [e.get('response_time_ms') for e in messages_week if e.get('response_time_ms')]
+    avg_response_time = sum(response_times) / len(response_times) if response_times else 0
+
+    return {
+        'summary': {
+            'sessions_today': len(sessions_today),
+            'sessions_week': len(sessions_week),
+            'users_today': len(users_today),
+            'users_week': len(users_week),
+            'messages_today': len(messages_today),
+            'messages_week': len(messages_week),
+            'avg_session_duration_minutes': round(avg_session_duration, 1),
+            'avg_response_time_ms': round(avg_response_time, 0),
+            'total_fallbacks': len(fallbacks),
+        },
+        'techniques': dict(sorted(technique_counts.items(), key=lambda x: -x[1])[:10]),
+        'phases': phase_counts,
+        'total_interactions': len(memory_logs),
+    }

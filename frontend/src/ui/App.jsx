@@ -15,6 +15,7 @@ import Pricing from "./Pricing";
 import CGV from "./legal/CGV";
 import MentionsLegales from "./legal/MentionsLegales";
 import Confidentialite from "./legal/Confidentialite";
+import AdminDashboard from "./AdminDashboard";
 import Logo from "./components/Logo";
 import EmotionalFeedback from "./components/EmotionalFeedback";
 import { useDeviceClass } from "../hooks/useDeviceDetection";
@@ -29,9 +30,22 @@ export default function App() {
     document.body.className = deviceClass;
   }, [deviceClass]);
 
-  // Check for demo mode in URL
+  // Check for demo mode or admin mode in URL
   const urlParams = new URLSearchParams(window.location.search);
   const demoMode = urlParams.get("demo");
+  const adminMode = urlParams.get("admin");
+
+  const api = useMemo(() => ({ base: "https://helo-backend.onrender.com" }), []);
+
+  // Show admin dashboard if requested with correct key
+  if (adminMode === "helo2024admin") {
+    return (
+      <AdminDashboard
+        api={api}
+        onBack={() => (window.location.href = "/")}
+      />
+    );
+  }
 
   // Show crisis demo if requested
   if (demoMode === "crisis") {
@@ -55,8 +69,6 @@ export default function App() {
   const [showHome, setShowHome] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [conversationMode, setConversationMode] = useState("chat"); // 'chat' | 'voice'
-
-  const api = useMemo(() => ({ base: "https://helo-backend.onrender.com" }), []);
 
   // Restore user session on mount (Supabase)
   useEffect(() => {

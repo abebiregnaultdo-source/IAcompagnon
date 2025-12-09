@@ -31,15 +31,71 @@ export default function Chat({
   const [isTyping, setIsTyping] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  
+
   // État pour gérer l'affichage avatar
   const [showAvatarFullscreen, setShowAvatarFullscreen] = useState(false);
-  
+
   const viewRef = useRef(null);
+
+  // === TRACKING SILENCIEUX ===
+  const sessionStartRef = useRef(Date.now());
+  const lastResponseTimeRef = useRef(null);
+  const messageCountRef = useRef(0);
+  const lastTechniqueRef = useRef(null);
+
+  // Envoyer les analytics de session (silencieux, non-bloquant)
+  const trackSession = async (eventType, extraData = {}) => {
+    try {
+      await fetch(api.base + "/analytics/track", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          user_id_hash: user.id,
+          event_type: eventType,
+          session_duration_ms: Date.now() - sessionStartRef.current,
+          message_count: messageCountRef.current,
+          timestamp: new Date().toISOString(),
+          ...extraData,
+        }),
+      });
+    } catch (e) {
+      // Silencieux - on ne bloque pas l'UX
+    }
+  };
+
+  // Tracker le temps de lecture (temps entre réponse reçue et nouveau message)
+  const trackReadingTime = async () => {
+    if (lastResponseTimeRef.current) {
+      const readingTimeMs = Date.now() - lastResponseTimeRef.current;
+      try {
+        await fetch(api.base + "/feedback/implicit", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            user_id_hash: user.id,
+            target: { technique: lastTechniqueRef.current },
+            reading_ms: readingTimeMs,
+            response_latency_ms: null,
+          }),
+        });
+      } catch (e) {
+        // Silencieux
+      }
+    }
+  };
+
+  // Track session start
+  useEffect(() => {
+    trackSession("session_start");
+
+    // Track session end on unmount
+    return () => {
+      trackSession("session_end");
+    };
+  }, []);
 
   // Charger l'historique au démarrage
   useEffect(() => {
-    // Backend pas encore déployé - on démarre avec le message de bienvenue
     setHistoryLoaded(true);
   }, []);
 
@@ -50,12 +106,18 @@ export default function Chat({
   const send = async () => {
     if (!input.trim() || isSending) return;
 
+    // Track temps de lecture avant d'envoyer un nouveau message
+    trackReadingTime();
+
     const userMessage = input.trim();
     const newMsgs = [...messages, { role: "user", content: userMessage }];
     setMessages(newMsgs);
     setInput("");
     setIsSending(true);
     setIsTyping(true);
+    messageCountRef.current += 1;
+
+    const sendStartTime = Date.now();
 
     try {
       // Essayer d'appeler le backend
@@ -63,7 +125,7 @@ export default function Chat({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          messages: newMsgs.map(m => ({ role: m.role, content: m.content })),
+          messages: newMsgs.map((m) => ({ role: m.role, content: m.content })),
           profile: { first_name: user.first_name, user_id_hash: user.id },
           policy: { tone: user.tone || "neutre", phase: scores.phase, scores },
         }),
@@ -74,6 +136,17 @@ export default function Chat({
       const data = await cr.json();
       setIsTyping(false);
       setMessages((m) => [...m, { role: "assistant", content: data.text }]);
+
+      // Track la réponse reçue
+      lastResponseTimeRef.current = Date.now();
+      lastTechniqueRef.current = data.technique || "unknown";
+
+      // Track message échange
+      trackSession("message_exchange", {
+        technique: data.technique,
+        response_time_ms: Date.now() - sendStartTime,
+        phase: scores.phase,
+      });
 
       // Mettre à jour l'état émotionnel si disponible
       if (onEmotionalStateChange) {
@@ -89,11 +162,15 @@ export default function Chat({
         `Ce que tu vis semble difficile. N'hésite pas à en dire plus si tu le souhaites. Il n'y a pas de jugement ici.`,
         `Je suis là pour t'accompagner. Prends ton temps, et dis-moi ce dont tu as besoin.`,
       ];
-      const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+      const randomResponse =
+        fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
       setMessages((m) => [
         ...m,
         { role: "assistant", content: randomResponse },
       ]);
+
+      // Track fallback utilisé
+      trackSession("fallback_used", { reason: "backend_error" });
     } finally {
       setIsSending(false);
     }
