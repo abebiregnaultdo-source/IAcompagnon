@@ -101,11 +101,11 @@ class LLMRouter:
         """
         Appelle Claude (Anthropic) pour la relation thérapeutique (empathy model).
         Utilisé pour la délivrance empathique, le ton, la non-directivité.
+        Fallback sur OpenAI si Claude n'est pas disponible.
         """
         if not self.anthropic_client:
-            # Fallback si Claude n'est pas disponible
-            content = messages[-1]['content'] if messages else ''
-            return f"{content[:320]}"
+            # Fallback sur OpenAI si Claude n'est pas disponible
+            return self._empathy_fallback_openai(messages, temperature, max_tokens)
         
         # Retry logic avec exponential backoff
         max_retries = 3
@@ -151,13 +151,52 @@ class LLMRouter:
                     time.sleep(wait_time)
                 else:
                     print(f"Error calling Anthropic empathy model after {max_retries} attempts: {e}")
-                    # Fallback sûr
-                    content = messages[-1]['content'] if messages else ''
-                    return f"{content[:320]}"
-        
-        # Ne devrait jamais arriver ici, mais fallback de sécurité
-        content = messages[-1]['content'] if messages else ''
-        return f"{content[:320]}"
+                    # Fallback sur OpenAI
+                    return self._empathy_fallback_openai(messages, temperature, max_tokens)
+
+        # Ne devrait jamais arriver ici, fallback sur OpenAI
+        return self._empathy_fallback_openai(messages, temperature, max_tokens)
+
+    def _empathy_fallback_openai(self, messages: List[Dict[str, str]], temperature: float = 0.6, max_tokens: int = 300) -> str:
+        """
+        Fallback: utilise OpenAI pour générer une réponse empathique quand Claude n'est pas disponible.
+        """
+        if not self.openai_client:
+            # Fallback ultime: réponse générique empathique
+            return "Je t'entends. Prends le temps qu'il te faut pour exprimer ce que tu ressens. Je suis là pour t'accompagner."
+
+        try:
+            # Reformuler le prompt pour OpenAI en mode empathique
+            user_content = messages[-1]['content'] if messages else ''
+
+            openai_messages = [
+                {
+                    'role': 'system',
+                    'content': """Tu es un accompagnant thérapeutique bienveillant et empathique.
+Ton rôle est de reformuler le contenu fourni en une réponse:
+- Non-directive (pas de conseils, pas d'injonctions)
+- Empathique et présente
+- En 2-3 phrases maximum
+- Sans inclure d'instructions ou de méta-commentaires
+- Adressée directement à la personne avec "tu"
+- Qui valide son vécu sans juger
+
+IMPORTANT: Ne commence JAMAIS par des phrases comme "Reformule" ou des instructions. Parle directement à la personne."""
+                },
+                {'role': 'user', 'content': f"Transforme ce contenu en réponse empathique directe:\n\n{user_content}"}
+            ]
+
+            response = self.openai_client.chat.completions.create(
+                model=self.knowledge_model,
+                messages=openai_messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"OpenAI empathy fallback error: {e}")
+            return "Je t'entends. Prends le temps qu'il te faut pour exprimer ce que tu ressens. Je suis là pour t'accompagner."
 
 # Clinical Knowledge Base (CKB)
 class ClinicalKnowledgeBase:
@@ -367,25 +406,34 @@ class TherapeuticEngine:
         return 'logotherapie'
 
     def craft_intervention(self, intention_id: str, user_state: Dict[str, Any], technique: str) -> Tuple[str, Dict[str, Any]]:
-        # 1) Prefer micro-protocol from CKB
+        user_name = user_state.get('user_name', 'ami')
+
+        # 1) Prefer micro-protocol from CKB (template avec {user_name})
         proto = self.ckb.get_micro_protocol(intention_id)
         if proto:
+            # Remplacer le placeholder par le vrai prénom
+            proto = proto.replace('{user_name}', user_name)
             return proto, {'source': 'ckb', 'technique': technique}
+
         # 2) Ask knowledge model to produce a 2–3 sentence micro-protocol
+        # Utilise {user_name} comme placeholder pour permettre la personnalisation
         prompt = (
-            "Rédige un micro-protocole concis (2–3 phrases) pour l’intention clinique suivante, "
+            "Rédige un micro-protocole concis (2–3 phrases) pour l'intention clinique suivante, "
             "dans un cadre validé, sans injonctions, compatible non-directivité.\n"
             f"Technique: {technique}.\n"
             f"Intention: {intention_id}.\n"
-            f"État utilisateur: {json.dumps(user_state, ensure_ascii=False)}\n"
-            "Contraintes: sécurité, neutralité, pas d’interprétation, pas de promesse."
+            f"Prénom de l'utilisateur: {user_name}\n"
+            f"État émotionnel: détresse={user_state.get('detresse', 50)}, espoir={user_state.get('espoir', 50)}, énergie={user_state.get('energie', 50)}\n"
+            f"Phase: {user_state.get('phase', 'ancrage')}\n"
+            "Contraintes: sécurité, neutralité, pas d'interprétation, pas de promesse.\n"
+            "IMPORTANT: Adresse-toi directement à la personne par son prénom."
         )
         plan = self.router.call_knowledge([
-            { 'role': 'system', 'content': 'Moteur de savoir clinique.' },
+            { 'role': 'system', 'content': 'Moteur de savoir clinique. Tu génères des micro-protocoles thérapeutiques personnalisés.' },
             { 'role': 'user', 'content': prompt },
-        ], temperature=0.2, max_tokens=220)
-        # Store in CKB
-        self.ckb.upsert_micro_protocol(intention_id, plan, metadata={'technique': technique})
+        ], temperature=0.3, max_tokens=250)
+
+        # Note: On ne met plus en cache car chaque réponse est personnalisée
         return plan, {'source': 'knowledge_model', 'technique': technique}
 
     def deliver_empathically(self, micro_text: str, tone: str = 'neutre') -> str:
