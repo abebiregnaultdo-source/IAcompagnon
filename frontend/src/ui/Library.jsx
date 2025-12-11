@@ -2,6 +2,7 @@ import { useState } from "react";
 import Logo from "./components/Logo";
 import Button from "./components/Button";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
+import PetiteFlamme from "./PetiteFlamme";
 
 /**
  * Bibliothèque de ressources externes
@@ -10,6 +11,12 @@ import { useDeviceDetection } from "../hooks/useDeviceDetection";
 export default function Library({ onBackToHome }) {
   const device = useDeviceDetection();
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [showPetiteFlamme, setShowPetiteFlamme] = useState(false);
+
+  // Si on affiche la page du poème
+  if (showPetiteFlamme) {
+    return <PetiteFlamme onBack={() => setShowPetiteFlamme(false)} />;
+  }
 
   const resources = [
     // ============================================================
@@ -348,6 +355,18 @@ export default function Library({ onBackToHome }) {
     // INSPIRATION - Poésie, musique, beauté pour l'âme
     // ============================================================
     {
+      id: 0,
+      category: "inspiration",
+      title: "Petite flamme",
+      author: "Fondatrice de HELO",
+      description:
+        "Témoignage personnel sur la perte d'un enfant. Ce poème est dédié à tous ceux qui portent un deuil invisible — et c'est la raison pour laquelle HELO existe.",
+      type: "Témoignage",
+      url: "petite-flamme",
+      tags: ["témoignage", "deuil périnatal", "fondatrice"],
+      featured: true,
+    },
+    {
       id: 60,
       category: "inspiration",
       title: "If — Si tu peux...",
@@ -623,11 +642,16 @@ export default function Library({ onBackToHome }) {
             <div
               key={resource.id}
               style={{
-                background: "var(--color-surface-1)",
-                border: "1px solid var(--color-border)",
+                background: resource.featured
+                  ? "linear-gradient(135deg, #faf8f3 0%, #f5f0e8 100%)"
+                  : "var(--color-surface-1)",
+                border: resource.featured
+                  ? "2px solid rgba(180, 140, 80, 0.4)"
+                  : "1px solid var(--color-border)",
                 borderRadius: "var(--radius-md)",
                 padding: "var(--space-lg)",
                 transition: "var(--transition-fast)",
+                gridColumn: resource.featured ? "1 / -1" : "auto",
               }}
             >
               <div
@@ -641,7 +665,7 @@ export default function Library({ onBackToHome }) {
                 <span
                   style={{
                     fontSize: "var(--font-size-xs)",
-                    color: "var(--color-primary)",
+                    color: resource.featured ? "#c9a050" : "var(--color-primary)",
                     fontWeight: "var(--font-weight-medium)",
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
@@ -653,11 +677,12 @@ export default function Library({ onBackToHome }) {
 
               <h3
                 style={{
-                  fontSize: "var(--font-size-md)",
+                  fontSize: resource.featured ? "var(--font-size-lg)" : "var(--font-size-md)",
                   fontWeight: "var(--font-weight-medium)",
                   color: "var(--color-text-primary)",
                   marginBottom: "var(--space-xs)",
                   lineHeight: "var(--line-height-tight)",
+                  fontFamily: resource.featured ? "'Cormorant Garamond', Georgia, serif" : "inherit",
                 }}
               >
                 {resource.title}
@@ -666,7 +691,7 @@ export default function Library({ onBackToHome }) {
               <p
                 style={{
                   fontSize: "var(--font-size-sm)",
-                  color: "var(--color-text-secondary)",
+                  color: resource.featured ? "#7a6b5a" : "var(--color-text-secondary)",
                   marginBottom: "var(--space-sm)",
                   fontStyle: "italic",
                 }}
@@ -687,7 +712,9 @@ export default function Library({ onBackToHome }) {
 
               <Button
                 onClick={() => {
-                  if (resource.url) {
+                  if (resource.url === "petite-flamme") {
+                    setShowPetiteFlamme(true);
+                  } else if (resource.url) {
                     window.open(resource.url, "_blank", "noopener,noreferrer");
                   } else {
                     alert(
@@ -695,13 +722,14 @@ export default function Library({ onBackToHome }) {
                     );
                   }
                 }}
+                variant={resource.featured ? "primary" : undefined}
                 style={{
-                  width: "100%",
+                  width: resource.featured ? "auto" : "100%",
                   fontSize: "var(--font-size-sm)",
                   padding: "var(--space-sm)",
                 }}
               >
-                {resource.url ? "Consulter" : "En savoir plus"}
+                {resource.featured ? "Lire le poème" : resource.url ? "Consulter" : "En savoir plus"}
               </Button>
             </div>
           ))}
