@@ -2,7 +2,7 @@
 
 ## IMPORTANT - Avant chaque commit/push
 
-Lis `.claude/project-notes.md` pour les détails de déploiement.
+Lis `EVOLUTION_LOG.md` pour les détails de déploiement et l'historique des modifications.
 
 ### Résumé rapide :
 

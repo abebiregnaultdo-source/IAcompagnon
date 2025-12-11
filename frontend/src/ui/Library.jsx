@@ -12,6 +12,7 @@ export default function Library({ onBackToHome }) {
   const device = useDeviceDetection();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showPetiteFlamme, setShowPetiteFlamme] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null); // Pour afficher le détail d'un livre
 
   // Si on affiche la page du poème
   if (showPetiteFlamme) {
@@ -29,6 +30,10 @@ export default function Library({ onBackToHome }) {
       author: "Christophe Fauré",
       description:
         "Guide pratique par un psychiatre spécialiste du deuil. Approche validée, conseils concrets pour traverser chaque étape.",
+      synopsis:
+        "Ce livre accompagne pas à pas les personnes en deuil à travers les différentes phases : le choc initial, la douleur de l'absence, la reconstruction progressive. Christophe Fauré, psychiatre spécialisé depuis 25 ans, y propose des exercices pratiques, des témoignages, et répond aux questions que l'on n'ose pas toujours poser. Un compagnon précieux pour ne pas rester seul face à la perte.",
+      pourquoi_le_lire:
+        "Si vous cherchez un guide concret et bienveillant qui valide vos émotions tout en vous donnant des outils pratiques au quotidien.",
       type: "Livre",
       url: null,
       tags: ["deuil", "pratique", "psychiatre"],
@@ -40,6 +45,10 @@ export default function Library({ onBackToHome }) {
       author: "Marie de Hennezel",
       description:
         "Témoignage d'une psychologue en soins palliatifs. Prix Femina 1995. Réflexion profonde sur l'accompagnement de fin de vie.",
+      synopsis:
+        "Marie de Hennezel raconte son expérience d'accompagnement des personnes en fin de vie dans une unité de soins palliatifs. À travers des récits touchants, elle montre comment ces moments ultimes peuvent être habités de sens, d'amour et même de beauté. Un livre qui transforme notre regard sur la mort et nous apprend à mieux vivre.",
+      pourquoi_le_lire:
+        "Pour trouver du sens dans l'accompagnement d'un proche en fin de vie, ou pour apprivoiser votre propre rapport à la mort.",
       type: "Livre",
       url: null,
       tags: ["fin de vie", "accompagnement", "témoignage"],
@@ -51,6 +60,10 @@ export default function Library({ onBackToHome }) {
       author: "David Servan-Schreiber",
       description:
         "Méthodes naturelles validées scientifiquement : cohérence cardiaque, EMDR, oméga-3. Best-seller traduit en 35 langues.",
+      synopsis:
+        "David Servan-Schreiber, psychiatre et neuroscientifique, présente 7 méthodes naturelles pour retrouver l'équilibre émotionnel : la cohérence cardiaque (respiration), l'EMDR, les oméga-3, l'exercice physique, la luminothérapie, l'acupuncture et la communication non-violente. Chaque méthode est expliquée avec les preuves scientifiques et des conseils pratiques d'application.",
+      pourquoi_le_lire:
+        "Si vous cherchez des alternatives naturelles et scientifiquement prouvées pour réguler votre anxiété et retrouver un équilibre.",
       type: "Livre",
       url: null,
       tags: ["anxiété", "dépression", "neurosciences"],
@@ -62,6 +75,10 @@ export default function Library({ onBackToHome }) {
       author: "Francine Shapiro",
       description:
         "Par la créatrice de l'EMDR. Techniques d'auto-traitement pour traumatismes et émotions difficiles.",
+      synopsis:
+        "Francine Shapiro, créatrice de l'EMDR (désensibilisation et retraitement par les mouvements oculaires), propose des techniques adaptées à l'auto-pratique pour traiter les souvenirs douloureux, l'anxiété et les émotions envahissantes. Elle explique comment notre cerveau traite les traumatismes et comment l'aider à se libérer des blocages émotionnels.",
+      pourquoi_le_lire:
+        "Pour comprendre comment vos émotions sont 'bloquées' et découvrir des exercices simples à pratiquer chez soi pour les libérer.",
       type: "Livre",
       url: null,
       tags: ["EMDR", "trauma", "auto-thérapie"],
@@ -73,6 +90,10 @@ export default function Library({ onBackToHome }) {
       author: "Marie-Frédérique Bacqué",
       description:
         "Par la présidente de la Société de Thanatologie. Approche scientifique et humaine du processus de deuil.",
+      synopsis:
+        "Marie-Frédérique Bacqué, professeure de psychologie et présidente de la Société de Thanatologie, explique les mécanismes psychologiques du deuil en s'appuyant sur les dernières recherches. Elle démonte les mythes (comme les 'étapes' figées du deuil) et propose une vision plus nuancée : chaque deuil est unique, mais certains repères peuvent aider à traverser cette épreuve.",
+      pourquoi_le_lire:
+        "Pour une compréhension approfondie et scientifique du deuil, loin des clichés, qui valide la singularité de votre expérience.",
       type: "Livre",
       url: null,
       tags: ["deuil", "psychologie", "scientifique"],
@@ -716,6 +737,9 @@ export default function Library({ onBackToHome }) {
                     setShowPetiteFlamme(true);
                   } else if (resource.url) {
                     window.open(resource.url, "_blank", "noopener,noreferrer");
+                  } else if (resource.synopsis) {
+                    // Ouvrir la modale avec les détails du livre
+                    setSelectedBook(resource);
                   } else {
                     alert(
                       `"${resource.title}" de ${resource.author}\n\nCe livre est disponible en librairie et bibliothèque.`
@@ -734,6 +758,146 @@ export default function Library({ onBackToHome }) {
             </div>
           ))}
         </div>
+
+        {/* Modale détail livre */}
+        {selectedBook && (
+          <div
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "rgba(0, 0, 0, 0.5)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1000,
+              padding: "var(--space-lg)",
+            }}
+            onClick={() => setSelectedBook(null)}
+          >
+            <div
+              style={{
+                background: "var(--color-surface-1)",
+                borderRadius: "var(--radius-xl)",
+                padding: "var(--space-2xl)",
+                maxWidth: "600px",
+                maxHeight: "80vh",
+                overflow: "auto",
+                boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ marginBottom: "var(--space-lg)" }}>
+                <span
+                  style={{
+                    fontSize: "var(--font-size-xs)",
+                    color: "var(--color-primary)",
+                    fontWeight: "var(--font-weight-medium)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  {selectedBook.type} — Conseil de lecture
+                </span>
+              </div>
+
+              <h2
+                style={{
+                  fontSize: "var(--font-size-xl)",
+                  fontWeight: "var(--font-weight-semibold)",
+                  color: "var(--color-text-primary)",
+                  marginBottom: "var(--space-xs)",
+                }}
+              >
+                {selectedBook.title}
+              </h2>
+
+              <p
+                style={{
+                  fontSize: "var(--font-size-md)",
+                  color: "var(--color-text-secondary)",
+                  fontStyle: "italic",
+                  marginBottom: "var(--space-lg)",
+                }}
+              >
+                {selectedBook.author}
+              </p>
+
+              <div
+                style={{
+                  background: "var(--color-accent-calm)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-lg)",
+                  marginBottom: "var(--space-lg)",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: "var(--font-size-sm)",
+                    fontWeight: "var(--font-weight-medium)",
+                    color: "var(--color-primary)",
+                    marginBottom: "var(--space-sm)",
+                  }}
+                >
+                  Synopsis
+                </h3>
+                <p
+                  style={{
+                    fontSize: "var(--font-size-sm)",
+                    color: "var(--color-text-primary)",
+                    lineHeight: "var(--line-height-relaxed)",
+                  }}
+                >
+                  {selectedBook.synopsis}
+                </p>
+              </div>
+
+              {selectedBook.pourquoi_le_lire && (
+                <div style={{ marginBottom: "var(--space-lg)" }}>
+                  <h3
+                    style={{
+                      fontSize: "var(--font-size-sm)",
+                      fontWeight: "var(--font-weight-medium)",
+                      color: "var(--color-text-primary)",
+                      marginBottom: "var(--space-sm)",
+                    }}
+                  >
+                    Pourquoi le lire ?
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: "var(--font-size-sm)",
+                      color: "var(--color-text-secondary)",
+                      lineHeight: "var(--line-height-relaxed)",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {selectedBook.pourquoi_le_lire}
+                  </p>
+                </div>
+              )}
+
+              <div
+                style={{
+                  background: "var(--color-surface-2)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "var(--space-md)",
+                  marginBottom: "var(--space-lg)",
+                  fontSize: "var(--font-size-sm)",
+                  color: "var(--color-text-secondary)",
+                }}
+              >
+                Ce livre est disponible en librairie, bibliothèque municipale, ou sur les plateformes de vente en ligne.
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button onClick={() => setSelectedBook(null)}>Fermer</Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {filteredResources.length === 0 && (
           <div

@@ -22,7 +22,8 @@
       "Bash(gh auth status:*)",
       "Bash(git config:*)",
       "Bash(cmdkey /delete:git:https://github.com)",
-      "Bash(npx vercel:*)"
+      "Bash(npx vercel:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && head -5 {}')"
     ],
     "deny": [],
     "ask": []

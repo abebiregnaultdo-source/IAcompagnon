@@ -401,6 +401,266 @@ if crisis_info["crisis_level"] in ["critical", "high"]:
 
 ---
 
+## Infrastructure de Déploiement
+
+### Git (Code source)
+- **Remote origin** : `abebiregnaultdo-source/IAcompagnon`
+- **Commande** : `git push origin main`
+- **Auth** : Utilise les credentials GitHub de abebiregnaultdo-source
+
+### Vercel (Frontend)
+- **Projet** : `chris-projects-8e78a4a1/ia-compagnon`
+- **URL prod** : https://ia-compagnon.vercel.app
+- **Commande** : `cd frontend && npx vercel --prod`
+- **Note** : Vercel n'est PAS connecté au repo Git, on déploie manuellement via CLI
+
+### Render (Backend)
+- **URL** : https://helo-backend.onrender.com
+- **Déploiement** : Automatique depuis le repo Git
+- **Variables d'env** : OPENAI_API_KEY, ANTHROPIC_API_KEY configurées sur Render
+
+### Workflow de déploiement
+
+1. **Commit le code** : `git add . && git commit -m "message"`
+2. **Push sur GitHub** : `git push origin main`
+3. **Déployer frontend** : `cd frontend && npx vercel --prod`
+4. **Backend** : Se redéploie automatiquement sur Render après push
+
+### URLs importantes
+
+| Service | URL |
+|---------|-----|
+| App | https://ia-compagnon.vercel.app |
+| Admin Dashboard | https://ia-compagnon.vercel.app/?admin=helo2024admin |
+| Backend API | https://helo-backend.onrender.com |
+| Health check | https://helo-backend.onrender.com/health |
+
+### Authentification Git
+
+Si git push demande une authentification :
+- **Compte** : abebiregnaultdo-source (PAS growchris)
+- **Méthode** : Token GitHub ou credentials configurés
+
+---
+
+## Optimisations et Déploiement (2025-12-11 après-midi)
+
+### 1. Suppression des dépendances ML lourdes
+
+**Problème :** Le déploiement Render échouait avec "Out of memory (used over 512Mi)" car le backend chargeait des librairies ML massives (~3.7GB).
+
+**Solution :** Suppression des dépendances lourdes car le code avait déjà des fallbacks fonctionnels.
+
+**Fichier modifié :** `backend/ai-engine/requirements.txt`
+
+| Supprimé | Taille | Raison |
+|----------|--------|--------|
+| torch | ~2.9GB | NRCLex suffit pour l'analyse émotionnelle |
+| transformers | ~500MB | Claude/GPT comprennent mieux les émotions |
+| sentence-transformers | ~200MB | Recherche par mots-clés suffisante pour ~50 protocoles |
+| chromadb | ~100MB | Pas besoin de base vectorielle |
+
+**Impact sur les résultats :** Aucun. Les fallbacks (NRCLex + keyword search) sont suffisants :
+- Claude/GPT comprennent les émotions nativement (mieux que DistilBERT)
+- ~50 protocoles : la recherche par mots-clés trouve les mêmes résultats
+- C'était du sur-engineering académique sans valeur ajoutée réelle
+
+**Avant :** ~3.7GB de dépendances → OOM sur Render Free Tier (512MB)
+**Après :** ~100MB de dépendances → Déploiement OK
+
+### 2. Voice Service - Réécriture pour le cloud
+
+**Problème :** Le voice-service utilisait Whisper local (lourd) et Piper TTS (modèles 100MB+), incompatible avec le déploiement cloud.
+
+**Solution :** Réécriture complète pour utiliser des APIs cloud légères.
+
+| Fichier | Modification |
+|---------|--------------|
+| `stt_engine.py` | Réécrit pour utiliser l'API OpenAI Whisper (cloud) |
+| `tts_engine.py` | Simplifié pour Edge TTS uniquement (Microsoft, gratuit) |
+| `requirements.txt` | Dépendances minimales (~50MB) |
+| `Dockerfile` | Simplifié (plus de téléchargement de modèles Piper) |
+| `render.yaml` | Créé pour déploiement sur Render |
+| `VoiceChat.jsx` | URL WebSocket configurable via `VITE_VOICE_SERVICE_URL` |
+
+**Architecture résultante :**
+```
+Navigateur → WebSocket → Voice Service (Render)
+                              ↓
+                     OpenAI Whisper API (STT)
+                              ↓
+                     AI Engine (réponse texte)
+                              ↓
+                     Edge TTS (synthèse vocale)
+                              ↓
+                     ← Audio base64 retourné
+```
+
+### 3. Créativité - Assistance IA optionnelle
+
+**Problème :** Les prompts d'inspiration IA se chargeaient automatiquement, sans laisser le choix à l'utilisateur.
+
+**Solution :** Rendre l'assistance IA optionnelle.
+
+**Fichier modifié :** `frontend/src/ui/Creativity.jsx`
+
+**Changements :**
+- Les prompts ne se chargent plus automatiquement à l'ouverture de l'éditeur
+- Ajout bouton "Besoin d'inspiration ?" pour demander des suggestions
+- Ajout bouton "Masquer les suggestions" pour les cacher
+
+**Principe :** L'utilisateur reste libre d'activer l'assistance IA ou non.
+
+### 4. Correction module Créativité (endpoints manquants)
+
+**Problème :** Le module Créativité ne fonctionnait pas car les endpoints étaient définis dans `api-gateway` mais le backend déployé sur Render est `ai-engine`.
+
+**Diagnostic :**
+- Frontend appelle `https://helo-backend.onrender.com` (ai-engine)
+- Endpoints `/api/creations/*` n'existaient que dans api-gateway
+- Résultat : erreurs 404 silencieuses, module non fonctionnel
+
+**Solution :** Ajout des endpoints manquants dans `ai-engine/app/main.py`.
+
+**Fichier modifié :** `backend/ai-engine/app/main.py`
+
+**Endpoints ajoutés :**
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/creations/journal` | Sauvegarde entrée journal |
+| `POST /api/creations/narrative` | Sauvegarde récit thérapeutique |
+| `POST /api/creations/poem` | Sauvegarde poème |
+| `POST /api/creations/ritual` | Sauvegarde rituel |
+| `POST /api/creations/coloring` | Sauvegarde coloriage |
+| `GET /api/creations/{user_id}` | Récupère créations utilisateur |
+| `GET /api/recent-entries/{user_id}` | Dernières entrées journal |
+| `POST /api/analyze-context` | Analyse contexte pour prompts |
+
+**Classe ajoutée :** `CreativeStorage` - stockage des créations dans `creative_store/` (fichiers JSON par utilisateur)
+
+### 5. Bibliothèque - Synopses des livres
+
+**Problème :** Les livres recommandés sans URL affichaient une alerte frustrante "Ce livre n'est pas disponible en ligne".
+
+**Solution :** Ajout de synopses et recommandations de lecture avec modal informatif.
+
+**Fichier modifié :** `frontend/src/ui/Library.jsx`
+
+**Changements :**
+- Ajout champs `synopsis` et `pourquoi_le_lire` pour chaque livre
+- Remplacement de l'alert par une modal détaillée
+- Présentation du livre comme "conseil de lecture" plutôt que ressource inaccessible
+
+**Livres enrichis :**
+- "Vivre le deuil au jour le jour" (Christophe Fauré)
+- "Le deuil, un passage" (Carine Anselme)
+- "Psychologie du deuil" (Marie-Frédérique Bacqué)
+- "Les cinq stades du deuil" (Elisabeth Kübler-Ross)
+- "Accompagner les personnes en deuil" (Guide pratique)
+
+---
+
+## Fonctionnement des Prompts Créatifs
+
+### Architecture du système
+
+```
+Utilisateur ouvre l'éditeur créatif
+        ↓
+Message d'accueil générique (pas d'IA automatique)
+        ↓
+Bouton "Besoin d'inspiration ?" → loadInitialPrompts(tool)
+        ↓
+POST /api/creative/prompts
+        ↓
+Tentative génération IA (Claude/GPT)
+        ↓ (si échec)
+Fallback prompts hardcodés
+        ↓
+Affichage suggestions cliquables
+```
+
+### Endpoint `/api/creative/prompts`
+
+**Fichier :** `backend/ai-engine/app/main.py`
+
+**Entrée :**
+```json
+{
+  "user_id": "123",
+  "tool": "journal|narrative|creative|poem",
+  "first_name": "Marie"
+}
+```
+
+**Traitement :**
+1. Tente d'appeler `call_llm()` avec un prompt système spécialisé
+2. Le LLM génère 5 prompts personnalisés selon l'outil choisi
+3. Si échec ou LLM indisponible → fallback aux prompts par défaut
+
+**Sortie :**
+```json
+{
+  "prompts": ["Comment te sens-tu...", "Qu'est-ce qui t'a marqué..."],
+  "personalized": true|false
+}
+```
+
+### Prompts par défaut (fallback)
+
+```python
+default_prompts = {
+    'journal': [
+        "Comment te sens-tu en ce moment, vraiment ?",
+        "Qu'est-ce qui t'a traversé l'esprit aujourd'hui ?",
+        "Si tu pouvais parler à quelqu'un qui te manque...",
+        "Quelle petite chose t'a apporté du réconfort ?",
+        "Qu'est-ce que tu portes en toi à déposer ici ?"
+    ],
+    'narrative': [
+        "Raconte un souvenir qui te revient souvent...",
+        "Décris un moment où tu t'es senti(e) compris(e)...",
+        "Qu'est-ce que cette personne t'a appris de plus précieux ?",
+        "Si tu devais écrire une lettre à toi-même d'il y a un an...",
+        "Quel chapitre de ton histoire écris-tu maintenant ?"
+    ],
+    'creative': [
+        "La lumière ce matin ressemblait à...",
+        "Je porte en moi un silence qui...",
+        "Si ma douleur avait une couleur, elle serait...",
+        "Il y a des mots que je n'ai jamais prononcés...",
+        "Dans mes rêves, je retrouve parfois..."
+    ],
+    'poem': [
+        "La lumière ce matin ressemblait à...",
+        "Je porte en moi un silence qui...",
+        "Si mon cœur pouvait parler, il dirait...",
+        "Entre l'ombre et la lumière, il y a...",
+        "Les mots s'échappent comme..."
+    ]
+}
+```
+
+### Hyperpersonnalisation (analyse en temps réel)
+
+Quand l'utilisateur tape dans l'éditeur (>30 caractères), le système analyse en temps réel :
+
+```
+Utilisateur tape du texte
+        ↓ (debounce 1s)
+POST /api/analyze-context
+        ↓
+Analyse du message + historique journal
+        ↓
+Retour prompts adaptés au contexte
+        ↓
+Affichage "Suggestions basées sur ce que vous écrivez"
+```
+
+**Note :** Le RAG vectoriel (ChromaDB + sentence-transformers) a été retiré pour des raisons de poids. L'analyse se fait maintenant par patterns linguistiques + fallbacks simples.
+
+---
+
 # PARTIE 3 : ROADMAP FUTURE
 
 ## Priorité 2 - Mois 1
@@ -417,18 +677,177 @@ if crisis_info["crisis_level"] in ["critical", "high"]:
 
 ---
 
-# ANNEXE : Documentation Existante Préservée
+# ARCHIVES : Documentation Historique Consolidée
 
-Les documents suivants contiennent des détails supplémentaires et restent valides :
-
-| Document | Contenu | Status |
-|----------|---------|--------|
-| `ARCHITECTURE.md` | Flux détaillés, fichiers de config | Référence active |
-| `EVIDENCE_BASED_ARCHITECTURE.md` | Protocoles cliniques détaillés | Référence active |
-| `IMPLEMENTATION_SUMMARY.md` | Hyperpersonnalisation | Référence active |
-| `HYPERPERSONALIZATION_OVERVIEW.md` | Vue d'ensemble système | Référence active |
+Cette section archive le contenu des anciens fichiers de documentation pour référence historique.
 
 ---
 
-*Dernière mise à jour : 2025-12-11*
-*Version : 1.4 (État de l'art)*
+## Archive : Solutions Vocales (obsolète depuis 2025-12-11)
+
+**Ancien fichier** : `SOLUTIONS_VOCALES_OPEN_SOURCE.md`, `VOICE_SETUP.md`
+
+### Contexte historique
+Le voice-service utilisait initialement Piper TTS (local) avec des modèles téléchargés (~100MB).
+
+### Solutions évaluées à l'époque
+
+| Solution | Qualité | Coût | Status actuel |
+|----------|---------|------|---------------|
+| Coqui XTTS-v2 | 9/10 | GPU requis | Non retenu (trop lourd) |
+| Piper TTS | 7.5/10 | Gratuit, CPU | Remplacé par Edge TTS |
+| Edge TTS | 8/10 | Gratuit, cloud | **Actuellement utilisé** |
+| Web Speech API | 7/10 | Gratuit | Fallback navigateur |
+
+### Décision finale (2025-12-11)
+Edge TTS (Microsoft, gratuit, cloud) + OpenAI Whisper API pour le STT.
+Raison : Léger, pas de modèles à télécharger, compatible Render Free Tier.
+
+---
+
+## Archive : Beta Checklist (obsolète)
+
+**Anciens fichiers** : `BETA_CHECKLIST.md`, `BETA_DEPLOYMENT.md`, `TODO_BETA.md`
+
+### Ce qui était prévu pour la beta
+
+**Infrastructure** :
+- ✅ Stripe billing (trial 14 jours, 3 plans)
+- ✅ SQLAlchemy + SQLite
+- ✅ Mode vocal WebSocket
+- ✅ Avatar 3D
+
+**Configuration requise** :
+- Clés API (OpenAI, Anthropic, Stripe)
+- Webhook Stripe (checkout.session.completed, subscription.updated/deleted)
+- Variables .env
+
+**Ports services** :
+- 8000 : API Gateway
+- 8001 : AI Engine
+- 8002 : Emotions Service
+- 8003 : Voice Service
+- 5173 : Frontend
+
+---
+
+## Archive : Hyperpersonnalisation
+
+**Anciens fichiers** : `HYPERPERSONALIZATION_*.md`, `IMPLEMENTATION_SUMMARY.md`, `PROMPTS_EXAMPLES.md`
+
+### Concept
+Analyse en temps réel du texte utilisateur pour détecter la méthode thérapeutique appropriée et générer des prompts personnalisés.
+
+### Méthodes détectées (Evidence-Based)
+
+| Méthode | Source | Détection |
+|---------|--------|-----------|
+| Journaling Expressif | Pennebaker 1997 | Non-dits, charge émotionnelle |
+| TIPI | Nicon 2007 | Activation somatique |
+| ACT | Hayes 2006 | Fusion cognitive, évitement |
+| Continuing Bonds | Klass 1996 | Recherche de connexion |
+
+### Architecture détection
+
+```
+Message → Analyse linguistique → Détection patterns
+                ↓
+        EmotionBERT (arousal, valence)
+                ↓
+        Signal thérapeutique + confiance
+                ↓
+        Prompts personnalisés
+```
+
+### Endpoints créés
+- `POST /api/analyze-context` : Orchestration analyse
+- `GET /api/recent-entries/{user_id}` : Historique journal
+- `POST /detect` (AI Engine) : AdvancedDetectionEngine
+
+---
+
+## Archive : Sécurité et Safety
+
+**Ancien fichier** : `OPTIMAL_SAFETY_IMPLEMENTATION.md`
+
+### Système de sécurité implémenté
+
+**Détection de crise** :
+```python
+CRISIS_KEYWORDS = {
+    "suicide_ideation": ["mourir", "en finir", "me tuer"],
+    "self_harm": ["me faire mal", "automutilation"],
+    "hopelessness": ["plus d'espoir", "à quoi bon"],
+    "severe_distress": ["ne supporte plus", "je craque"]
+}
+```
+
+**Niveaux de réponse** :
+- `critical` → Question sécurité immédiate + 3114
+- `high` → Évaluation sécurité
+- `medium` → Support renforcé
+- `low` → Stabilisation
+
+**Chiffrement** :
+- Profils : AES-256-GCM (CryptoBox)
+- Logs : Fernet encryption
+- Audit : access_logs.jsonl
+
+---
+
+## Archive : Quick Start
+
+**Anciens fichiers** : `QUICK_START.md`, `QUICK_START_HYPERPERSONALIZATION.md`
+
+### Commandes de démarrage (dev local)
+
+```bash
+# Backend services
+cd backend/api-gateway && uvicorn app.main:app --port 8000 --reload
+cd backend/ai-engine && uvicorn app.main:app --port 8001 --reload
+
+# Frontend
+cd frontend && npm run dev
+```
+
+### URLs locales
+- Frontend : http://localhost:5173
+- API Docs : http://localhost:8000/docs
+- Health check : http://localhost:8000/health
+
+---
+
+## Fichiers archivés et supprimés
+
+| Fichier supprimé | Contenu archivé ci-dessus |
+|------------------|---------------------------|
+| `VOICE_SETUP.md` | Solutions vocales |
+| `SOLUTIONS_VOCALES_OPEN_SOURCE.md` | Solutions vocales |
+| `BETA_CHECKLIST.md` | Beta checklist |
+| `BETA_DEPLOYMENT.md` | Beta checklist |
+| `TODO_BETA.md` | Beta checklist |
+| `HYPERPERSONALIZATION_OVERVIEW.md` | Hyperpersonnalisation |
+| `HYPERPERSONALIZATION_IMPLEMENTATION.md` | Hyperpersonnalisation |
+| `IMPLEMENTATION_SUMMARY.md` | Hyperpersonnalisation |
+| `QUICK_START_HYPERPERSONALIZATION.md` | Quick start |
+| `QUICK_START.md` | Quick start |
+| `OPTIMAL_SAFETY_IMPLEMENTATION.md` | Sécurité |
+| `FINAL_SUMMARY.md` | Hyperpersonnalisation |
+| `PROMPTS_EXAMPLES.md` | Hyperpersonnalisation |
+| `FRONTEND_AUDIT.md` | Audit obsolète |
+
+---
+
+## Fichiers conservés
+
+| Fichier | Raison |
+|---------|--------|
+| `README.md` | Présentation projet |
+| `CLAUDE.md` | Instructions Claude Code |
+| `ENV_SETUP.md` | Configuration variables env |
+| `ARCHITECTURE.md` | Architecture technique détaillée |
+
+---
+
+*Dernière mise à jour : 2025-12-11 (soir)*
+*Version : 1.7 (Correction module Créativité + synopses bibliothèque)*

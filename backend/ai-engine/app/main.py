@@ -123,6 +123,132 @@ engine = TherapeuticEngine()
 
 FEEDBACK_PATH = os.path.join(os.path.dirname(__file__), 'feedback_logs.json')
 IETG_PATH = os.path.join(os.path.dirname(__file__), 'ietg_state.json')
+CREATIVE_STORE_DIR = os.path.join(os.path.dirname(__file__), 'creative_store')
+os.makedirs(CREATIVE_STORE_DIR, exist_ok=True)
+
+
+# ============================================================================
+# CREATIVE STORAGE (stockage des créations utilisateur)
+# ============================================================================
+class CreativeStorage:
+    """Stockage simple des créations utilisateur pour ai-engine"""
+
+    def __init__(self, store_dir: str):
+        self.store_dir = store_dir
+
+    def _get_user_file(self, user_id: str) -> str:
+        user_hash = sha256(user_id.encode()).hexdigest()[:16]
+        return os.path.join(self.store_dir, f"{user_hash}_creations.json")
+
+    def _load_user_creations(self, user_id: str) -> dict:
+        file_path = self._get_user_file(user_id)
+        if not os.path.exists(file_path):
+            return {"journal_entries": [], "narratives": [], "poems": [], "rituals": [], "colorings": []}
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            return {"journal_entries": [], "narratives": [], "poems": [], "rituals": [], "colorings": []}
+
+    def _save_user_creations(self, user_id: str, data: dict):
+        file_path = self._get_user_file(user_id)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    def save_journal_entry(self, user_id: str, content: str, prompt: str = None, therapeutic_method: str = None) -> dict:
+        from datetime import datetime
+        data = self._load_user_creations(user_id)
+        entry = {
+            "id": datetime.now().isoformat(),
+            "type": "journal",
+            "content": content,
+            "prompt": prompt,
+            "therapeutic_method": therapeutic_method,
+            "created_at": datetime.now().isoformat(),
+            "word_count": len(content.split())
+        }
+        data["journal_entries"].append(entry)
+        self._save_user_creations(user_id, data)
+        return entry
+
+    def save_narrative(self, user_id: str, title: str, content: str, narrative_type: str = "reconstruction_temporelle") -> dict:
+        from datetime import datetime
+        data = self._load_user_creations(user_id)
+        narrative = {
+            "id": datetime.now().isoformat(),
+            "type": "narrative",
+            "title": title,
+            "content": content,
+            "narrative_type": narrative_type,
+            "created_at": datetime.now().isoformat(),
+            "word_count": len(content.split())
+        }
+        data["narratives"].append(narrative)
+        self._save_user_creations(user_id, data)
+        return narrative
+
+    def save_poem(self, user_id: str, title: str, content: str, poem_style: str = None, ai_assisted: bool = False) -> dict:
+        from datetime import datetime
+        data = self._load_user_creations(user_id)
+        poem = {
+            "id": datetime.now().isoformat(),
+            "type": "poem",
+            "title": title,
+            "content": content,
+            "poem_style": poem_style,
+            "ai_assisted": ai_assisted,
+            "created_at": datetime.now().isoformat(),
+            "line_count": len(content.split('\n'))
+        }
+        data["poems"].append(poem)
+        self._save_user_creations(user_id, data)
+        return poem
+
+    def save_ritual(self, user_id: str, title: str, description: str, frequency: str = "ponctuel") -> dict:
+        from datetime import datetime
+        data = self._load_user_creations(user_id)
+        ritual = {
+            "id": datetime.now().isoformat(),
+            "type": "ritual",
+            "title": title,
+            "description": description,
+            "frequency": frequency,
+            "created_at": datetime.now().isoformat(),
+            "last_practiced": None,
+            "practice_count": 0
+        }
+        data["rituals"].append(ritual)
+        self._save_user_creations(user_id, data)
+        return ritual
+
+    def save_coloring(self, user_id: str, image_data: str, title: str = "Coloriage") -> dict:
+        from datetime import datetime
+        data = self._load_user_creations(user_id)
+        coloring = {
+            "id": datetime.now().isoformat(),
+            "type": "coloring",
+            "title": title,
+            "image_data": image_data,
+            "created_at": datetime.now().isoformat()
+        }
+        data["colorings"].append(coloring)
+        self._save_user_creations(user_id, data)
+        return coloring
+
+    def get_all_creations(self, user_id: str, creation_type: str = None) -> list:
+        data = self._load_user_creations(user_id)
+        if creation_type:
+            type_map = {"journal": "journal_entries", "narrative": "narratives", "poem": "poems", "ritual": "rituals", "coloring": "colorings"}
+            key = type_map.get(creation_type, "journal_entries")
+            return data.get(key, [])
+        all_creations = []
+        for key in ["journal_entries", "narratives", "poems", "rituals", "colorings"]:
+            all_creations.extend(data.get(key, []))
+        all_creations.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        return all_creations
+
+
+creative_storage = CreativeStorage(CREATIVE_STORE_DIR)
 ENC_KEY = os.getenv('FEEDBACK_ENC_KEY')
 fernet = None
 if ENC_KEY and Fernet is not None:
@@ -738,6 +864,144 @@ async def creative_presentation():
             ]
         }
     }
+
+# ============================================================================
+# CREATIVE STORAGE ENDPOINTS
+# ============================================================================
+
+from fastapi import Request
+
+@app.post('/api/creations/journal')
+async def save_journal_entry(request: Request):
+    """Sauvegarde une entrée de journal"""
+    data = await request.json()
+    user_id = data.get('user_id')
+    content = data.get('content')
+    prompt = data.get('prompt')
+    method = data.get('therapeutic_method')
+    entry = creative_storage.save_journal_entry(user_id, content, prompt, method)
+    return {'success': True, 'entry': entry}
+
+
+@app.post('/api/creations/narrative')
+async def save_narrative(request: Request):
+    """Sauvegarde un narratif thérapeutique"""
+    data = await request.json()
+    user_id = data.get('user_id')
+    title = data.get('title', 'Sans titre')
+    content = data.get('content')
+    narrative_type = data.get('narrative_type', 'reconstruction_temporelle')
+    narrative = creative_storage.save_narrative(user_id, title, content, narrative_type)
+    return {'success': True, 'narrative': narrative}
+
+
+@app.post('/api/creations/poem')
+async def save_poem(request: Request):
+    """Sauvegarde un poème"""
+    data = await request.json()
+    user_id = data.get('user_id')
+    title = data.get('title', 'Sans titre')
+    content = data.get('content')
+    poem_style = data.get('poem_style')
+    ai_assisted = data.get('ai_assisted', False)
+    poem = creative_storage.save_poem(user_id, title, content, poem_style, ai_assisted)
+    return {'success': True, 'poem': poem}
+
+
+@app.post('/api/creations/ritual')
+async def save_ritual(request: Request):
+    """Sauvegarde un rituel d'écriture"""
+    data = await request.json()
+    user_id = data.get('user_id')
+    title = data.get('title')
+    description = data.get('description')
+    frequency = data.get('frequency', 'ponctuel')
+    ritual = creative_storage.save_ritual(user_id, title, description, frequency)
+    return {'success': True, 'ritual': ritual}
+
+
+@app.post('/api/creations/coloring')
+async def save_coloring(request: Request):
+    """Sauvegarde un coloriage"""
+    data = await request.json()
+    user_id = data.get('user_id')
+    image_data = data.get('image_data')
+    title = data.get('title', 'Coloriage')
+    coloring = creative_storage.save_coloring(user_id, image_data, title)
+    return {'success': True, 'coloring': coloring}
+
+
+@app.get('/api/creations/{user_id}')
+async def get_user_creations(user_id: str, creation_type: str = None):
+    """Récupère les créations d'un utilisateur"""
+    creations = creative_storage.get_all_creations(user_id, creation_type)
+    return {'creations': creations, 'count': len(creations)}
+
+
+@app.get('/api/recent-entries/{user_id}')
+async def get_recent_journal_entries(user_id: str, limit: int = 10):
+    """Récupère les dernières entrées de journal pour contexte historique"""
+    try:
+        creations = creative_storage.get_all_creations(user_id, 'journal')
+        recent = sorted(creations, key=lambda x: x.get('created_at', ''), reverse=True)[:limit]
+        entries = [
+            {
+                'id': e.get('id'),
+                'content': e.get('content', ''),
+                'prompt': e.get('prompt'),
+                'created_at': e.get('created_at'),
+                'therapeutic_method': e.get('therapeutic_method')
+            }
+            for e in recent
+        ]
+        return {'entries': entries, 'count': len(entries)}
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Erreur chargement récentes entrées: {e}")
+        return {'entries': [], 'count': 0}
+
+
+@app.post('/api/analyze-context')
+async def analyze_context(request: Request):
+    """
+    Analyse le contexte du message utilisateur et retourne des prompts personnalisés
+    """
+    data = await request.json()
+    current_message = data.get('current_message', '')
+    tool = data.get('tool', 'journal')
+
+    # Prompts génériques basés sur le contexte
+    prompts_suggestions = {
+        'journal': [
+            "Qu'est-ce que vous ressentez en écrivant cela ?",
+            "Y a-t-il autre chose que vous aimeriez explorer ?",
+            "Comment vous sentez-vous maintenant ?",
+        ],
+        'narrative': [
+            "Que s'est-il passé ensuite ?",
+            "Comment avez-vous réagi à ce moment ?",
+            "Qu'est-ce que cela vous a appris ?",
+        ],
+        'creative': [
+            "Si cette émotion était une couleur...",
+            "Trouvez une image pour exprimer cela...",
+            "Laissez les mots venir librement...",
+        ],
+        'poem': [
+            "Continuez avec une métaphore...",
+            "Qu'est-ce qui rime avec vos émotions ?",
+            "Laissez le rythme vous guider...",
+        ],
+    }
+
+    return {
+        'recommended_prompts': prompts_suggestions.get(tool, prompts_suggestions['journal']),
+        'personalization_context': "Continuez à explorer vos pensées...",
+        'detected_method': None,
+        'variation': None,
+        'confidence': 0.0
+    }
+
 
 @app.get('/admin/analytics')
 async def admin_analytics(key: str = ''):
