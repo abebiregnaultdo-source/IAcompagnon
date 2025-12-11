@@ -163,6 +163,20 @@ class VectorRAG:
 
     COLLECTION_NAME = "therapeutic_protocols"
 
+    # Mapping entre les phases du système (adjustment.py) et les phases des protocoles
+    PHASE_MAPPING = {
+        # Système → Protocole
+        "ancrage": ["crisis", "stabilization"],  # Haute détresse → stabilisation
+        "expression": ["exploration"],            # Expression émotionnelle
+        "sens": ["meaning_making", "exploration"], # Recherche de sens
+        "reconstruction": ["reconstruction"],     # Reconstruction
+        # Fallbacks pour correspondance directe
+        "crisis": ["crisis"],
+        "stabilization": ["stabilization"],
+        "exploration": ["exploration"],
+        "meaning_making": ["meaning_making"],
+    }
+
     def __init__(self):
         self.protocols_db: Dict = {}
         self.collection = None
@@ -482,6 +496,10 @@ class VectorRAG:
 
         return sorted(scores, key=lambda x: x[1], reverse=True)[:n_results]
 
+    def _get_mapped_phases(self, system_phase: str) -> List[str]:
+        """Retourne les phases de protocoles correspondant à la phase système"""
+        return self.PHASE_MAPPING.get(system_phase, [system_phase])
+
     def _multi_criteria_scoring(
         self,
         candidates: List[Tuple[str, float]],
@@ -493,6 +511,9 @@ class VectorRAG:
         """Scoring multi-critères des candidats"""
         scored = []
 
+        # Obtenir les phases de protocoles correspondantes
+        mapped_phases = self._get_mapped_phases(current_phase)
+
         for protocol_id, similarity_score in candidates:
             protocol = self.protocols_db.get(protocol_id)
             if not protocol:
@@ -500,9 +521,15 @@ class VectorRAG:
 
             reasoning = [f"Similarité sémantique: {similarity_score:.2f}"]
 
-            # 1. Score de correspondance de phase (0-0.3)
-            phase_score = 0.3 if protocol.get("phase") == current_phase else 0.1
-            reasoning.append(f"Phase match ({protocol.get('phase')} vs {current_phase}): {phase_score:.2f}")
+            # 1. Score de correspondance de phase (0-0.3) avec mapping
+            protocol_phase = protocol.get("phase", "")
+            if protocol_phase in mapped_phases:
+                phase_score = 0.3  # Match direct
+            elif protocol_phase in ["exploration", "stabilization"]:
+                phase_score = 0.2  # Phases polyvalentes
+            else:
+                phase_score = 0.1  # Pas de match
+            reasoning.append(f"Phase match ({protocol_phase} in {mapped_phases}): {phase_score:.2f}")
 
             # 2. Score émotionnel (0-0.3)
             emotion_score = self._compute_emotion_match(user_emotion, protocol)

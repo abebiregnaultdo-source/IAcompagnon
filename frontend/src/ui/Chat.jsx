@@ -15,12 +15,8 @@ export default function Chat({
   onSwitchToVoice,
 }) {
   const device = useDeviceDetection();
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content: `Bonjour ${user.first_name}. Je suis là pour vous accompagner. Prenez votre temps, nous avançons à votre rythme.`,
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
+  const [welcomeLoaded, setWelcomeLoaded] = useState(false);
   const [input, setInput] = useState("");
   const [scores, setScores] = useState({
     detresse: 50,
@@ -94,10 +90,58 @@ export default function Chat({
     };
   }, []);
 
-  // Charger l'historique au démarrage
+  // Charger le premier message d'accueil depuis le backend (RAG)
   useEffect(() => {
-    setHistoryLoaded(true);
-  }, []);
+    const loadWelcomeMessage = async () => {
+      if (welcomeLoaded) return;
+
+      setIsTyping(true);
+
+      try {
+        // Appeler le backend pour générer le message d'accueil personnalisé
+        const response = await fetch(api.base + "/generate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            messages: [], // Pas d'historique, c'est le premier message
+            profile: {
+              first_name: user.first_name,
+              user_id_hash: user.id,
+              is_first_message: true
+            },
+            policy: {
+              tone: user.tone || "neutre",
+              phase: "ancrage",
+              scores: { detresse: 50, espoir: 50, energie: 50 },
+              is_welcome: true
+            },
+          }),
+        });
+
+        if (!response.ok) throw new Error("Backend non disponible");
+
+        const data = await response.json();
+        setMessages([{ role: "assistant", content: data.text }]);
+
+        // Tracker technique utilisée
+        lastTechniqueRef.current = data.technique || "welcome";
+        lastResponseTimeRef.current = Date.now();
+
+      } catch (error) {
+        // Fallback: message d'accueil local si backend indisponible
+        setMessages([{
+          role: "assistant",
+          content: `Bonjour ${user.first_name}. Je suis là pour vous accompagner. Prenez votre temps, nous avançons à votre rythme.`,
+        }]);
+      } finally {
+        setIsTyping(false);
+        setWelcomeLoaded(true);
+        setHistoryLoaded(true);
+      }
+    };
+
+    loadWelcomeMessage();
+  }, [api.base, user.first_name, user.id, user.tone, welcomeLoaded]);
 
   useEffect(() => {
     viewRef.current?.scrollTo({ top: 99999, behavior: "smooth" });

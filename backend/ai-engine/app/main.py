@@ -243,8 +243,9 @@ async def generate(req: GenerateRequest):
         'enveloppant': "en te laissant entourer par ce qui te soutient",
     }.get(tone, "simplement")
     scores = req.policy.get('scores', {}) if isinstance(req.policy.get('scores'), dict) else {}
+    user_name = req.profile.get('first_name', 'ami')
     user_state = {
-        'user_name': req.profile.get('first_name', 'ami'),
+        'user_name': user_name,
         'detresse': scores.get('detresse', 50),
         'espoir': scores.get('espoir', 50),
         'energie': scores.get('energie', 50),
@@ -254,6 +255,22 @@ async def generate(req: GenerateRequest):
     }
     if req.profile.get('user_id_hash'):
         req.policy['user_id_hash'] = req.profile.get('user_id_hash')
+
+    # === CAS SPÉCIAL: Message de bienvenue (premier contact) ===
+    is_welcome = req.policy.get('is_welcome', False) or req.profile.get('is_first_message', False)
+    if is_welcome and len(req.messages) == 0:
+        # Générer un message d'accueil personnalisé via RAG
+        welcome_text = engine.generate_welcome_message(user_name, user_state)
+        return {
+            'text': welcome_text,
+            'intention_id': 'welcome',
+            'technique': 'accueil_personnalise',
+            'source': 'welcome_rag',
+            'prompt_used': None,
+            'model_used': None,
+            'emotion_context': None,
+            'rag_info': {'protocol_id': 'welcome', 'source': 'welcome'}
+        }
 
     # IMPORTANT: Passer les messages au pipeline pour le RAG vectoriel
     # Convertir les messages Pydantic en dicts

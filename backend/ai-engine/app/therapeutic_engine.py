@@ -369,6 +369,42 @@ class TherapeuticEngine:
         self.session_baseline = {}  # Stocke baseline par session
         self.session_start_time = {}  # Stocke temps début session
 
+    def generate_welcome_message(self, user_name: str, user_state: Dict[str, Any]) -> str:
+        """
+        Génère un message d'accueil personnalisé pour le premier contact.
+        Utilise le RAG pour trouver le protocole d'accueil le plus adapté.
+        """
+        # Essayer d'utiliser le RAG pour trouver un protocole d'accueil
+        try:
+            relevant_protocols = self.ckb.retrieve_relevant_protocols(
+                user_message="premier contact bienvenue accueil",
+                current_phase="ancrage",  # Phase d'accueil = ancrage/stabilisation
+                emotional_state={'detresse': 50, 'espoir': 50, 'energie': 50},
+                top_k=1
+            )
+
+            if relevant_protocols:
+                protocol = relevant_protocols[0]
+                template = protocol.get('template', '')
+                if template:
+                    # Personnaliser avec le prénom
+                    welcome = template.replace('{user_name}', user_name)
+                    logger.info(f"Welcome from RAG: {protocol.get('protocol_id')}")
+                    return welcome
+
+        except Exception as e:
+            logger.warning(f"RAG welcome failed: {e}")
+
+        # Fallback: message d'accueil par défaut mais varié
+        import random
+        welcome_templates = [
+            f"Bonjour {user_name}. Je suis là pour t'accompagner. Prends ton temps, nous avançons à ton rythme. Comment te sens-tu en ce moment ?",
+            f"Bienvenue {user_name}. Je suis ici pour t'écouter, sans jugement. Qu'est-ce qui t'amène aujourd'hui ?",
+            f"Bonjour {user_name}. Cet espace est le tien. Dis-moi ce qui se passe pour toi, ou simplement comment tu vas.",
+            f"Salut {user_name}. Je suis là, présent·e avec toi. Comment puis-je t'accompagner aujourd'hui ?",
+        ]
+        return random.choice(welcome_templates)
+
     def assess_needs(self, user_state: Dict[str, Any]) -> Dict[str, Any]:
         # Minimal rule-based assessment; can be replaced by knowledge model prompt
         return {
@@ -682,6 +718,7 @@ class TherapeuticEngine:
                 last_user_message = content
 
         # 4) Craft intervention/micro-protocol avec RAG vectoriel
+        logger.info(f"[PIPELINE] Phase: {assessment['phase']}, Technique: {technique}, Message: {last_user_message[:50] if last_user_message else 'N/A'}...")
         micro, meta = self.craft_intervention(
             intention_id,
             user_state,
@@ -692,7 +729,10 @@ class TherapeuticEngine:
 
         # Log RAG info if available
         if meta.get('source') == 'vector_rag':
-            logger.info(f"RAG Protocol: {meta.get('protocol_name')} (score: {meta.get('rag_score', 0):.2f})")
+            logger.info(f"[RAG] Protocol: {meta.get('protocol_name')} (score: {meta.get('rag_score', 0):.2f})")
+            logger.info(f"[RAG] Reasoning: {meta.get('reasoning', [])[:2]}")
+        else:
+            logger.info(f"[FALLBACK] Source: {meta.get('source')}, Technique: {technique}")
 
         # 5) Deliver empathically with adapted tone
         tone = tone_p or policy.get('tone','neutre')
