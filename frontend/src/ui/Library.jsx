@@ -12,14 +12,19 @@ export default function Library({ onBackToHome }) {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
   const resources = [
+    // ============================================================
+    // LIVRES - Références validées en psychologie du deuil
+    // ============================================================
     {
       id: 1,
       category: "livre",
-      title: "Le deuil : vivre après la perte d'un être cher",
-      author: "Marie-Frédérique Bacqué",
+      title: "Vivre le deuil au jour le jour",
+      author: "Christophe Fauré",
       description:
-        "Un guide complet pour comprendre et traverser le processus de deuil.",
+        "Guide pratique par un psychiatre spécialiste du deuil. Approche validée, conseils concrets pour traverser chaque étape.",
       type: "Livre",
+      url: null,
+      tags: ["deuil", "pratique", "psychiatre"],
     },
     {
       id: 2,
@@ -27,34 +32,316 @@ export default function Library({ onBackToHome }) {
       title: "La mort intime",
       author: "Marie de Hennezel",
       description:
-        "Réflexions sur l'accompagnement des personnes en fin de vie et le deuil.",
+        "Témoignage d'une psychologue en soins palliatifs. Prix Femina 1995. Réflexion profonde sur l'accompagnement de fin de vie.",
       type: "Livre",
+      url: null,
+      tags: ["fin de vie", "accompagnement", "témoignage"],
     },
     {
       id: 3,
-      category: "article",
-      title: "Les étapes du deuil selon Kübler-Ross",
-      author: "Elisabeth Kübler-Ross",
+      category: "livre",
+      title: "Guérir le stress, l'anxiété et la dépression",
+      author: "David Servan-Schreiber",
       description:
-        "Comprendre les 5 étapes du deuil : déni, colère, marchandage, dépression, acceptation.",
-      type: "Article",
+        "Méthodes naturelles validées scientifiquement : cohérence cardiaque, EMDR, oméga-3. Best-seller traduit en 35 langues.",
+      type: "Livre",
+      url: null,
+      tags: ["anxiété", "dépression", "neurosciences"],
     },
     {
       id: 4,
-      category: "podcast",
-      title: "Parler de la mort",
-      author: "France Culture",
+      category: "livre",
+      title: "S'aider soi-même par l'EMDR",
+      author: "Francine Shapiro",
       description:
-        "Série de podcasts sur le deuil, la mort et l'accompagnement.",
-      type: "Podcast",
+        "Par la créatrice de l'EMDR. Techniques d'auto-traitement pour traumatismes et émotions difficiles.",
+      type: "Livre",
+      url: null,
+      tags: ["EMDR", "trauma", "auto-thérapie"],
     },
     {
       id: 5,
+      category: "livre",
+      title: "Faire son deuil, vivre un chagrin",
+      author: "Marie-Frédérique Bacqué",
+      description:
+        "Par la présidente de la Société de Thanatologie. Approche scientifique et humaine du processus de deuil.",
+      type: "Livre",
+      url: null,
+      tags: ["deuil", "psychologie", "scientifique"],
+    },
+
+    // ============================================================
+    // ARTICLES & GUIDES - Ressources gratuites en ligne
+    // ============================================================
+    {
+      id: 10,
+      category: "article",
+      title: "Guide du deuil - Psycom",
+      author: "Psycom (organisme public)",
+      description:
+        "Guide complet et gratuit sur le deuil par l'organisme public d'information en santé mentale. Fiable et accessible.",
+      type: "Guide",
+      url: "https://www.psycom.org/comprendre/le-deuil/",
+      tags: ["deuil", "gratuit", "officiel"],
+    },
+    {
+      id: 11,
+      category: "article",
+      title: "Thérapie Cognitive et Comportementale - HAS",
+      author: "Haute Autorité de Santé",
+      description:
+        "Recommandations officielles sur les TCC pour anxiété et dépression. Base scientifique des techniques HELO.",
+      type: "Guide officiel",
+      url: "https://www.has-sante.fr/",
+      tags: ["TCC", "officiel", "dépression"],
+    },
+    {
+      id: 12,
+      category: "article",
+      title: "Comprendre le deuil compliqué",
+      author: "Association EMDR France",
+      description:
+        "Quand le deuil devient pathologique : signes, différences avec un deuil normal, quand consulter.",
+      type: "Article",
+      url: "https://www.emdr-france.org/",
+      tags: ["deuil compliqué", "EMDR", "psychologie"],
+    },
+    {
+      id: 13,
+      category: "article",
+      title: "La cohérence cardiaque expliquée",
+      author: "Dr David O'Hare",
+      description:
+        "Technique de respiration 365 validée scientifiquement pour réguler le stress. Gratuit, efficace en 5 minutes.",
+      type: "Méthode",
+      url: "https://www.coherenceinfo.com/",
+      tags: ["respiration", "stress", "gratuit"],
+    },
+    {
+      id: 14,
+      category: "article",
+      title: "Les phases du deuil - modèle de Worden",
+      author: "J. William Worden",
+      description:
+        "Alternative au modèle Kübler-Ross : 4 tâches actives du deuil. Approche plus moderne et validée.",
+      type: "Article scientifique",
+      url: null,
+      tags: ["deuil", "psychologie", "modèle"],
+    },
+
+    // ============================================================
+    // PODCASTS - Écoute gratuite
+    // ============================================================
+    {
+      id: 20,
+      category: "podcast",
+      title: "La mort, et après ?",
+      author: "France Culture - Les Chemins de la philosophie",
+      description:
+        "Série philosophique sur la mort, le deuil et le sens de la vie. Écoute gratuite sur le site France Culture.",
+      type: "Podcast",
+      url: "https://www.radiofrance.fr/franceculture/podcasts/les-chemins-de-la-philosophie",
+      tags: ["philosophie", "gratuit", "France Culture"],
+    },
+    {
+      id: 21,
+      category: "podcast",
+      title: "Comment vivre avec son deuil",
+      author: "France Inter - Grand bien vous fasse",
+      description:
+        "Émission avec des spécialistes du deuil. Témoignages et conseils pratiques. Replay gratuit.",
+      type: "Podcast",
+      url: "https://www.radiofrance.fr/franceinter/podcasts/grand-bien-vous-fasse",
+      tags: ["deuil", "pratique", "témoignages"],
+    },
+    {
+      id: 22,
+      category: "podcast",
+      title: "Psychologie positive",
+      author: "Change ma vie - Clotilde Dusoulier",
+      description:
+        "Podcast sur le développement personnel et la psychologie positive. Techniques pratiques et accessibles.",
+      type: "Podcast",
+      url: "https://changemavie.com/",
+      tags: ["psychologie positive", "développement personnel"],
+    },
+    {
+      id: 23,
+      category: "podcast",
+      title: "Métamorphose - Transformation intérieure",
+      author: "Anne Ghesquière",
+      description:
+        "Interviews de psychologues, philosophes, auteurs sur le changement et la résilience.",
+      type: "Podcast",
+      url: "https://www.intothewild.fm/metamorphose",
+      tags: ["transformation", "résilience", "interviews"],
+    },
+
+    // ============================================================
+    // VIDÉOS - Conférences et tutoriels
+    // ============================================================
+    {
+      id: 30,
       category: "video",
-      title: "Comprendre le deuil",
-      author: "Christophe Fauré",
-      description: "Conférence sur les mécanismes psychologiques du deuil.",
-      type: "Vidéo",
+      title: "Le deuil : comment traverser cette épreuve",
+      author: "Christophe Fauré (TEDx)",
+      description:
+        "Conférence TEDx du psychiatre spécialiste du deuil. 18 min pour comprendre le processus de deuil.",
+      type: "Conférence TEDx",
+      url: "https://www.youtube.com/results?search_query=christophe+faur%C3%A9+tedx+deuil",
+      tags: ["TEDx", "deuil", "psychiatrie"],
+    },
+    {
+      id: 31,
+      category: "video",
+      title: "Cohérence cardiaque - Exercice guidé 5 min",
+      author: "Dr David O'Hare",
+      description:
+        "Exercice de respiration guidé pour calmer le système nerveux. À faire 3x par jour pour effets optimaux.",
+      type: "Exercice guidé",
+      url: "https://www.youtube.com/results?search_query=coherence+cardiaque+5+minutes",
+      tags: ["respiration", "exercice", "stress"],
+    },
+    {
+      id: 32,
+      category: "video",
+      title: "Méditation de pleine conscience - MBSR",
+      author: "Jon Kabat-Zinn (sous-titré FR)",
+      description:
+        "Introduction à la pleine conscience par son créateur. Programme MBSR validé pour anxiété et dépression.",
+      type: "Méditation guidée",
+      url: "https://www.youtube.com/results?search_query=jon+kabat+zinn+meditation+francais",
+      tags: ["méditation", "MBSR", "pleine conscience"],
+    },
+    {
+      id: 33,
+      category: "video",
+      title: "Comprendre l'anxiété et la dépression",
+      author: "PsykoCouac (vulgarisation)",
+      description:
+        "Chaîne de vulgarisation psychologique. Vidéos claires et sourcées sur la santé mentale.",
+      type: "Vulgarisation",
+      url: "https://www.youtube.com/@PsykoCouac",
+      tags: ["vulgarisation", "anxiété", "dépression"],
+    },
+    {
+      id: 34,
+      category: "video",
+      title: "Relaxation musculaire progressive",
+      author: "Jacobson (technique originale)",
+      description:
+        "Technique validée pour réduire tension et anxiété. 15-20 min de relaxation guidée.",
+      type: "Exercice guidé",
+      url: "https://www.youtube.com/results?search_query=relaxation+jacobson+francais",
+      tags: ["relaxation", "anxiété", "exercice"],
+    },
+
+    // ============================================================
+    // OUTILS - Applications et sites interactifs gratuits
+    // ============================================================
+    {
+      id: 40,
+      category: "outil",
+      title: "RespiRelax+ (App gratuite)",
+      author: "Thermes d'Allevard",
+      description:
+        "Application gratuite de cohérence cardiaque. Guide respiratoire visuel. iOS et Android.",
+      type: "Application",
+      url: "https://www.thermes-allevard.com/respir-relax/",
+      tags: ["app", "respiration", "gratuit"],
+    },
+    {
+      id: 41,
+      category: "outil",
+      title: "Petit BamBou (Méditation)",
+      author: "Petit BamBou",
+      description:
+        "Application de méditation francophone. Programme gratuit de base. Voix douces et apaisantes.",
+      type: "Application",
+      url: "https://www.petitbambou.com/",
+      tags: ["méditation", "app", "francophone"],
+    },
+    {
+      id: 42,
+      category: "outil",
+      title: "Mon Sherpa (Soutien psy)",
+      author: "Mon Sherpa",
+      description:
+        "Application française d'auto-thérapie TCC. Exercices validés pour anxiété et dépression.",
+      type: "Application",
+      url: "https://www.monsherpa.eu/",
+      tags: ["TCC", "app", "français"],
+    },
+    {
+      id: 43,
+      category: "outil",
+      title: "Headspace (Anglais/FR)",
+      author: "Headspace",
+      description:
+        "Application de méditation reconnue mondialement. Contenu gratuit disponible. Certaines séances en français.",
+      type: "Application",
+      url: "https://www.headspace.com/",
+      tags: ["méditation", "international", "app"],
+    },
+
+    // ============================================================
+    // LIGNES D'ÉCOUTE - Soutien humain gratuit
+    // ============================================================
+    {
+      id: 50,
+      category: "aide",
+      title: "SOS Amitié - 09 72 39 40 50",
+      author: "SOS Amitié France",
+      description:
+        "Écoute 24h/24, 7j/7. Bénévoles formés pour détresse psychologique. Gratuit et anonyme.",
+      type: "Ligne d'écoute",
+      url: "https://www.sos-amitie.com/",
+      tags: ["écoute", "24h/24", "gratuit"],
+    },
+    {
+      id: 51,
+      category: "aide",
+      title: "Fil Santé Jeunes - 0 800 235 236",
+      author: "Santé Publique France",
+      description:
+        "Pour les 12-25 ans. Écoute anonyme et gratuite. Aussi par chat sur le site.",
+      type: "Ligne d'écoute",
+      url: "https://www.filsantejeunes.com/",
+      tags: ["jeunes", "gratuit", "chat"],
+    },
+    {
+      id: 52,
+      category: "aide",
+      title: "Suicide Écoute - 01 45 39 40 00",
+      author: "Suicide Écoute",
+      description:
+        "Ligne dédiée aux personnes en détresse suicidaire. 24h/24. Professionnels et bénévoles formés.",
+      type: "Ligne d'écoute",
+      url: null,
+      tags: ["crise", "urgence", "24h/24"],
+    },
+    {
+      id: 53,
+      category: "aide",
+      title: "Association Jonathan Pierres Vivantes",
+      author: "JPV",
+      description:
+        "Association de parents endeuillés. Groupes de parole et accompagnement pour deuil d'enfant.",
+      type: "Association",
+      url: "https://www.jpv.asso.fr/",
+      tags: ["deuil enfant", "association", "groupe parole"],
+    },
+    {
+      id: 54,
+      category: "aide",
+      title: "FAVEC - Veuvage",
+      author: "FAVEC",
+      description:
+        "Fédération d'accompagnement au veuvage. Groupes d'entraide, aide administrative et juridique.",
+      type: "Association",
+      url: "https://www.favec.fr/",
+      tags: ["veuvage", "association", "entraide"],
     },
   ];
 
@@ -64,6 +351,8 @@ export default function Library({ onBackToHome }) {
     { id: "article", label: "Articles" },
     { id: "podcast", label: "Podcasts" },
     { id: "video", label: "Vidéos" },
+    { id: "outil", label: "Outils" },
+    { id: "aide", label: "Aide" },
   ];
 
   const filteredResources =
@@ -159,8 +448,8 @@ export default function Library({ onBackToHome }) {
               margin: "0 auto",
             }}
           >
-            Livres, podcasts, articles et vidéos recommandés par des
-            professionnels pour approfondir votre compréhension du deuil
+            Livres, podcasts, articles, vidéos, applications et lignes d'écoute
+            recommandés par des professionnels pour vous accompagner
           </p>
         </div>
 
@@ -283,8 +572,13 @@ export default function Library({ onBackToHome }) {
 
               <Button
                 onClick={() => {
-                  // TODO: Ouvrir la ressource
-                  alert("Ressource à venir");
+                  if (resource.url) {
+                    window.open(resource.url, "_blank", "noopener,noreferrer");
+                  } else {
+                    alert(
+                      `"${resource.title}" de ${resource.author}\n\nCe livre est disponible en librairie et bibliothèque.`
+                    );
+                  }
                 }}
                 style={{
                   width: "100%",
@@ -292,7 +586,7 @@ export default function Library({ onBackToHome }) {
                   padding: "var(--space-sm)",
                 }}
               >
-                Consulter
+                {resource.url ? "Consulter" : "En savoir plus"}
               </Button>
             </div>
           ))}
