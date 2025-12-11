@@ -16,6 +16,7 @@ import CGV from "./legal/CGV";
 import MentionsLegales from "./legal/MentionsLegales";
 import Confidentialite from "./legal/Confidentialite";
 import AdminDashboard from "./AdminDashboard";
+import ResetPassword from "./ResetPassword";
 import Logo from "./components/Logo";
 import EmotionalFeedback from "./components/EmotionalFeedback";
 import { useDeviceClass } from "../hooks/useDeviceDetection";
@@ -30,10 +31,11 @@ export default function App() {
     document.body.className = deviceClass;
   }, [deviceClass]);
 
-  // Check for demo mode or admin mode in URL
+  // Check for demo mode, admin mode, or reset-password in URL
   const urlParams = new URLSearchParams(window.location.search);
   const demoMode = urlParams.get("demo");
   const adminMode = urlParams.get("admin");
+  const isResetPasswordPage = window.location.pathname === "/reset-password";
 
   const api = useMemo(() => ({ base: "https://helo-backend.onrender.com" }), []);
 
@@ -50,6 +52,19 @@ export default function App() {
   // Show crisis demo if requested
   if (demoMode === "crisis") {
     return <CrisisDemo />;
+  }
+
+  // Show password reset page
+  if (isResetPasswordPage) {
+    return (
+      <EmotionalFeedback state="calm">
+        <ResetPassword
+          onComplete={() => {
+            window.location.href = "/";
+          }}
+        />
+      </EmotionalFeedback>
+    );
   }
 
   const [showLanding, setShowLanding] = useState(true);
