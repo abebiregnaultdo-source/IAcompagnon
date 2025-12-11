@@ -46,7 +46,9 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
   const connectWebSocket = () => {
     setConnectionStatus("connecting");
 
-    const wsUrl = `ws://localhost:8003/ws/voice/${user.id}`;
+    // URL du voice-service (production ou localhost)
+    const voiceServiceBase = import.meta.env.VITE_VOICE_SERVICE_URL || "wss://helo-voice-service.onrender.com";
+    const wsUrl = `${voiceServiceBase}/ws/voice/${user.id}`;
     wsRef.current = new WebSocket(wsUrl);
 
     wsRef.current.onopen = () => {

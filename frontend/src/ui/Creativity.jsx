@@ -324,7 +324,8 @@ export default function Creativity({ user, api, onBackToHome }) {
                       : "journal";
                 setActiveTab(tab);
                 setShowEditor(true);
-                loadInitialPrompts(tab);
+                // Ne pas charger les prompts automatiquement - l'utilisateur choisit
+                setInitialPrompts([]);
               }
             }}
             onOpenPortfolio={() => {
@@ -502,7 +503,8 @@ export default function Creativity({ user, api, onBackToHome }) {
             <Button
               onClick={() => {
                 setShowEditor(true);
-                loadInitialPrompts(activeTab);
+                // Ne pas charger les prompts automatiquement - l'utilisateur choisit
+                setInitialPrompts([]);
               }}
               style={{
                 fontSize: "var(--font-size-md)",
@@ -550,7 +552,27 @@ export default function Creativity({ user, api, onBackToHome }) {
                   {activeTab === "creative" && "Les mots peuvent devenir poésie, les émotions peuvent prendre forme. Laissez-vous guider."}
                 </Text>
 
-                {/* Prompts d'inspiration */}
+                {/* Option pour afficher/masquer les suggestions */}
+                {!initialPromptsLoading && initialPrompts.length > 0 && (
+                  <div style={{ marginBottom: "var(--space-md)" }}>
+                    <button
+                      onClick={() => setInitialPrompts([])}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        color: "var(--color-text-tertiary)",
+                        fontSize: "var(--font-size-xs)",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        padding: 0,
+                      }}
+                    >
+                      Masquer les suggestions
+                    </button>
+                  </div>
+                )}
+
+                {/* Prompts d'inspiration (optionnels) */}
                 {initialPromptsLoading ? (
                   <div style={{ textAlign: "center", padding: "var(--space-md)" }}>
                     <Text size="sm" color="secondary">Préparation de vos inspirations...</Text>
@@ -565,7 +587,7 @@ export default function Creativity({ user, api, onBackToHome }) {
                         marginBottom: "var(--space-sm)",
                       }}
                     >
-                      Quelques pistes pour commencer :
+                      Besoin d'inspiration ? Voici quelques pistes :
                     </Text>
                     <div
                       style={{
@@ -604,15 +626,40 @@ export default function Creativity({ user, api, onBackToHome }) {
                         </button>
                       ))}
                     </div>
-                    <Text
-                      size="xs"
-                      color="tertiary"
-                      style={{ marginTop: "var(--space-md)", fontStyle: "italic" }}
-                    >
-                      Cliquez sur une proposition ou commencez à écrire librement ci-dessous
-                    </Text>
                   </div>
-                ) : null}
+                ) : (
+                  <div>
+                    <button
+                      onClick={() => loadInitialPrompts(activeTab)}
+                      style={{
+                        background: "white",
+                        border: "1px solid var(--color-border)",
+                        borderRadius: "var(--radius-md)",
+                        padding: "var(--space-sm) var(--space-md)",
+                        cursor: "pointer",
+                        color: "var(--color-primary)",
+                        fontSize: "var(--font-size-sm)",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "var(--color-accent-calm)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "white";
+                      }}
+                    >
+                      Besoin d'inspiration ?
+                    </button>
+                  </div>
+                )}
+
+                <Text
+                  size="xs"
+                  color="tertiary"
+                  style={{ marginTop: "var(--space-md)", fontStyle: "italic" }}
+                >
+                  Vous pouvez aussi commencer à écrire librement ci-dessous
+                </Text>
               </div>
             )}
 

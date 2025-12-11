@@ -16,8 +16,9 @@ class VoiceSessionManager:
     
     def __init__(self):
         self.sessions: Dict[str, Dict[str, Any]] = {}
-        self.ai_engine_url = os.getenv("AI_ENGINE_URL", "http://localhost:8001")
-        self.api_gateway_url = os.getenv("API_GATEWAY_URL", "http://localhost:8000")
+        # Utiliser le backend Render par défaut
+        self.ai_engine_url = os.getenv("AI_ENGINE_URL", "https://helo-backend.onrender.com")
+        self.api_gateway_url = os.getenv("API_GATEWAY_URL", "https://helo-backend.onrender.com")
     
     def create_session(self, user_id: str) -> str:
         """Crée une nouvelle session vocale"""

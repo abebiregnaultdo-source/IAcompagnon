@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: helo-voice-service
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: AI_ENGINE_URL
+        value: https://helo-backend.onrender.com
+      - key: API_GATEWAY_URL
+        value: https://helo-backend.onrender.com
+    healthCheckPath: /health

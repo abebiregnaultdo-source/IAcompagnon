@@ -2,8 +2,10 @@
 Voice Service - STT (Speech-to-Text) + TTS (Text-to-Speech)
 
 Technologies:
-- STT: Whisper (OpenAI) - open source, haute qualité
-- TTS: Piper (local, privacy) + Edge TTS (cloud, qualité)
+- STT: OpenAI Whisper API (cloud) - haute qualité, léger
+- TTS: Edge TTS (Microsoft, gratuit, cloud)
+
+Version allégée pour déploiement cloud (Render)
 """
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
@@ -13,6 +15,7 @@ from typing import Optional, Dict, Any
 import logging
 import asyncio
 import json
+import os
 
 from .stt_engine import STTEngine
 from .tts_engine import TTSEngine
@@ -23,12 +26,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # FastAPI app
-app = FastAPI(title="Voice Service", version="1.0.0")
+app = FastAPI(title="Voice Service", version="2.0.0")
 
-# CORS
+# CORS - Autoriser frontend Vercel et localhost
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://ia-compagnon.vercel.app",
+        "https://ia-compagnon-1.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,6 +67,11 @@ class SynthesizeRequest(BaseModel):
 # ============================================================================
 # ENDPOINTS
 # ============================================================================
+
+@app.get("/")
+async def root():
+    """Health check pour Render"""
+    return {"status": "healthy", "service": "Voice Service", "version": "2.0.0"}
 
 @app.get("/health")
 async def health():
