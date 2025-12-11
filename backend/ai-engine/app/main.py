@@ -239,7 +239,7 @@ async def generate(req: GenerateRequest):
     phase = req.policy.get('phase', 'ancrage')
     tone_prompt = {
         'lent': "doucement, sans te forcer",
-        'neutre': "simplement, comme c’est",
+        'neutre': "simplement, comme c'est",
         'enveloppant': "en te laissant entourer par ce qui te soutient",
     }.get(tone, "simplement")
     scores = req.policy.get('scores', {}) if isinstance(req.policy.get('scores'), dict) else {}
@@ -254,6 +254,19 @@ async def generate(req: GenerateRequest):
     }
     if req.profile.get('user_id_hash'):
         req.policy['user_id_hash'] = req.profile.get('user_id_hash')
+
+    # IMPORTANT: Passer les messages au pipeline pour le RAG vectoriel
+    # Convertir les messages Pydantic en dicts
+    messages_for_context = [
+        {'role': msg.role, 'content': msg.content}
+        for msg in req.messages
+    ]
+    req.policy['conversation_context'] = {
+        'messages': messages_for_context,
+        'session_count': req.profile.get('session_count', 1),
+        'previous_methods': req.profile.get('previous_methods', [])
+    }
+
     out = engine.run_pipeline(user_state, req.policy)
 
     # Supervision clinique: alerte 3114 si détresse élevée
@@ -286,6 +299,8 @@ async def generate(req: GenerateRequest):
         'prompt_used': out.get('prompt_used'),
         'model_used': out.get('model_used'),
         'emotion_context': out.get('emotion_context'),
+        # RAG info for debugging
+        'rag_info': out.get('rag_info'),
     }
 
 @app.post('/detect')

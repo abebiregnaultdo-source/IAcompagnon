@@ -1,1 +1,348 @@
-{}
+{
+  "grounding_5_senses": {
+    "id": "grounding_5_senses",
+    "name": "Ancrage 5 sens",
+    "summary": "Technique d'ancrage sensoriel pour revenir au moment présent lors de détresse intense",
+    "intent": "Aider la personne à se reconnecter au présent via ses 5 sens",
+    "method": "grounding",
+    "phase": "crisis",
+    "activation_level": "low",
+    "priority": 95,
+    "template": "Je suis là avec toi. Prenons un moment ensemble. Peux-tu me dire 5 choses que tu vois autour de toi en ce moment ?",
+    "follow_up": [
+      "Et maintenant, 4 choses que tu peux toucher ?",
+      "3 sons que tu entends ?",
+      "2 odeurs que tu perçois ?",
+      "Et 1 chose que tu peux goûter ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["anxiété", "panique", "dissociation", "submergé", "perdu"],
+    "metadata": {
+      "duration_minutes": 5,
+      "evidence_base": "DBT, trauma-informed care",
+      "efficacy_score": 0.85
+    }
+  },
+  "breathing_square": {
+    "id": "breathing_square",
+    "name": "Respiration carrée",
+    "summary": "Technique de respiration en 4 temps pour réguler le système nerveux",
+    "intent": "Activer le système parasympathique pour réduire l'activation émotionnelle",
+    "method": "breathing",
+    "phase": "stabilization",
+    "activation_level": "low",
+    "priority": 90,
+    "template": "Si tu te sens prêt·e, on peut essayer quelque chose de simple ensemble. Inspire doucement en comptant jusqu'à 4...",
+    "follow_up": [
+      "Maintenant retiens ton souffle, 4 secondes...",
+      "Expire lentement, 4 secondes...",
+      "Garde les poumons vides, 4 secondes...",
+      "Comment te sens-tu après quelques cycles ?"
+    ],
+    "contraindications": ["asthme aigu", "hyperventilation"],
+    "emotional_triggers": ["stress", "tension", "agitation", "nervosité"],
+    "metadata": {
+      "duration_minutes": 3,
+      "evidence_base": "Psychophysiology, vagal tone research",
+      "efficacy_score": 0.82
+    }
+  },
+  "emotion_naming": {
+    "id": "emotion_naming",
+    "name": "Nommer l'émotion",
+    "summary": "Identifier et nommer précisément l'émotion ressentie pour réduire son intensité",
+    "intent": "Activer le cortex préfrontal via la verbalisation émotionnelle (affect labeling)",
+    "method": "emotional_awareness",
+    "phase": "exploration",
+    "activation_level": "medium",
+    "priority": 80,
+    "template": "Ce que tu vis semble important. Si tu devais mettre un mot sur ce que tu ressens en ce moment, ce serait quoi ?",
+    "follow_up": [
+      "Et où ressens-tu ça dans ton corps ?",
+      "Cette émotion, elle te dit quelque chose sur ce qui compte pour toi ?",
+      "Est-ce qu'elle a une couleur, une texture ?"
+    ],
+    "contraindications": ["alexithymie sévère non accompagnée"],
+    "emotional_triggers": ["confusion émotionnelle", "je ne sais pas", "c'est compliqué"],
+    "metadata": {
+      "duration_minutes": 5,
+      "evidence_base": "Lieberman et al. affect labeling research, neuroimaging studies",
+      "efficacy_score": 0.78
+    }
+  },
+  "validation_reflection": {
+    "id": "validation_reflection",
+    "name": "Validation et reflet",
+    "summary": "Refléter et valider l'expérience émotionnelle de la personne sans jugement",
+    "intent": "Créer un espace sécurisant où l'émotion est accueillie telle qu'elle est",
+    "method": "active_listening",
+    "phase": "exploration",
+    "activation_level": "low",
+    "priority": 85,
+    "template": "Je t'entends. {emotion_reflet}. C'est tout à fait compréhensible de ressentir ça dans ta situation.",
+    "follow_up": [
+      "Qu'est-ce qui serait aidant pour toi en ce moment ?",
+      "De quoi aurais-tu besoin là, maintenant ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["besoin d'être compris", "solitude", "incompréhension"],
+    "metadata": {
+      "duration_minutes": 2,
+      "evidence_base": "Rogers, person-centered therapy, DBT validation",
+      "efficacy_score": 0.88
+    }
+  },
+  "continuing_bonds_letter": {
+    "id": "continuing_bonds_letter",
+    "name": "Lettre au défunt",
+    "summary": "Écrire une lettre à la personne décédée pour maintenir un lien symbolique",
+    "intent": "Permettre l'expression de non-dits et maintenir une connexion transformée",
+    "method": "continuing_bonds",
+    "phase": "meaning_making",
+    "activation_level": "high",
+    "priority": 70,
+    "template": "Certaines personnes trouvent apaisant d'écrire à celui ou celle qui n'est plus là. Si tu te sens prêt·e, qu'aimerais-tu lui dire ?",
+    "follow_up": [
+      "Qu'est-ce que tu n'as pas eu le temps de lui dire ?",
+      "Qu'est-ce qu'il/elle représentait pour toi ?",
+      "Comment voudrais-tu garder sa présence dans ta vie ?"
+    ],
+    "contraindications": ["phase aigüe du deuil", "culpabilité intense non travaillée"],
+    "emotional_triggers": ["manque", "regrets", "non-dits", "il/elle me manque"],
+    "metadata": {
+      "duration_minutes": 15,
+      "evidence_base": "Klass, Silverman - Continuing Bonds theory",
+      "efficacy_score": 0.75
+    }
+  },
+  "meaning_reconstruction": {
+    "id": "meaning_reconstruction",
+    "name": "Reconstruction de sens",
+    "summary": "Explorer le sens que la personne peut donner à sa perte et à sa vie",
+    "intent": "Accompagner la reconstruction d'un récit de vie intégrant la perte",
+    "method": "meaning_making",
+    "phase": "meaning_making",
+    "activation_level": "medium",
+    "priority": 65,
+    "template": "Comment cette expérience, aussi douloureuse soit-elle, a-t-elle changé ta façon de voir certaines choses ?",
+    "follow_up": [
+      "Qu'est-ce que cette personne t'a appris sur la vie ?",
+      "Qu'est-ce que tu voudrais garder d'elle en toi ?",
+      "Comment aimerais-tu honorer sa mémoire ?"
+    ],
+    "contraindications": ["phase aigüe", "détresse intense"],
+    "emotional_triggers": ["pourquoi", "quel sens", "à quoi bon", "comprendre"],
+    "metadata": {
+      "duration_minutes": 10,
+      "evidence_base": "Neimeyer meaning reconstruction, narrative therapy",
+      "efficacy_score": 0.72
+    }
+  },
+  "safe_place_visualization": {
+    "id": "safe_place_visualization",
+    "name": "Lieu sûr",
+    "summary": "Visualisation guidée d'un lieu sécurisant pour créer une ressource interne",
+    "intent": "Développer une ressource de régulation émotionnelle accessible à tout moment",
+    "method": "visualization",
+    "phase": "stabilization",
+    "activation_level": "low",
+    "priority": 85,
+    "template": "Si tu fermes les yeux un instant... peux-tu imaginer un endroit où tu te sens complètement en sécurité ? Réel ou imaginaire...",
+    "follow_up": [
+      "À quoi ressemble cet endroit ?",
+      "Quelles couleurs, quelles sensations ?",
+      "Qu'est-ce qui fait que tu t'y sens bien ?"
+    ],
+    "contraindications": ["dissociation active", "trauma récent"],
+    "emotional_triggers": ["besoin de sécurité", "instabilité", "peur"],
+    "metadata": {
+      "duration_minutes": 7,
+      "evidence_base": "EMDR resource development, guided imagery",
+      "efficacy_score": 0.80
+    }
+  },
+  "grief_waves_normalization": {
+    "id": "grief_waves_normalization",
+    "name": "Normalisation des vagues de deuil",
+    "summary": "Psychoéducation sur le caractère normal et fluctuant du deuil",
+    "intent": "Rassurer sur la normalité de l'expérience et réduire la peur de 'devenir fou'",
+    "method": "psychoeducation",
+    "phase": "exploration",
+    "activation_level": "low",
+    "priority": 82,
+    "template": "Ce que tu décris - ces moments où ça va puis soudain plus du tout - c'est exactement comme ça que le deuil fonctionne. Comme des vagues.",
+    "follow_up": [
+      "Certaines vagues sont plus hautes que d'autres, mais toutes finissent par passer.",
+      "Qu'est-ce qui t'aide à traverser ces moments de vague ?",
+      "As-tu remarqué ce qui déclenche parfois ces moments plus difficiles ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["je deviens fou", "c'est normal", "pourquoi ça revient", "instable"],
+    "metadata": {
+      "duration_minutes": 5,
+      "evidence_base": "Stroebe & Schut Dual Process Model",
+      "efficacy_score": 0.85
+    }
+  },
+  "tipi_body_scan": {
+    "id": "tipi_body_scan",
+    "name": "TIPI - Scan corporel émotionnel",
+    "summary": "Technique d'Identification des Peurs Inconscientes par attention aux sensations",
+    "intent": "Permettre la régulation émotionnelle par l'attention au ressenti corporel",
+    "method": "tipi",
+    "phase": "exploration",
+    "activation_level": "medium",
+    "priority": 75,
+    "template": "Si tu te sens prêt·e, ferme les yeux. Où dans ton corps ressens-tu cette émotion ? Juste observer, sans rien changer...",
+    "follow_up": [
+      "Quelle forme ça a ? Quelle taille ?",
+      "Si tu restes avec cette sensation, qu'est-ce qui se passe ?",
+      "Laisse simplement la sensation évoluer d'elle-même..."
+    ],
+    "contraindications": ["dissociation", "trauma non stabilisé"],
+    "emotional_triggers": ["sensation physique", "corps", "tension", "boule"],
+    "metadata": {
+      "duration_minutes": 8,
+      "evidence_base": "TIPI - Luc Nicon, somatic experiencing",
+      "efficacy_score": 0.76
+    }
+  },
+  "act_defusion": {
+    "id": "act_defusion",
+    "name": "Défusion cognitive ACT",
+    "summary": "Technique ACT pour prendre du recul par rapport aux pensées douloureuses",
+    "intent": "Créer de la distance avec les pensées sans chercher à les supprimer",
+    "method": "act",
+    "phase": "exploration",
+    "activation_level": "medium",
+    "priority": 72,
+    "template": "Et si, au lieu de 'je suis nul', tu essayais de te dire 'j'ai la pensée que je suis nul'... Qu'est-ce que ça change ?",
+    "follow_up": [
+      "Cette pensée, tu l'as depuis longtemps ?",
+      "Si tu regardes cette pensée comme un nuage qui passe, qu'est-ce que tu observes ?",
+      "Qu'est-ce que tu ferais si cette pensée n'avait pas autant de pouvoir sur toi ?"
+    ],
+    "contraindications": ["crise aigüe", "idéation suicidaire active"],
+    "emotional_triggers": ["je suis nul", "c'est ma faute", "pensées négatives", "rumination"],
+    "metadata": {
+      "duration_minutes": 6,
+      "evidence_base": "ACT - Hayes, cognitive defusion",
+      "efficacy_score": 0.74
+    }
+  },
+  "self_compassion": {
+    "id": "self_compassion",
+    "name": "Auto-compassion",
+    "summary": "Cultiver la bienveillance envers soi-même face à la souffrance",
+    "intent": "Réduire l'auto-critique et développer une attitude de soin envers soi",
+    "method": "self_compassion",
+    "phase": "reconstruction",
+    "activation_level": "medium",
+    "priority": 70,
+    "template": "Qu'est-ce que tu dirais à un ami proche qui vivrait exactement la même chose que toi ?",
+    "follow_up": [
+      "Pourquoi c'est plus facile d'être gentil avec les autres qu'avec soi-même ?",
+      "Peux-tu te dire ces mêmes mots, à toi ?",
+      "De quoi aurais-tu besoin pour être plus doux avec toi-même ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["culpabilité", "honte", "je ne mérite pas", "auto-critique"],
+    "metadata": {
+      "duration_minutes": 7,
+      "evidence_base": "Kristin Neff, self-compassion research",
+      "efficacy_score": 0.79
+    }
+  },
+  "resource_activation": {
+    "id": "resource_activation",
+    "name": "Activation des ressources",
+    "summary": "Identifier et activer les forces et ressources personnelles",
+    "intent": "Renforcer le sentiment de compétence et les capacités de coping",
+    "method": "resource_building",
+    "phase": "reconstruction",
+    "activation_level": "medium",
+    "priority": 68,
+    "template": "Malgré tout ce que tu traverses, tu es là, tu continues. Qu'est-ce qui t'a aidé à tenir jusqu'ici ?",
+    "follow_up": [
+      "Quelles sont tes forces, même si tu ne les vois pas toujours ?",
+      "Qui sont les personnes sur qui tu peux compter ?",
+      "Qu'est-ce qui t'a déjà aidé dans des moments difficiles par le passé ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["désespoir", "je n'y arrive pas", "impuissance", "épuisement"],
+    "metadata": {
+      "duration_minutes": 8,
+      "evidence_base": "Solution-focused therapy, resilience research",
+      "efficacy_score": 0.77
+    }
+  },
+  "present_moment_anchor": {
+    "id": "present_moment_anchor",
+    "name": "Ancrage au moment présent",
+    "summary": "Ramener doucement l'attention au moment présent sans forcer",
+    "intent": "Interrompre la rumination et reconnecter à l'expérience immédiate",
+    "method": "mindfulness",
+    "phase": "stabilization",
+    "activation_level": "low",
+    "priority": 88,
+    "template": "Là, maintenant, en ce moment précis... qu'est-ce que tu remarques autour de toi ?",
+    "follow_up": [
+      "Et dans ton corps, qu'est-ce que tu sens ?",
+      "Juste ici, juste maintenant, est-ce que tu es en sécurité ?",
+      "Peux-tu sentir tes pieds sur le sol ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["passé", "futur", "et si", "rumination", "inquiétude"],
+    "metadata": {
+      "duration_minutes": 3,
+      "evidence_base": "MBCT, mindfulness research",
+      "efficacy_score": 0.83
+    }
+  },
+  "gentle_curiosity": {
+    "id": "gentle_curiosity",
+    "name": "Curiosité bienveillante",
+    "summary": "Explorer l'expérience avec une curiosité douce et sans jugement",
+    "intent": "Ouvrir l'exploration émotionnelle sans pression ni interprétation",
+    "method": "exploration",
+    "phase": "exploration",
+    "activation_level": "low",
+    "priority": 84,
+    "template": "Je suis curieux·se... qu'est-ce qui se passe pour toi quand tu penses à ça ?",
+    "follow_up": [
+      "Et qu'est-ce qui vient après cette pensée ?",
+      "Ça te fait penser à quoi d'autre ?",
+      "C'est comment pour toi d'en parler ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["exploration", "parler", "exprimer", "dire"],
+    "metadata": {
+      "duration_minutes": 5,
+      "evidence_base": "Person-centered therapy, motivational interviewing",
+      "efficacy_score": 0.81
+    }
+  },
+  "containment_closure": {
+    "id": "containment_closure",
+    "name": "Contenance et clôture",
+    "summary": "Technique de clôture pour contenir les émotions difficiles en fin de session",
+    "intent": "Permettre de 'ranger' les émotions pour reprendre le quotidien",
+    "method": "containment",
+    "phase": "stabilization",
+    "activation_level": "low",
+    "priority": 86,
+    "template": "Avant qu'on se quitte, imaginons ensemble un coffre solide où tu peux déposer ce qui est trop lourd pour l'instant...",
+    "follow_up": [
+      "Ce coffre est sécurisé, tu pourras y revenir quand tu seras prêt·e.",
+      "Qu'est-ce que tu voudrais y déposer pour l'instant ?",
+      "Comment tu te sens maintenant ?"
+    ],
+    "contraindications": [],
+    "emotional_triggers": ["fin", "partir", "trop", "lourd", "submergé"],
+    "metadata": {
+      "duration_minutes": 4,
+      "evidence_base": "EMDR containment, trauma-informed closure",
+      "efficacy_score": 0.84
+    }
+  }
+}

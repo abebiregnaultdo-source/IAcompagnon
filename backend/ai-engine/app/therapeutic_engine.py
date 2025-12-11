@@ -2,9 +2,13 @@ from __future__ import annotations
 from typing import Dict, Any, List, Optional, Tuple
 import os
 import json
+import logging
 from dotenv import load_dotenv
 
 from .safety_monitor import SafetyMonitor, SafetyAction
+
+# Logger pour debug
+logger = logging.getLogger(__name__)
 
 # Charger les variables d'environnement depuis .env à la racine
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
@@ -198,14 +202,25 @@ IMPORTANT: Ne commence JAMAIS par des phrases comme "Reformule" ou des instructi
             print(f"OpenAI empathy fallback error: {e}")
             return "Je t'entends. Prends le temps qu'il te faut pour exprimer ce que tu ressens. Je suis là pour t'accompagner."
 
-# Clinical Knowledge Base (CKB)
+# Clinical Knowledge Base (CKB) avec RAG Vectoriel
 class ClinicalKnowledgeBase:
+    """
+    Base de connaissances cliniques avec RAG vectoriel intégré.
+
+    Utilise:
+    - Sentence-transformers pour embeddings sémantiques
+    - ChromaDB pour recherche vectorielle
+    - Micro-protocoles validés cliniquement
+    """
+
     def __init__(self, base_dir: Optional[str] = None):
         self.base_dir = base_dir or os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
         self.ckb_path = os.path.join(self.base_dir, 'backend', 'modules', 'grief', 'micro_protocols.json')
         self._cache: Dict[str, Any] = {}
+        self._vector_rag = None
         self._ensure_file()
         self._load()
+        self._init_vector_rag()
 
     def _ensure_file(self):
         if not os.path.exists(self.ckb_path):
@@ -217,8 +232,23 @@ class ClinicalKnowledgeBase:
         try:
             with open(self.ckb_path, 'r', encoding='utf-8') as f:
                 self._cache = json.load(f)
-        except Exception:
+            logger.info(f"CKB loaded {len(self._cache)} protocols")
+        except Exception as e:
+            logger.error(f"Error loading CKB: {e}")
             self._cache = {}
+
+    def _init_vector_rag(self):
+        """Initialise le RAG vectoriel"""
+        try:
+            from .vector_rag import get_vector_rag
+            self._vector_rag = get_vector_rag()
+            logger.info("VectorRAG initialized in CKB")
+        except ImportError as e:
+            logger.warning(f"VectorRAG not available: {e}")
+            self._vector_rag = None
+        except Exception as e:
+            logger.error(f"Error initializing VectorRAG: {e}")
+            self._vector_rag = None
 
     def save(self):
         with open(self.ckb_path, 'w', encoding='utf-8') as f:
@@ -232,8 +262,84 @@ class ClinicalKnowledgeBase:
         self.save()
 
     def get_micro_protocol(self, intention_id: str) -> Optional[str]:
+        """Récupère un micro-protocole par ID"""
         it = self._cache.get(intention_id)
-        return it.get('summary') if it else None
+        if it:
+            # Nouveau format avec template
+            if 'template' in it:
+                return it.get('template')
+            # Ancien format avec summary
+            return it.get('summary')
+        return None
+
+    def get_full_protocol(self, protocol_id: str) -> Optional[Dict]:
+        """Récupère le protocole complet avec métadonnées"""
+        return self._cache.get(protocol_id)
+
+    def retrieve_relevant_protocols(
+        self,
+        user_message: str,
+        current_phase: str = "exploration",
+        emotional_state: Optional[Dict] = None,
+        conversation_history: Optional[List[str]] = None,
+        top_k: int = 3
+    ) -> List[Dict]:
+        """
+        Retrieval sémantique via RAG vectoriel.
+
+        Retourne les protocoles les plus pertinents pour le contexte.
+        """
+        if self._vector_rag:
+            try:
+                results = self._vector_rag.retrieve(
+                    user_message=user_message,
+                    current_phase=current_phase,
+                    emotional_state=emotional_state,
+                    conversation_history=conversation_history,
+                    top_k=top_k
+                )
+
+                # Convertir en format dictionnaire
+                return [
+                    {
+                        'protocol_id': r.protocol_id,
+                        'name': r.name,
+                        'summary': r.summary,
+                        'template': r.template,
+                        'follow_up': r.follow_up,
+                        'method': r.method,
+                        'phase': r.phase,
+                        'score': r.final_score,
+                        'reasoning': r.reasoning
+                    }
+                    for r in results
+                ]
+            except Exception as e:
+                logger.error(f"VectorRAG retrieval error: {e}")
+
+        # Fallback: recherche simple par phase
+        return self._fallback_retrieval(current_phase, top_k)
+
+    def _fallback_retrieval(self, phase: str, top_k: int) -> List[Dict]:
+        """Retrieval de fallback par correspondance de phase"""
+        results = []
+        for protocol_id, protocol in self._cache.items():
+            if protocol.get('phase') == phase:
+                results.append({
+                    'protocol_id': protocol_id,
+                    'name': protocol.get('name', protocol_id),
+                    'summary': protocol.get('summary', ''),
+                    'template': protocol.get('template', protocol.get('summary', '')),
+                    'follow_up': protocol.get('follow_up', []),
+                    'method': protocol.get('method', ''),
+                    'phase': protocol.get('phase', ''),
+                    'score': protocol.get('priority', 50) / 100,
+                    'reasoning': ['Fallback: phase match']
+                })
+
+        # Trier par priorité
+        results.sort(key=lambda x: x.get('score', 0), reverse=True)
+        return results[:top_k]
 
 # Memory Layer for anonymized learning
 class ClinicalMemory:
@@ -405,36 +511,103 @@ class TherapeuticEngine:
             return 'validation_emotionnelle'
         return 'logotherapie'
 
-    def craft_intervention(self, intention_id: str, user_state: Dict[str, Any], technique: str) -> Tuple[str, Dict[str, Any]]:
-        user_name = user_state.get('user_name', 'ami')
+    def craft_intervention(
+        self,
+        intention_id: str,
+        user_state: Dict[str, Any],
+        technique: str,
+        user_message: str = "",
+        conversation_history: List[str] = None
+    ) -> Tuple[str, Dict[str, Any]]:
+        """
+        Génère une intervention thérapeutique en utilisant le RAG vectoriel.
 
-        # 1) Prefer micro-protocol from CKB (template avec {user_name})
+        Pipeline:
+        1. Retrieval sémantique des protocoles pertinents via VectorRAG
+        2. Sélection du meilleur protocole selon contexte
+        3. Personnalisation avec le prénom utilisateur
+        4. Fallback sur LLM si aucun protocole trouvé
+        """
+        user_name = user_state.get('user_name', 'ami')
+        current_phase = user_state.get('phase', 'exploration')
+
+        # === 1) RETRIEVAL VIA RAG VECTORIEL ===
+        if user_message:
+            emotional_state = {
+                'detresse': user_state.get('detresse', 50),
+                'espoir': user_state.get('espoir', 50),
+                'energie': user_state.get('energie', 50)
+            }
+
+            # Recherche sémantique
+            relevant_protocols = self.ckb.retrieve_relevant_protocols(
+                user_message=user_message,
+                current_phase=current_phase,
+                emotional_state=emotional_state,
+                conversation_history=conversation_history,
+                top_k=3
+            )
+
+            if relevant_protocols:
+                # Prendre le meilleur protocole
+                best_protocol = relevant_protocols[0]
+                logger.info(f"RAG selected protocol: {best_protocol['protocol_id']} (score: {best_protocol['score']:.2f})")
+
+                # Utiliser le template personnalisé
+                template = best_protocol.get('template', best_protocol.get('summary', ''))
+                if template:
+                    # Personnaliser avec le prénom
+                    template = template.replace('{user_name}', user_name)
+                    template = template.replace('{emotion_reflet}', self._generate_emotion_reflection(user_message, user_state))
+
+                    return template, {
+                        'source': 'vector_rag',
+                        'technique': technique,
+                        'protocol_id': best_protocol['protocol_id'],
+                        'protocol_name': best_protocol['name'],
+                        'rag_score': best_protocol['score'],
+                        'reasoning': best_protocol.get('reasoning', []),
+                        'follow_up': best_protocol.get('follow_up', [])
+                    }
+
+        # === 2) FALLBACK: Recherche par intention_id direct ===
         proto = self.ckb.get_micro_protocol(intention_id)
         if proto:
-            # Remplacer le placeholder par le vrai prénom
             proto = proto.replace('{user_name}', user_name)
-            return proto, {'source': 'ckb', 'technique': technique}
+            return proto, {'source': 'ckb_direct', 'technique': technique}
 
-        # 2) Ask knowledge model to produce a 2–3 sentence micro-protocol
-        # Utilise {user_name} comme placeholder pour permettre la personnalisation
+        # === 3) FALLBACK: Génération via LLM ===
+        logger.info("No RAG match, falling back to LLM generation")
         prompt = (
             "Rédige un micro-protocole concis (2–3 phrases) pour l'intention clinique suivante, "
             "dans un cadre validé, sans injonctions, compatible non-directivité.\n"
             f"Technique: {technique}.\n"
             f"Intention: {intention_id}.\n"
             f"Prénom de l'utilisateur: {user_name}\n"
+            f"Message de l'utilisateur: {user_message[:200] if user_message else 'non fourni'}\n"
             f"État émotionnel: détresse={user_state.get('detresse', 50)}, espoir={user_state.get('espoir', 50)}, énergie={user_state.get('energie', 50)}\n"
-            f"Phase: {user_state.get('phase', 'ancrage')}\n"
+            f"Phase: {current_phase}\n"
             "Contraintes: sécurité, neutralité, pas d'interprétation, pas de promesse.\n"
-            "IMPORTANT: Adresse-toi directement à la personne par son prénom."
+            "IMPORTANT: Adresse-toi directement à la personne par son prénom. Ne donne pas de conseils directs."
         )
         plan = self.router.call_knowledge([
-            { 'role': 'system', 'content': 'Moteur de savoir clinique. Tu génères des micro-protocoles thérapeutiques personnalisés.' },
-            { 'role': 'user', 'content': prompt },
+            {'role': 'system', 'content': 'Moteur de savoir clinique. Tu génères des micro-protocoles thérapeutiques personnalisés.'},
+            {'role': 'user', 'content': prompt},
         ], temperature=0.3, max_tokens=250)
 
-        # Note: On ne met plus en cache car chaque réponse est personnalisée
         return plan, {'source': 'knowledge_model', 'technique': technique}
+
+    def _generate_emotion_reflection(self, user_message: str, user_state: Dict) -> str:
+        """Génère un reflet émotionnel basé sur le message"""
+        detresse = user_state.get('detresse', 50)
+
+        # Reflets simples basés sur le niveau de détresse
+        if detresse > 70:
+            return "Ce que tu traverses semble vraiment difficile"
+        elif detresse > 50:
+            return "Je sens que c'est un moment important pour toi"
+        else:
+            return "Ce que tu partages est significatif"
 
     def deliver_empathically(self, micro_text: str, tone: str = 'neutre') -> str:
         guide = {
@@ -498,8 +671,28 @@ class TherapeuticEngine:
         # 3) Choose or synthesize intention id
         intention_id = policy.get('intention_id') or f"phase:{assessment['phase']}"
 
-        # 4) Craft intervention/micro-protocol
-        micro, meta = self.craft_intervention(intention_id, user_state, technique)
+        # 3.1) Extraire le message utilisateur pour le RAG
+        user_messages = conversation_context.get('messages', [])
+        last_user_message = ""
+        conversation_history = []
+        for msg in user_messages:
+            if msg.get('role') == 'user':
+                content = msg.get('content', '')
+                conversation_history.append(content)
+                last_user_message = content
+
+        # 4) Craft intervention/micro-protocol avec RAG vectoriel
+        micro, meta = self.craft_intervention(
+            intention_id,
+            user_state,
+            technique,
+            user_message=last_user_message,
+            conversation_history=conversation_history
+        )
+
+        # Log RAG info if available
+        if meta.get('source') == 'vector_rag':
+            logger.info(f"RAG Protocol: {meta.get('protocol_name')} (score: {meta.get('rag_score', 0):.2f})")
 
         # 5) Deliver empathically with adapted tone
         tone = tone_p or policy.get('tone','neutre')
@@ -559,7 +752,14 @@ class TherapeuticEngine:
                 'espoir': int(user_state.get('espoir', 50)),
                 'energie': int(user_state.get('energie', 50)),
                 'phase': assessment['phase']
-            }
+            },
+            # RAG info
+            'rag_info': {
+                'protocol_id': meta.get('protocol_id'),
+                'protocol_name': meta.get('protocol_name'),
+                'rag_score': meta.get('rag_score'),
+                'source': meta.get('source')
+            } if meta.get('source') == 'vector_rag' else None
         }
         self.memory.log_interaction(log_payload)
         return {
@@ -569,5 +769,13 @@ class TherapeuticEngine:
             'source': meta.get('source'),
             'prompt_used': log_payload['prompt_used'],
             'model_used': log_payload['model_used'],
-            'emotion_context': log_payload['emotion_context']
+            'emotion_context': log_payload['emotion_context'],
+            # RAG info
+            'rag_info': {
+                'protocol_id': meta.get('protocol_id'),
+                'protocol_name': meta.get('protocol_name'),
+                'rag_score': meta.get('rag_score'),
+                'reasoning': meta.get('reasoning', []),
+                'follow_up': meta.get('follow_up', [])
+            } if meta.get('source') == 'vector_rag' else None
         }
