@@ -344,5 +344,216 @@
       "evidence_base": "EMDR containment, trauma-informed closure",
       "efficacy_score": 0.84
     }
+  },
+
+  "cbt_thought_challenging": {
+    "id": "cbt_thought_challenging",
+    "name": "CBT - Restructuration cognitive",
+    "summary": "Protocole CBT structuré pour identifier et réévaluer les pensées automatiques négatives",
+    "intent": "Aider à prendre du recul sur les pensées automatiques et développer des perspectives plus équilibrées",
+    "method": "cbt",
+    "phase": "exploration",
+    "activation_level": "medium",
+    "priority": 78,
+    "is_multi_step": true,
+    "steps": [
+      {
+        "step": 1,
+        "name": "Identifier la pensée",
+        "template": "Quelle pensée te traverse l'esprit en ce moment, {user_name} ? Essaie de la formuler comme une phrase précise.",
+        "goal": "Capturer la pensée automatique négative"
+      },
+      {
+        "step": 2,
+        "name": "Évaluer la croyance",
+        "template": "Sur une échelle de 0 à 100, à quel point tu crois en cette pensée en ce moment ?",
+        "goal": "Mesurer l'intensité de la croyance initiale"
+      },
+      {
+        "step": 3,
+        "name": "Explorer les preuves",
+        "template": "Quelles preuves soutiennent cette pensée ? Et quelles preuves pourraient la contredire ?",
+        "goal": "Examiner les évidences pour et contre"
+      },
+      {
+        "step": 4,
+        "name": "Perspective alternative",
+        "template": "S'il y avait une façon différente de voir cette situation, ce serait quoi ? Qu'est-ce qu'un ami te dirait ?",
+        "goal": "Développer une perspective plus équilibrée"
+      },
+      {
+        "step": 5,
+        "name": "Réévaluation",
+        "template": "Maintenant, sur 0 à 100, à combien crois-tu en la pensée initiale ? Et en cette nouvelle perspective ?",
+        "goal": "Mesurer le changement"
+      }
+    ],
+    "template": "J'entends que tu as des pensées difficiles en ce moment. On peut explorer ça ensemble. Quelle pensée te traverse l'esprit ?",
+    "follow_up": [
+      "C'est un exercice qui demande de la pratique, bravo d'avoir essayé.",
+      "Tu peux revenir à cet exercice quand tu veux.",
+      "Comment te sens-tu après avoir exploré ça ?"
+    ],
+    "contraindications": ["crise aigüe", "dissociation", "détresse > 80"],
+    "emotional_triggers": ["pensées négatives", "je suis nul", "c'est ma faute", "toujours", "jamais"],
+    "metadata": {
+      "duration_minutes": 12,
+      "evidence_base": "Beck CBT, cognitive restructuring, Woebot protocol",
+      "efficacy_score": 0.82,
+      "requires_tracking": true
+    }
+  },
+
+  "dbt_tipp": {
+    "id": "dbt_tipp",
+    "name": "DBT - TIPP Régulation d'urgence",
+    "summary": "Protocole DBT pour réguler rapidement l'activation émotionnelle intense",
+    "intent": "Utiliser des techniques physiologiques pour réduire l'intensité émotionnelle en situation de crise",
+    "method": "dbt",
+    "phase": "crisis",
+    "activation_level": "low",
+    "priority": 93,
+    "is_multi_step": true,
+    "steps": [
+      {
+        "step": 1,
+        "name": "Température",
+        "template": "Si tu as accès à de l'eau froide, passe-toi de l'eau froide sur le visage ou tiens un glaçon. Le froid aide à calmer rapidement le corps.",
+        "goal": "Activer le réflexe de plongée pour ralentir le rythme cardiaque"
+      },
+      {
+        "step": 2,
+        "name": "Intense exercice",
+        "template": "Même 30 secondes d'exercice intense - sauter sur place, monter des escaliers - peut aider à évacuer l'énergie.",
+        "goal": "Métaboliser l'adrénaline"
+      },
+      {
+        "step": 3,
+        "name": "Respiration rythmée",
+        "template": "Maintenant, inspire sur 4 temps, expire sur 6-8 temps. L'expiration plus longue calme le système nerveux.",
+        "goal": "Activer le parasympathique"
+      },
+      {
+        "step": 4,
+        "name": "Relaxation musculaire",
+        "template": "Tends tous tes muscles pendant 5 secondes... puis relâche d'un coup. Sens la différence.",
+        "goal": "Relâcher la tension physique"
+      }
+    ],
+    "template": "Quand l'émotion est très intense, on peut aider le corps à se calmer d'abord. Je vais te guider avec quelques techniques rapides.",
+    "follow_up": [
+      "Comment te sens-tu maintenant ?",
+      "Ces techniques sont à utiliser quand l'émotion monte très fort.",
+      "Tu peux les faire dans l'ordre que tu veux."
+    ],
+    "contraindications": ["problèmes cardiaques", "blessure physique"],
+    "emotional_triggers": ["submergé", "panique", "je vais exploser", "trop intense", "crise"],
+    "metadata": {
+      "duration_minutes": 5,
+      "evidence_base": "DBT Skills Training, Linehan",
+      "efficacy_score": 0.88
+    }
+  },
+
+  "behavioral_activation": {
+    "id": "behavioral_activation",
+    "name": "Activation comportementale",
+    "summary": "Protocole CBT pour planifier des activités agréables malgré le manque de motivation",
+    "intent": "Briser le cycle évitement-dépression par l'action progressive",
+    "method": "cbt",
+    "phase": "reconstruction",
+    "activation_level": "medium",
+    "priority": 72,
+    "is_multi_step": true,
+    "steps": [
+      {
+        "step": 1,
+        "name": "Identifier une activité",
+        "template": "Qu'est-ce que tu aimais faire avant, même si ça ne te fait plus envie maintenant ?",
+        "goal": "Identifier une activité potentiellement plaisante"
+      },
+      {
+        "step": 2,
+        "name": "Version mini",
+        "template": "Quelle serait la version la plus petite de cette activité ? Quelque chose de 5 minutes ?",
+        "goal": "Réduire la barrière à l'action"
+      },
+      {
+        "step": 3,
+        "name": "Planifier",
+        "template": "Quand pourrais-tu essayer cette mini-version ? Quel jour, quel moment ?",
+        "goal": "Créer un engagement concret"
+      },
+      {
+        "step": 4,
+        "name": "Anticiper les obstacles",
+        "template": "Qu'est-ce qui pourrait t'empêcher de le faire ? Et comment tu pourrais contourner ça ?",
+        "goal": "Préparer les solutions aux obstacles"
+      }
+    ],
+    "template": "Parfois, quand on ne va pas bien, on attend d'avoir envie pour faire les choses. Mais souvent, c'est l'inverse qui marche : l'action crée l'envie.",
+    "follow_up": [
+      "Ce n'est pas grave si ça ne donne pas envie au début.",
+      "L'important c'est d'essayer, pas le résultat.",
+      "Comment ça s'est passé ?"
+    ],
+    "contraindications": ["détresse > 75", "épuisement sévère"],
+    "emotional_triggers": ["je n'ai envie de rien", "ça ne sert à rien", "je ne fais plus rien", "isolé"],
+    "metadata": {
+      "duration_minutes": 10,
+      "evidence_base": "Behavioral Activation for Depression, Martell et al.",
+      "efficacy_score": 0.79
+    }
+  },
+
+  "values_clarification": {
+    "id": "values_clarification",
+    "name": "ACT - Clarification des valeurs",
+    "summary": "Protocole ACT pour identifier ce qui compte vraiment et orienter l'action",
+    "intent": "Reconnecter avec ses valeurs profondes pour guider les choix de vie",
+    "method": "act",
+    "phase": "meaning_making",
+    "activation_level": "medium",
+    "priority": 68,
+    "is_multi_step": true,
+    "steps": [
+      {
+        "step": 1,
+        "name": "Explorer les domaines",
+        "template": "Qu'est-ce qui compte vraiment pour toi dans la vie ? Les relations, le travail, la créativité, la santé... ?",
+        "goal": "Identifier les domaines de valeurs"
+      },
+      {
+        "step": 2,
+        "name": "Approfondir",
+        "template": "Dans [domaine mentionné], qu'est-ce qui est important pour toi ? Quel genre de personne tu veux être dans ce domaine ?",
+        "goal": "Clarifier les valeurs spécifiques"
+      },
+      {
+        "step": 3,
+        "name": "Écart actuel",
+        "template": "Sur une échelle de 1 à 10, à quel point tu vis selon cette valeur en ce moment ?",
+        "goal": "Évaluer l'écart valeurs-actions"
+      },
+      {
+        "step": 4,
+        "name": "Petit pas",
+        "template": "Quel petit geste, cette semaine, pourrait te rapprocher de cette valeur ?",
+        "goal": "Définir une action engagée"
+      }
+    ],
+    "template": "Parfois, la douleur nous déconnecte de ce qui compte pour nous. Explorons ensemble ce qui est vraiment important pour toi.",
+    "follow_up": [
+      "Les valeurs sont comme une boussole, pas une destination.",
+      "Même un tout petit pas dans la direction de tes valeurs compte.",
+      "Comment tu te sens en pensant à ça ?"
+    ],
+    "contraindications": ["crise aigüe", "détresse > 70"],
+    "emotional_triggers": ["sens", "but", "pourquoi", "qu'est-ce que je veux", "direction"],
+    "metadata": {
+      "duration_minutes": 15,
+      "evidence_base": "ACT Values Work, Hayes & Strosahl",
+      "efficacy_score": 0.76
+    }
   }
 }

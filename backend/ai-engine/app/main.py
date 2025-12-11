@@ -278,15 +278,97 @@ async def generate(req: GenerateRequest):
         {'role': msg.role, 'content': msg.content}
         for msg in req.messages
     ]
+
+    # Extraire le dernier message utilisateur pour analyse
+    last_user_message = ""
+    for msg in reversed(req.messages):
+        if msg.role == "user":
+            last_user_message = msg.content
+            break
+
+    # === DÉTECTION DE CRISE ACTIVE (État de l'art 2024) ===
+    crisis_response = None
+    emotion_analysis = None
+    try:
+        from .emotion_detector import detect_crisis, detect_emotion, get_crisis_response
+
+        # 1. Détection de crise (prioritaire)
+        if last_user_message:
+            crisis_info = detect_crisis(last_user_message)
+
+            if crisis_info["is_crisis"] and crisis_info["crisis_level"] in ["critical", "high"]:
+                # INTERRUPTION ACTIVE - Réponse de sécurité immédiate
+                crisis_response = get_crisis_response(crisis_info["crisis_level"], user_name)
+
+                # Logger l'alerte de crise
+                try:
+                    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+                    alert_path = os.path.join(base_dir, 'backend', 'ai-engine', 'alert_logs.jsonl')
+                    with open(alert_path, 'a', encoding='utf-8') as f:
+                        f.write(json.dumps({
+                            'ts': time.time(),
+                            'user': req.profile.get('user_id_hash'),
+                            'crisis_level': crisis_info["crisis_level"],
+                            'detected_patterns': crisis_info["detected_patterns"],
+                            'phase': phase,
+                            'note': 'CRISIS_ACTIVE_DETECTION'
+                        }, ensure_ascii=False) + "\n")
+                except Exception:
+                    pass
+
+                # Retourner immédiatement la réponse de crise
+                return {
+                    'text': crisis_response,
+                    'intention_id': 'crisis_intervention',
+                    'technique': 'safety_check_active',
+                    'source': 'crisis_detector',
+                    'prompt_used': None,
+                    'model_used': None,
+                    'emotion_context': {
+                        'crisis_level': crisis_info["crisis_level"],
+                        'detected_patterns': crisis_info["detected_patterns"]
+                    },
+                    'rag_info': None,
+                    'crisis_detected': True
+                }
+
+            # 2. Analyse émotionnelle avec DistilBERT
+            emotion_result = detect_emotion(last_user_message)
+            emotion_analysis = {
+                'primary_emotion': emotion_result.primary_emotion,
+                'confidence': emotion_result.confidence,
+                'valence': emotion_result.valence,
+                'arousal': emotion_result.arousal,
+                'therapeutic_indicators': emotion_result.therapeutic_indicators
+            }
+
+            # Enrichir user_state avec les émotions détectées
+            user_state['detected_emotion'] = emotion_result.primary_emotion
+            user_state['emotional_arousal'] = emotion_result.arousal
+            user_state['emotional_valence'] = emotion_result.valence
+
+            # Ajuster la phase suggérée si pertinent
+            suggested_phase = emotion_result.therapeutic_indicators.get('phase_suggested')
+            if suggested_phase and emotion_result.confidence > 0.7:
+                user_state['emotion_suggested_phase'] = suggested_phase
+
+    except ImportError:
+        # emotion_detector non disponible, continuer sans
+        pass
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Emotion detection error: {e}")
+
     req.policy['conversation_context'] = {
         'messages': messages_for_context,
         'session_count': req.profile.get('session_count', 1),
-        'previous_methods': req.profile.get('previous_methods', [])
+        'previous_methods': req.profile.get('previous_methods', []),
+        'emotion_analysis': emotion_analysis
     }
 
     out = engine.run_pipeline(user_state, req.policy)
 
-    # Supervision clinique: alerte 3114 si détresse élevée
+    # Supervision clinique: alerte 3114 si détresse élevée (fallback passif)
     alert_prefix = None
     if int(user_state.get('detresse', 50)) >= 80:
         alert_prefix = "Si tu te sens en danger, tu peux appeler le 3114."
@@ -308,6 +390,11 @@ async def generate(req: GenerateRequest):
     if alert_prefix:
         text = alert_prefix + "\n\n" + text
 
+    # Enrichir emotion_context avec l'analyse DistilBERT
+    emotion_context = out.get('emotion_context') or {}
+    if emotion_analysis:
+        emotion_context['distilbert_analysis'] = emotion_analysis
+
     return {
         'text': text,
         'intention_id': out.get('intention_id'),
@@ -315,7 +402,7 @@ async def generate(req: GenerateRequest):
         'source': out.get('source'),
         'prompt_used': out.get('prompt_used'),
         'model_used': out.get('model_used'),
-        'emotion_context': out.get('emotion_context'),
+        'emotion_context': emotion_context,
         # RAG info for debugging
         'rag_info': out.get('rag_info'),
     }

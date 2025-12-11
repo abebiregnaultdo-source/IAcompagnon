@@ -12,6 +12,10 @@ sentence-transformers>=2.2.0
 chromadb>=0.4.0
 numpy>=1.24.0
 
-# Emotion-aware embeddings
+# Emotion Detection - DistilBERT (93.8% accuracy)
+transformers>=4.30.0
+torch>=2.0.0
+
+# Emotion-aware embeddings (fallback)
 nrclex>=3.0.0
 
