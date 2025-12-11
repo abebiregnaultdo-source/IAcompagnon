@@ -50,35 +50,32 @@ def get_sentence_transformer():
 
 
 def get_chroma_client():
-    """Lazy load ChromaDB"""
+    """Lazy load ChromaDB - API 0.4+"""
     global _chroma_client
     if _chroma_client is None:
         try:
             import chromadb
-            from chromadb.config import Settings
 
-            # Persistent storage path
-            persist_dir = Path(__file__).parent.parent / "chroma_db"
-            persist_dir.mkdir(exist_ok=True)
+            # Sur Render, utiliser un chemin persistant dans /tmp ou le répertoire de travail
+            persist_dir = os.getenv("CHROMA_PERSIST_DIR")
 
-            _chroma_client = chromadb.Client(Settings(
-                chroma_db_impl="duckdb+parquet",
-                persist_directory=str(persist_dir),
-                anonymized_telemetry=False
-            ))
-            logger.info(f"ChromaDB initialized at {persist_dir}")
+            if persist_dir:
+                # Persistent client si chemin configuré
+                persist_path = Path(persist_dir)
+                persist_path.mkdir(parents=True, exist_ok=True)
+                _chroma_client = chromadb.PersistentClient(path=str(persist_path))
+                logger.info(f"ChromaDB PersistentClient initialized at {persist_path}")
+            else:
+                # En mémoire par défaut (suffisant pour Render car les protocoles sont rechargés au démarrage)
+                _chroma_client = chromadb.Client()
+                logger.info("ChromaDB in-memory client initialized")
+
         except ImportError:
-            logger.warning("chromadb not installed, using in-memory fallback")
+            logger.warning("chromadb not installed, using fallback keyword search")
             _chroma_client = None
         except Exception as e:
             logger.error(f"Error initializing ChromaDB: {e}")
-            # Fallback to in-memory
-            try:
-                import chromadb
-                _chroma_client = chromadb.Client()
-                logger.info("Using in-memory ChromaDB")
-            except:
-                _chroma_client = None
+            _chroma_client = None
     return _chroma_client
 
 
