@@ -343,16 +343,131 @@ export default function Library({ onBackToHome }) {
       url: "https://www.favec.fr/",
       tags: ["veuvage", "association", "entraide"],
     },
+
+    // ============================================================
+    // INSPIRATION - Poésie, musique, beauté pour l'âme
+    // ============================================================
+    {
+      id: 60,
+      category: "inspiration",
+      title: "If — Si tu peux...",
+      author: "Rudyard Kipling",
+      description:
+        "Poème intemporel sur la résilience et le courage face à l'adversité. \"Si tu peux voir détruit l'ouvrage de ta vie, et sans dire un seul mot te mettre à rebâtir...\"",
+      type: "Poésie",
+      url: "https://www.poetica.fr/poeme-94/rudyard-kipling-si/",
+      tags: ["poésie", "résilience", "courage"],
+    },
+    {
+      id: 61,
+      category: "inspiration",
+      title: "Invictus",
+      author: "William Ernest Henley",
+      description:
+        "\"Je suis le maître de mon destin, je suis le capitaine de mon âme.\" Poème écrit face à la maladie, devenu symbole de force intérieure.",
+      type: "Poésie",
+      url: "https://www.poetica.fr/poeme-2899/william-ernest-henley-invictus/",
+      tags: ["poésie", "force", "espoir"],
+    },
+    {
+      id: 62,
+      category: "inspiration",
+      title: "Demain dès l'aube",
+      author: "Victor Hugo",
+      description:
+        "Poème bouleversant écrit pour sa fille Léopoldine. L'un des plus beaux textes sur le deuil et l'amour qui perdure.",
+      type: "Poésie",
+      url: "https://www.poetica.fr/poeme-400/victor-hugo-demain-des-l-aube/",
+      tags: ["poésie", "deuil", "amour"],
+    },
+    {
+      id: 63,
+      category: "inspiration",
+      title: "Musique classique apaisante",
+      author: "Playlist Spotify",
+      description:
+        "Sélection de morceaux classiques pour calmer l'esprit : Debussy, Satie, Chopin. La musique comme refuge.",
+      type: "Musique",
+      url: "https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ",
+      tags: ["musique", "calme", "classique"],
+    },
+    {
+      id: 64,
+      category: "inspiration",
+      title: "Gymnopédie No.1",
+      author: "Erik Satie",
+      description:
+        "Pièce pour piano d'une douceur infinie. Idéale pour un moment de calme et de contemplation.",
+      type: "Musique",
+      url: "https://www.youtube.com/watch?v=S-Xm7s9eGxU",
+      tags: ["musique", "piano", "méditation"],
+    },
+    {
+      id: 65,
+      category: "inspiration",
+      title: "Clair de Lune",
+      author: "Claude Debussy",
+      description:
+        "Chef-d'œuvre impressionniste. Une mélodie qui accompagne doucement les moments de réflexion.",
+      type: "Musique",
+      url: "https://www.youtube.com/watch?v=CvFH_6DNRCY",
+      tags: ["musique", "piano", "beauté"],
+    },
+    {
+      id: 66,
+      category: "inspiration",
+      title: "The Shawshank Redemption - Hope",
+      author: "Film (1994)",
+      description:
+        "\"L'espoir est une bonne chose, peut-être la meilleure. Et une bonne chose ne meurt jamais.\" Un film sur la résilience.",
+      type: "Film",
+      url: null,
+      tags: ["film", "espoir", "résilience"],
+    },
+    {
+      id: 67,
+      category: "inspiration",
+      title: "Le Petit Prince - L'essentiel",
+      author: "Antoine de Saint-Exupéry",
+      description:
+        "\"On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux.\" Sagesse intemporelle sur l'amour et la perte.",
+      type: "Littérature",
+      url: null,
+      tags: ["littérature", "sagesse", "amour"],
+    },
+    {
+      id: 68,
+      category: "inspiration",
+      title: "Sons de la nature - Forêt",
+      author: "Ambiance naturelle",
+      description:
+        "Bruits de forêt, oiseaux, ruisseau. Pour se reconnecter au calme de la nature depuis chez soi.",
+      type: "Sons",
+      url: "https://www.youtube.com/watch?v=xNN7iTA57jM",
+      tags: ["nature", "relaxation", "sons"],
+    },
+    {
+      id: 69,
+      category: "inspiration",
+      title: "Bruit de pluie",
+      author: "Ambiance naturelle",
+      description:
+        "Son de pluie pour dormir, méditer ou simplement se sentir apaisé. 10 heures de pluie douce.",
+      type: "Sons",
+      url: "https://www.youtube.com/watch?v=mPZkdNFkNps",
+      tags: ["nature", "sommeil", "pluie"],
+    },
   ];
 
   const categories = [
     { id: "all", label: "Tout" },
+    { id: "inspiration", label: "Inspiration" },
+    { id: "aide", label: "Aide" },
+    { id: "outil", label: "Outils" },
     { id: "livre", label: "Livres" },
     { id: "article", label: "Articles" },
     { id: "podcast", label: "Podcasts" },
     { id: "video", label: "Vidéos" },
-    { id: "outil", label: "Outils" },
-    { id: "aide", label: "Aide" },
   ];
 
   const filteredResources =
