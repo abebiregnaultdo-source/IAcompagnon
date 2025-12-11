@@ -622,6 +622,123 @@ async def analytics_track(req: AnalyticsEvent):
         pass
     return { 'status': 'ok' }
 
+class CreativePromptsRequest(BaseModel):
+    user_id: str
+    tool: str  # journal, narrative, creative, poem
+    first_name: str | None = None
+
+@app.post('/api/creative/prompts')
+async def creative_prompts(req: CreativePromptsRequest):
+    """
+    Génère des prompts d'écriture personnalisés pour l'espace créatif
+    Basés sur l'outil choisi et le contexte utilisateur
+    """
+    tool = req.tool
+    first_name = req.first_name or "ami"
+
+    # Prompts par défaut par outil (haute qualité, thérapeutiques)
+    default_prompts = {
+        'journal': [
+            f"Comment te sens-tu en ce moment, {first_name}, vraiment ?",
+            "Qu'est-ce qui t'a traversé l'esprit aujourd'hui que tu n'as dit à personne ?",
+            "Si tu pouvais parler à quelqu'un qui te manque, que lui dirais-tu ?",
+            "Quelle petite chose t'a apporté un peu de lumière récemment ?",
+            "Qu'est-ce que tu portes en toi et que tu aimerais déposer ici, maintenant ?",
+        ],
+        'narrative': [
+            "Raconte un souvenir qui te revient souvent, même dans les petits détails...",
+            "Décris un moment où tu t'es senti(e) vraiment compris(e)...",
+            "Qu'est-ce que cette personne t'a appris de plus précieux ?",
+            "Si tu devais écrire une lettre à toi-même d'il y a un an...",
+            "Quel chapitre de ton histoire es-tu en train d'écrire ?",
+        ],
+        'creative': [
+            "La lumière ce matin ressemblait à...",
+            "Je porte en moi un silence qui...",
+            "Si ma douleur avait une couleur, elle serait...",
+            "Il y a des mots que je n'ai jamais prononcés, comme...",
+            "Dans mes rêves, je retrouve parfois...",
+        ],
+        'poem': [
+            "La lumière ce matin ressemblait à...",
+            "Je porte en moi un silence qui...",
+            "Si mon cœur pouvait parler, il dirait...",
+            "Entre l'ombre et la lumière, il y a...",
+            "Les mots s'échappent comme...",
+        ],
+    }
+
+    # Essayer de personnaliser via l'IA si possible
+    try:
+        from .llm_client import call_llm
+
+        # Prompt pour générer des suggestions personnalisées
+        system_prompt = f"""Tu es un accompagnant bienveillant spécialisé dans l'écriture thérapeutique.
+
+Génère 5 prompts d'écriture pour l'outil "{tool}" qui sont:
+- Doux et non-intrusifs
+- Ouverts à l'interprétation
+- Thérapeutiques sans être cliniques
+- Adaptés à quelqu'un traversant une période difficile
+
+L'utilisateur s'appelle {first_name}.
+
+Réponds UNIQUEMENT avec les 5 prompts, un par ligne, sans numérotation ni explication."""
+
+        response = await call_llm(
+            messages=[{"role": "user", "content": system_prompt}],
+            model="gpt-4o-mini",  # Modèle rapide et économique
+            max_tokens=500
+        )
+
+        if response and isinstance(response, str):
+            # Parser les prompts (un par ligne)
+            prompts = [p.strip().strip('-').strip('•').strip() for p in response.strip().split('\n') if p.strip()]
+            prompts = [p for p in prompts if len(p) > 10 and len(p) < 200]  # Filtrer
+
+            if len(prompts) >= 3:
+                return {'prompts': prompts[:5], 'personalized': True}
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Creative prompts generation failed: {e}")
+
+    # Fallback aux prompts par défaut
+    return {'prompts': default_prompts.get(tool, default_prompts['journal']), 'personalized': False}
+
+@app.get('/api/creative/presentation')
+async def creative_presentation():
+    """Retourne la présentation de l'espace créatif"""
+    return {
+        'presentation_globale': {
+            'outils': [
+                {
+                    'icone': '📖',
+                    'nom': 'Journal guidé - Adaptation intelligente aux émotions',
+                    'description': 'Questions guidées qui s\'adaptent à votre contexte émotionnel',
+                    'key': 'journal'
+                },
+                {
+                    'icone': '✍️',
+                    'nom': 'Poésie-thérapie - Assistance IA discrète',
+                    'description': 'Assistance IA pour vous aider à formuler des images poétiques',
+                    'key': 'poem'
+                },
+                {
+                    'icone': '🎨',
+                    'nom': 'Coloriage thérapeutique - Mobile-friendly et intentionnel',
+                    'description': 'Méditation active et coloriage guidé, optimisé mobile',
+                    'key': 'coloring'
+                },
+                {
+                    'icone': '🕯️',
+                    'nom': 'Rituels d\'écriture - Pour les transitions importantes',
+                    'description': 'Ritualiser les moments importants par l\'écriture',
+                    'key': 'ritual'
+                }
+            ]
+        }
+    }
+
 @app.get('/admin/analytics')
 async def admin_analytics(key: str = ''):
     """Dashboard analytics pour l'admin (protégé par clé)"""

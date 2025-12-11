@@ -32,9 +32,82 @@ export default function Creativity({ user, api, onBackToHome }) {
   const [detectionConfidence, setDetectionConfidence] = useState(0);
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
+  // Prompts d'inspiration initiaux (générés par IA au chargement)
+  const [initialPrompts, setInitialPrompts] = useState([]);
+  const [initialPromptsLoading, setInitialPromptsLoading] = useState(false);
+
   useEffect(() => {
     loadCreations();
   }, [user.id]);
+
+  /**
+   * Charge des prompts d'inspiration initiaux quand l'éditeur s'ouvre
+   * Basés sur l'outil choisi et l'historique de l'utilisateur
+   */
+  const loadInitialPrompts = async (tool) => {
+    setInitialPromptsLoading(true);
+    try {
+      const response = await fetch(`${api.base}/api/creative/prompts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.id,
+          tool: tool,
+          first_name: user.first_name,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setInitialPrompts(data.prompts || []);
+      } else {
+        // Fallback prompts selon l'outil
+        setInitialPrompts(getDefaultPrompts(tool));
+      }
+    } catch (error) {
+      console.error("Erreur chargement prompts:", error);
+      setInitialPrompts(getDefaultPrompts(tool));
+    } finally {
+      setInitialPromptsLoading(false);
+    }
+  };
+
+  /**
+   * Prompts par défaut si le backend n'est pas disponible
+   */
+  const getDefaultPrompts = (tool) => {
+    const prompts = {
+      journal: [
+        "Comment vous sentez-vous en ce moment, vraiment ?",
+        "Qu'est-ce qui vous a marqué aujourd'hui ?",
+        "Si vous pouviez parler à quelqu'un qui vous manque, que lui diriez-vous ?",
+        "Quelle petite chose vous a apporté un peu de réconfort récemment ?",
+        "Qu'est-ce que vous portez en vous que vous aimeriez déposer ici ?",
+      ],
+      narrative: [
+        "Racontez un souvenir qui vous revient souvent...",
+        "Décrivez un moment où vous vous êtes senti(e) compris(e)...",
+        "Qu'est-ce que cette personne vous a appris de plus précieux ?",
+        "Si vous deviez écrire une lettre à vous-même d'il y a un an...",
+        "Quel chapitre de votre histoire êtes-vous en train d'écrire ?",
+      ],
+      creative: [
+        "La lumière ce matin ressemblait à...",
+        "Je porte en moi un silence qui...",
+        "Si ma douleur avait une couleur, elle serait...",
+        "Il y a des mots que je n'ai jamais dit, comme...",
+        "Dans mes rêves, je retrouve parfois...",
+      ],
+      poem: [
+        "La lumière ce matin ressemblait à...",
+        "Je porte en moi un silence qui...",
+        "Si ma douleur avait une couleur, elle serait...",
+        "Il y a des mots que je n'ai jamais dit, comme...",
+        "Dans mes rêves, je retrouve parfois...",
+      ],
+    };
+    return prompts[tool] || prompts.journal;
+  };
 
   const loadCreations = async () => {
     try {
@@ -245,12 +318,13 @@ export default function Creativity({ user, api, onBackToHome }) {
               } else {
                 const tab =
                   key === "poem"
-                    ? "poem"
+                    ? "creative"
                     : key === "ritual"
-                      ? "ritual"
+                      ? "narrative"
                       : "journal";
                 setActiveTab(tab);
                 setShowEditor(true);
+                loadInitialPrompts(tab);
               }
             }}
             onOpenPortfolio={() => {
@@ -426,7 +500,10 @@ export default function Creativity({ user, api, onBackToHome }) {
         {!showEditor && (
           <div style={{ marginBottom: "var(--space-xl)", textAlign: "center" }}>
             <Button
-              onClick={() => setShowEditor(true)}
+              onClick={() => {
+                setShowEditor(true);
+                loadInitialPrompts(activeTab);
+              }}
               style={{
                 fontSize: "var(--font-size-md)",
                 padding: "var(--space-md) var(--space-2xl)",
@@ -444,8 +521,103 @@ export default function Creativity({ user, api, onBackToHome }) {
               {tabs.find((t) => t.id === activeTab)?.label}
             </Text>
 
-            {/* Contexte personnalisé (Hyperpersonnalisation) */}
-            {personalizedContext && (
+            {/* Message d'accueil chaleureux */}
+            {!currentContent && (
+              <div
+                style={{
+                  background: "linear-gradient(135deg, var(--color-accent-calm) 0%, var(--color-surface-0) 100%)",
+                  borderRadius: "var(--radius-lg)",
+                  padding: "var(--space-lg)",
+                  marginBottom: "var(--space-lg)",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                <Text
+                  size="md"
+                  style={{
+                    color: "var(--color-text-primary)",
+                    fontWeight: "var(--font-weight-medium)",
+                    marginBottom: "var(--space-sm)",
+                  }}
+                >
+                  {activeTab === "journal" && "Bienvenue dans votre journal"}
+                  {activeTab === "narrative" && "Votre histoire mérite d'être racontée"}
+                  {activeTab === "creative" && "Laissez parler votre créativité"}
+                </Text>
+                <Text size="sm" color="secondary" style={{ marginBottom: "var(--space-md)" }}>
+                  {activeTab === "journal" && "Cet espace est à vous. Pas de règle, pas de jugement. Écrivez ce qui vous vient, à votre rythme."}
+                  {activeTab === "narrative" && "Raconter son histoire aide à donner du sens. Commencez par ce qui vous appelle."}
+                  {activeTab === "creative" && "Les mots peuvent devenir poésie, les émotions peuvent prendre forme. Laissez-vous guider."}
+                </Text>
+
+                {/* Prompts d'inspiration */}
+                {initialPromptsLoading ? (
+                  <div style={{ textAlign: "center", padding: "var(--space-md)" }}>
+                    <Text size="sm" color="secondary">Préparation de vos inspirations...</Text>
+                  </div>
+                ) : initialPrompts.length > 0 ? (
+                  <div>
+                    <Text
+                      size="sm"
+                      style={{
+                        color: "var(--color-primary)",
+                        fontWeight: "var(--font-weight-medium)",
+                        marginBottom: "var(--space-sm)",
+                      }}
+                    >
+                      Quelques pistes pour commencer :
+                    </Text>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "var(--space-sm)",
+                      }}
+                    >
+                      {initialPrompts.slice(0, 4).map((prompt, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setCurrentContent(prompt + "\n\n")}
+                          style={{
+                            textAlign: "left",
+                            padding: "var(--space-sm) var(--space-md)",
+                            background: "white",
+                            border: "1px solid var(--color-border)",
+                            borderRadius: "var(--radius-md)",
+                            cursor: "pointer",
+                            transition: "all 0.2s ease",
+                            color: "var(--color-text-secondary)",
+                            fontSize: "var(--font-size-sm)",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "var(--color-accent-calm)";
+                            e.currentTarget.style.borderColor = "var(--color-primary)";
+                            e.currentTarget.style.color = "var(--color-text-primary)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "white";
+                            e.currentTarget.style.borderColor = "var(--color-border)";
+                            e.currentTarget.style.color = "var(--color-text-secondary)";
+                          }}
+                        >
+                          "{prompt}"
+                        </button>
+                      ))}
+                    </div>
+                    <Text
+                      size="xs"
+                      color="tertiary"
+                      style={{ marginTop: "var(--space-md)", fontStyle: "italic" }}
+                    >
+                      Cliquez sur une proposition ou commencez à écrire librement ci-dessous
+                    </Text>
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {/* Contexte personnalisé (Hyperpersonnalisation) - affiché une fois qu'on écrit */}
+            {currentContent && personalizedContext && (
               <div className="creativity-personalized">
                 <div
                   style={{
@@ -474,7 +646,7 @@ export default function Creativity({ user, api, onBackToHome }) {
 
             <textarea
               className="creativity-textarea"
-              placeholder="Écrivez ici..."
+              placeholder={currentContent ? "Continuez à écrire..." : "Ou commencez à écrire librement ici..."}
               value={currentContent}
               onChange={(e) => setCurrentContent(e.target.value)}
             />
@@ -544,6 +716,7 @@ export default function Creativity({ user, api, onBackToHome }) {
                   setCurrentTitle("");
                   setGuidedPrompts([]);
                   setPersonalizedContext("");
+                  setInitialPrompts([]);
                 }}
                 style={{
                   padding: "var(--space-sm) var(--space-lg)",
