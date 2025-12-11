@@ -2,19 +2,46 @@ import { useState } from "react";
 import Logo from "./components/Logo";
 import Button from "./components/Button";
 import Input from "./components/Input";
+import { resetPasswordForEmail } from "../lib/supabase";
 
 export default function Auth({ onAuthenticated }) {
-  const [mode, setMode] = useState("login"); // 'login' ou 'register'
+  const [mode, setMode] = useState("login"); // 'login', 'register' ou 'forgot'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateEmail = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+
+  const handleForgotPassword = async () => {
+    setError("");
+    setSuccess("");
+    if (!email.trim()) {
+      setError("Veuillez entrer votre adresse email");
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError("Email invalide");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      await resetPasswordForEmail(email);
+      setSuccess("Un email de réinitialisation a été envoyé. Vérifiez votre boîte de réception.");
+    } catch (err) {
+      // Supabase ne révèle pas si l'email existe pour des raisons de sécurité
+      // On affiche un message générique de succès
+      setSuccess("Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     setError("");
@@ -229,6 +256,33 @@ export default function Auth({ onAuthenticated }) {
                 textAlign: "center",
                 fontSize: "var(--font-size-sm)",
                 color: "var(--color-text-secondary)",
+                marginBottom: "var(--space-md)",
+              }}
+            >
+              <button
+                onClick={() => {
+                  setMode("forgot");
+                  setError("");
+                  setSuccess("");
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--color-text-secondary)",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                  fontSize: "var(--font-size-sm)",
+                }}
+              >
+                Mot de passe oublié ?
+              </button>
+            </div>
+
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "var(--font-size-sm)",
+                color: "var(--color-text-secondary)",
               }}
             >
               Pas encore de compte ?{" "}
@@ -236,6 +290,7 @@ export default function Auth({ onAuthenticated }) {
                 onClick={() => {
                   setMode("register");
                   setError("");
+                  setSuccess("");
                   setEmail("");
                   setPassword("");
                 }}
@@ -253,7 +308,7 @@ export default function Auth({ onAuthenticated }) {
               </button>
             </div>
           </div>
-        ) : (
+        ) : mode === "register" ? (
           <div className="slide-in">
             <h2
               style={{
@@ -413,6 +468,141 @@ export default function Auth({ onAuthenticated }) {
                 }}
               >
                 Se connecter
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* Mode: Mot de passe oublié */
+          <div className="slide-in">
+            <h2
+              style={{
+                marginBottom: "var(--space-lg)",
+                fontSize: "var(--font-size-xl)",
+                fontWeight: "var(--font-weight-semibold)",
+                color: "var(--color-text-primary)",
+              }}
+            >
+              Mot de passe oublié
+            </h2>
+
+            <p
+              style={{
+                fontSize: "var(--font-size-sm)",
+                color: "var(--color-text-secondary)",
+                marginBottom: "var(--space-lg)",
+                lineHeight: "var(--line-height-relaxed)",
+              }}
+            >
+              Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.
+            </p>
+
+            {error && (
+              <div
+                style={{
+                  padding: "var(--space-md)",
+                  background: "var(--color-accent-warm)",
+                  border: "1px solid #D8A8A8",
+                  borderRadius: "var(--radius-md)",
+                  marginBottom: "var(--space-lg)",
+                  fontSize: "var(--font-size-sm)",
+                  color: "#8B6B6B",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "var(--space-sm)",
+                }}
+              >
+                <span
+                  style={{ flexShrink: 0, fontSize: "var(--font-size-md)" }}
+                >
+                  ○
+                </span>
+                <span>{error}</span>
+              </div>
+            )}
+
+            {success && (
+              <div
+                style={{
+                  padding: "var(--space-md)",
+                  background: "var(--color-accent-calm)",
+                  border: "1px solid #A8C8B8",
+                  borderRadius: "var(--radius-md)",
+                  marginBottom: "var(--space-lg)",
+                  fontSize: "var(--font-size-sm)",
+                  color: "#5B7B6B",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "var(--space-sm)",
+                }}
+              >
+                <span
+                  style={{ flexShrink: 0, fontSize: "var(--font-size-md)" }}
+                >
+                  ✓
+                </span>
+                <span>{success}</span>
+              </div>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "var(--space-md)",
+              }}
+            >
+              <Input
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="votre@email.com"
+                disabled={isLoading}
+                aria-label="Email"
+              />
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "var(--space-lg)",
+                marginBottom: "var(--space-md)",
+              }}
+            >
+              <Button
+                onClick={handleForgotPassword}
+                disabled={isLoading || !email.trim()}
+                style={{ width: "100%" }}
+              >
+                {isLoading ? "Envoi en cours..." : "Envoyer le lien"}
+              </Button>
+            </div>
+
+            <div
+              style={{
+                textAlign: "center",
+                fontSize: "var(--font-size-sm)",
+                color: "var(--color-text-secondary)",
+              }}
+            >
+              <button
+                onClick={() => {
+                  setMode("login");
+                  setError("");
+                  setSuccess("");
+                }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--color-primary)",
+                  cursor: "pointer",
+                  fontWeight: "var(--font-weight-semibold)",
+                  textDecoration: "underline",
+                  fontSize: "var(--font-size-sm)",
+                }}
+              >
+                Retour à la connexion
               </button>
             </div>
           </div>
