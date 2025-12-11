@@ -118,6 +118,27 @@ export default function App() {
         setUser(null);
         setShowLanding(true);
         setShowHome(false);
+      } else if ((event === 'PASSWORD_RECOVERY' || event === 'USER_UPDATED' || event === 'SIGNED_IN') && session?.user) {
+        // Après reset password ou connexion, récupérer le profil complet
+        try {
+          const profile = await getProfile(session.user.id);
+          const userData = {
+            id: session.user.id,
+            email: session.user.email,
+            first_name: profile?.first_name || session.user.user_metadata?.first_name || '',
+            onboarding_completed: profile?.onboarding_completed || false,
+            preferences: profile?.preferences || {},
+            ...profile,
+          };
+          setUser(userData);
+          setShowLanding(false);
+          setShowAuth(false);
+          if (userData.onboarding_completed) {
+            setShowHome(true);
+          }
+        } catch (e) {
+          console.error("Error loading profile after auth change:", e);
+        }
       }
     });
 
