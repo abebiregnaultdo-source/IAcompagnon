@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import AvatarRoom from "./avatar/AvatarRoom";
 import Message from "./components/Message";
-import Input from "./components/Input";
 import Button from "./components/Button";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
@@ -344,10 +343,11 @@ export default function Chat({
               aria-live="polite"
               aria-label="Historique de conversation"
               style={{
-                minHeight: "400px",
-                maxHeight: "600px",
+                flex: 1,
+                minHeight: "300px",
+                maxHeight: "calc(100vh - 320px)",
                 overflowY: "auto",
-                padding: "var(--space-md)",
+                padding: "var(--space-sm)",
               }}
             >
               {messages.map((m, i) => (
@@ -358,13 +358,20 @@ export default function Chat({
               {isTyping && <Message role="assistant" isTyping={true} />}
             </div>
 
-            <Panel
+            {/* Zone de saisie compacte */}
+            <div
               style={{
-                padding: "var(--space-md)",
-                boxShadow: "var(--shadow-sm)",
+                display: "flex",
+                gap: "var(--space-sm)",
+                alignItems: "flex-end",
+                padding: "var(--space-sm)",
+                background: "var(--color-surface-1)",
+                borderRadius: "var(--radius-md)",
+                border: "1px solid var(--color-border)",
               }}
             >
-              <Input
+              <input
+                type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => {
@@ -374,62 +381,29 @@ export default function Chat({
                   }
                 }}
                 placeholder="Écrivez ce qui vous vient..."
-                helpText="Appuyez sur Entrée pour envoyer"
                 disabled={isSending}
                 aria-label="Message à envoyer"
-              />
-              <div
                 style={{
-                  display: "flex",
-                  gap: "var(--space-sm)",
-                  marginTop: "var(--space-sm)",
+                  flex: 1,
+                  padding: "var(--space-sm) var(--space-md)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "var(--font-size-base)",
+                  background: "white",
+                  outline: "none",
+                }}
+              />
+              <Button
+                onClick={send}
+                disabled={!input.trim() || isSending}
+                style={{
+                  padding: "var(--space-sm) var(--space-lg)",
+                  whiteSpace: "nowrap",
                 }}
               >
-                <Button
-                  onClick={send}
-                  disabled={!input.trim() || isSending}
-                  style={{ flex: 1 }}
-                >
-                  {isSending ? "Envoi..." : "Envoyer"}
-                </Button>
-                <button
-                  onClick={() => {
-                    // Basculer vers le mode vocal (VoiceChat)
-                    if (window.confirm("Passer en mode appel vocal avec votre compagnon ?")) {
-                      if (onSwitchToVoice) {
-                        onSwitchToVoice();
-                      }
-                    }
-                  }}
-                  style={{
-                    padding: "var(--space-md) var(--space-lg)",
-                    borderRadius: "var(--radius-md)",
-                    background: "linear-gradient(135deg, #7BA8C0, #5A8FA8)",
-                    border: "none",
-                    color: "white",
-                    fontSize: "var(--font-size-lg)",
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "all 0.2s",
-                    boxShadow: "0 2px 8px rgba(123, 168, 192, 0.3)",
-                  }}
-                  title="Passer en mode vocal (appel)"
-                  aria-label="Basculer vers le mode vocal"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "scale(1.05)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(123, 168, 192, 0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "scale(1)";
-                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(123, 168, 192, 0.3)";
-                  }}
-                >
-                  🎤
-                </button>
-              </div>
-            </Panel>
+                {isSending ? "..." : "Envoyer"}
+              </Button>
+            </div>
           </div>
         </Panel>
       </div>
