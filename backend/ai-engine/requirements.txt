@@ -7,15 +7,11 @@ jinja2==3.1.4
 openai>=1.0.0
 anthropic>=0.34.0
 
-# RAG & Embeddings - State of the art 2024/2025
-sentence-transformers>=2.2.0
-chromadb>=0.4.0
-numpy>=1.24.0
-
-# Emotion Detection - DistilBERT (93.8% accuracy)
-transformers>=4.30.0
-torch>=2.0.0
-
-# Emotion-aware embeddings (fallback)
+# Emotion analysis (lexical-based, lightweight ~5MB)
 nrclex>=3.0.0
+
+# Note: torch/transformers/sentence-transformers/chromadb removed
+# The code has fallbacks that work without these heavy libraries:
+# - emotion_detector.py falls back to NRCLex
+# - vector_rag.py falls back to keyword search
 
