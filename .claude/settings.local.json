@@ -15,7 +15,14 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: add silent analytics tracking and admin dashboard\n\n- Add silent tracking in Chat (session duration, message count, reading time)\n- Add /analytics/track endpoint for collecting user behavior data\n- Add /admin/analytics endpoint with metrics dashboard\n- Create AdminDashboard page accessible via /?admin=helo2024admin\n- Track: sessions, messages, techniques used, response times, fallbacks\n\nThis helps improve user accompaniment by understanding what works best.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git fetch:*)",
       "Bash(npx vercel --prod)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(dir)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(gh auth status:*)",
+      "Bash(git config:*)",
+      "Bash(cmdkey /delete:git:https://github.com)",
+      "Bash(npx vercel:*)"
     ],
     "deny": [],
     "ask": []

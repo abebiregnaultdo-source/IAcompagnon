@@ -40,8 +40,14 @@ export async function signOut() {
 }
 
 export async function resetPasswordForEmail(email) {
+  // Utiliser l'URL de production pour éviter les redirections vers localhost
+  const productionUrl = 'https://ia-compagnon.vercel.app';
+  const redirectUrl = window.location.hostname === 'localhost'
+    ? productionUrl
+    : window.location.origin;
+
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/reset-password`,
+    redirectTo: `${redirectUrl}/reset-password`,
   });
   if (error) throw error;
   return data;

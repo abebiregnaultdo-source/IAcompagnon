@@ -33,11 +33,11 @@ export default function Auth({ onAuthenticated }) {
     setIsLoading(true);
     try {
       await resetPasswordForEmail(email);
-      setSuccess("Un email de réinitialisation a été envoyé. Vérifiez votre boîte de réception.");
+      // Message clair : on envoie un mail si l'adresse existe
+      setSuccess("Si cette adresse email est associée à un compte HELO, vous recevrez un lien de réinitialisation.");
     } catch (err) {
-      // Supabase ne révèle pas si l'email existe pour des raisons de sécurité
-      // On affiche un message générique de succès
-      setSuccess("Si un compte existe avec cet email, vous recevrez un lien de réinitialisation.");
+      // Même message pour des raisons de sécurité (ne pas révéler si l'email existe)
+      setSuccess("Si cette adresse email est associée à un compte HELO, vous recevrez un lien de réinitialisation.");
     } finally {
       setIsLoading(false);
     }
