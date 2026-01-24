@@ -42,11 +42,14 @@ export default function Creativity({ user, api, onBackToHome }) {
 
   /**
    * Charge des prompts d'inspiration initiaux quand l'éditeur s'ouvre
-   * Basés sur l'outil choisi et l'historique de l'utilisateur
+   * Basés sur l'outil choisi ET l'historique des conversations
    */
   const loadInitialPrompts = async (tool) => {
     setInitialPromptsLoading(true);
     try {
+      // Récupérer l'historique des conversations depuis le localStorage
+      const conversationHistory = JSON.parse(localStorage.getItem(`helo_chat_history_${user.id}`) || '[]');
+
       const response = await fetch(`${api.base}/api/creative/prompts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,6 +57,7 @@ export default function Creativity({ user, api, onBackToHome }) {
           user_id: user.id,
           tool: tool,
           first_name: user.first_name,
+          conversation_history: conversationHistory.slice(-10), // Derniers 10 messages
         }),
       });
 

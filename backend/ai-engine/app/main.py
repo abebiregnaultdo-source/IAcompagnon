@@ -752,17 +752,19 @@ class CreativePromptsRequest(BaseModel):
     user_id: str
     tool: str  # journal, narrative, creative, poem
     first_name: str | None = None
+    conversation_history: List[Dict[str, Any]] | None = None  # Historique des conversations récentes
 
 @app.post('/api/creative/prompts')
 async def creative_prompts(req: CreativePromptsRequest):
     """
     Génère des prompts d'écriture personnalisés pour l'espace créatif
-    Basés sur l'outil choisi et le contexte utilisateur
+    BASÉS SUR L'HISTORIQUE DES CONVERSATIONS pour une vraie personnalisation
     """
     tool = req.tool
     first_name = req.first_name or "ami"
+    conversation_history = req.conversation_history or []
 
-    # Prompts par défaut par outil (haute qualité, thérapeutiques)
+    # Prompts par défaut par outil
     default_prompts = {
         'journal': [
             f"Comment te sens-tu en ce moment, {first_name}, vraiment ?",
@@ -794,42 +796,86 @@ async def creative_prompts(req: CreativePromptsRequest):
         ],
     }
 
-    # Essayer de personnaliser via l'IA si possible
-    try:
-        from .llm_client import call_llm
+    # Si on a un historique de conversation, générer des prompts personnalisés
+    if conversation_history and len(conversation_history) > 0:
+        try:
+            # Extraire les thèmes des conversations récentes
+            user_messages = [msg.get('content', '') for msg in conversation_history if msg.get('role') == 'user']
+            conversation_summary = "\n".join(user_messages[-5:])  # 5 derniers messages utilisateur
 
-        # Prompt pour générer des suggestions personnalisées
+            # Utiliser Claude pour générer des prompts basés sur les conversations
+            system_prompt = f"""Tu es un accompagnant bienveillant spécialisé dans l'écriture thérapeutique.
+
+L'utilisateur s'appelle {first_name}. Voici ce qu'il/elle a partagé récemment dans ses conversations:
+
+---
+{conversation_summary}
+---
+
+Génère 5 prompts d'écriture pour l'outil "{tool}" qui sont:
+- DIRECTEMENT LIÉS à ce que l'utilisateur a partagé (ses émotions, ses situations, ses personnes mentionnées)
+- Doux et non-intrusifs
+- Qui l'invitent à approfondir ce qu'il/elle vit
+- Sans JAMAIS supposer des choses non dites
+
+IMPORTANT: Ne mentionne PAS explicitement les détails (pas de "ton chien Rex" ou "ta mère") - fais des allusions délicates.
+
+Réponds UNIQUEMENT avec les 5 prompts, un par ligne, sans numérotation."""
+
+            # Appeler le LLM
+            response = engine.llm.generate(
+                system_prompt=system_prompt,
+                messages=[{"role": "user", "content": "Génère les prompts personnalisés."}],
+                temperature=0.8,
+                max_tokens=500
+            )
+
+            if response and isinstance(response, str):
+                prompts = [p.strip().strip('-').strip('•').strip('"').strip() for p in response.strip().split('\n') if p.strip()]
+                prompts = [p for p in prompts if len(p) > 10 and len(p) < 250]
+
+                if len(prompts) >= 3:
+                    return {
+                        'prompts': prompts[:5],
+                        'personalized': True,
+                        'based_on_conversation': True
+                    }
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Personalized creative prompts failed: {e}")
+
+    # Fallback: essayer de générer des prompts génériques via IA
+    try:
         system_prompt = f"""Tu es un accompagnant bienveillant spécialisé dans l'écriture thérapeutique.
 
 Génère 5 prompts d'écriture pour l'outil "{tool}" qui sont:
 - Doux et non-intrusifs
 - Ouverts à l'interprétation
 - Thérapeutiques sans être cliniques
-- Adaptés à quelqu'un traversant une période difficile
 
 L'utilisateur s'appelle {first_name}.
 
-Réponds UNIQUEMENT avec les 5 prompts, un par ligne, sans numérotation ni explication."""
+Réponds UNIQUEMENT avec les 5 prompts, un par ligne, sans numérotation."""
 
-        response = await call_llm(
-            messages=[{"role": "user", "content": system_prompt}],
-            model="gpt-4o-mini",  # Modèle rapide et économique
-            max_tokens=500
+        response = engine.llm.generate(
+            system_prompt=system_prompt,
+            messages=[{"role": "user", "content": "Génère les prompts."}],
+            temperature=0.8,
+            max_tokens=400
         )
 
         if response and isinstance(response, str):
-            # Parser les prompts (un par ligne)
-            prompts = [p.strip().strip('-').strip('•').strip() for p in response.strip().split('\n') if p.strip()]
-            prompts = [p for p in prompts if len(p) > 10 and len(p) < 200]  # Filtrer
+            prompts = [p.strip().strip('-').strip('•').strip('"').strip() for p in response.strip().split('\n') if p.strip()]
+            prompts = [p for p in prompts if len(p) > 10 and len(p) < 200]
 
             if len(prompts) >= 3:
-                return {'prompts': prompts[:5], 'personalized': True}
+                return {'prompts': prompts[:5], 'personalized': True, 'based_on_conversation': False}
     except Exception as e:
         import logging
         logging.getLogger(__name__).warning(f"Creative prompts generation failed: {e}")
 
-    # Fallback aux prompts par défaut
-    return {'prompts': default_prompts.get(tool, default_prompts['journal']), 'personalized': False}
+    # Fallback final aux prompts par défaut
+    return {'prompts': default_prompts.get(tool, default_prompts['journal']), 'personalized': False, 'based_on_conversation': False}
 
 @app.get('/api/creative/presentation')
 async def creative_presentation():

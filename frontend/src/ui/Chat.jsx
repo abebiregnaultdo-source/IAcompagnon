@@ -215,6 +215,18 @@ export default function Chat({
     viewRef.current?.scrollTo({ top: 99999, behavior: "smooth" });
   }, [messages, isTyping]);
 
+  // Sauvegarder l'historique des conversations dans localStorage
+  // Pour que la section Créativité puisse proposer des thèmes personnalisés
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        localStorage.setItem(`helo_chat_history_${user.id}`, JSON.stringify(messages));
+      } catch (e) {
+        // localStorage peut échouer en mode privé
+      }
+    }
+  }, [messages, user.id]);
+
   // Focus input après chargement
   useEffect(() => {
     if (historyLoaded && inputRef.current) {
