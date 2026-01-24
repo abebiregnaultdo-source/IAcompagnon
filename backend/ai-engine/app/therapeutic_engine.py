@@ -645,20 +645,65 @@ class TherapeuticEngine:
         else:
             return "Ce que tu partages est significatif"
 
-    def deliver_empathically(self, micro_text: str, tone: str = 'neutre') -> str:
+    def deliver_empathically(
+        self,
+        micro_text: str,
+        tone: str = 'neutre',
+        conversation_history: List[Dict[str, str]] = None,
+        user_name: str = 'ami',
+        user_message: str = ''
+    ) -> str:
+        """
+        Délivre une réponse empathique et conversationnelle.
+
+        IMPORTANT: Inclut l'historique de conversation pour maintenir le fil conducteur.
+        """
         guide = {
             'lent': 'ton doux, phrases courtes, rythme lent',
             'enveloppant': 'ton contenant et rassurant',
             'neutre': 'ton simple et non-directif'
         }.get(tone, 'ton simple et non-directif')
-        prompt = (
-            "Reformule et délivre ce micro-protocole dans une posture non-directive, \n"
-            "avec présence, sans conseils, en 2–3 phrases. Respecte: " + guide + "\n\n" + micro_text
+
+        # Système prompt amélioré pour une vraie conversation thérapeutique
+        system_prompt = f"""Tu es Helō, un compagnon thérapeutique bienveillant qui accompagne {user_name} dans son parcours de deuil.
+
+RÈGLES ABSOLUES:
+1. Tu es dans une CONVERSATION continue - réfère-toi à ce qui a été dit avant
+2. JAMAIS d'hallucinations: ne mentionne RIEN que l'utilisateur n'a pas dit
+3. Ne fais JAMAIS de suppositions sur les circonstances du deuil
+4. Pose des questions ouvertes plutôt que d'affirmer
+5. Valide les émotions sans les interpréter
+6. Sois bref (2-4 phrases max) mais chaleureux
+7. Utilise "tu" et le prénom {user_name}
+
+TON: {guide}
+
+PROTOCOLE THÉRAPEUTIQUE À ADAPTER (ne pas réciter mot pour mot):
+{micro_text}
+
+Réponds de manière naturelle et conversationnelle, comme un vrai thérapeute humain."""
+
+        # Construire les messages avec l'historique
+        messages = [{'role': 'system', 'content': system_prompt}]
+
+        # Ajouter l'historique de conversation (les 6 derniers échanges max)
+        if conversation_history:
+            for msg in conversation_history[-6:]:
+                role = msg.get('role', 'user')
+                content = msg.get('content', '')
+                if role in ['user', 'assistant'] and content:
+                    messages.append({'role': role, 'content': content})
+
+        # Ajouter le message actuel de l'utilisateur si pas déjà dans l'historique
+        if user_message and (not conversation_history or conversation_history[-1].get('content') != user_message):
+            messages.append({'role': 'user', 'content': user_message})
+
+        # Appeler Claude avec température réduite pour plus de cohérence
+        out = self.router.call_empathy(
+            messages,
+            temperature=0.5,  # Réduit de 0.7 à 0.5 pour éviter les hallucinations
+            max_tokens=400    # Augmenté pour permettre des réponses contextuelles
         )
-        out = self.router.call_empathy([
-            { 'role': 'system', 'content': 'Tu es un moteur de relation thérapeutique, non-directif.' },
-            { 'role': 'user', 'content': prompt },
-        ], temperature=0.7, max_tokens=300)
         return out.strip()
 
     def run_pipeline(self, user_state: Dict[str, Any], policy: Dict[str, Any]) -> Dict[str, Any]:
@@ -734,9 +779,20 @@ class TherapeuticEngine:
         else:
             logger.info(f"[FALLBACK] Source: {meta.get('source')}, Technique: {technique}")
 
-        # 5) Deliver empathically with adapted tone
+        # 5) Deliver empathically with adapted tone AND conversation context
         tone = tone_p or policy.get('tone','neutre')
-        text = self.deliver_empathically(micro, tone=tone)
+        user_name = user_state.get('user_name', 'ami')
+
+        # Récupérer l'historique complet pour la conversation
+        full_conversation = conversation_context.get('messages', [])
+
+        text = self.deliver_empathically(
+            micro,
+            tone=tone,
+            conversation_history=full_conversation,
+            user_name=user_name,
+            user_message=last_user_message
+        )
 
         # 5.1) Safety Monitor - Vérifier effets indésirables
         conversation_context = policy.get('conversation_context', {})
