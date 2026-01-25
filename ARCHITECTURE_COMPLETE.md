@@ -269,13 +269,12 @@ Pas de Redux/Zustand. État géré par :
 
 ### 5.3 Design System
 
-Voir `frontend/DESIGN_SYSTEM.md` pour détails complets.
-
-**Principes clés** :
+**Principes clés** (voir `ETAT_DE_LART.md` pour détails complets) :
 - Pas de blanc pur (#FFFFFF) → Crèmes (#F2F6F7)
 - Pas de noir pur → Gris chauds (#3A4048)
-- Transitions lentes (4 secondes)
-- Contrastes doux
+- Transitions lentes (minimum 0.3s, idéal 1-4s)
+- Contrastes doux (ratio < 2:1)
+- Saturation < 30%
 
 ---
 
@@ -449,7 +448,5 @@ cd frontend && npx vercel --prod --yes
 
 ## Navigation
 
-- **Fondements théoriques** : Voir `ETAT_DE_LART.md`
-- **Design System** : Voir `frontend/DESIGN_SYSTEM.md`
-- **Protocoles thérapeutiques** : Voir `backend/EVIDENCE_BASED_ARCHITECTURE.md`
-- **Avatar** : Voir `frontend/src/ui/avatar/README.md`
+- **Fondements théoriques et design** : Voir `ETAT_DE_LART.md`
+- **Instructions Claude Code** : Voir `CLAUDE.md`
