@@ -20,6 +20,7 @@ export default function AvatarRoom({
   isSpeaking = false,
   audioLevel = 0,
   showControls = false,
+  emotionalState = "neutral", // neutral, listening, empathy, support, calm
 }) {
   const [prefs, setPrefs] = useState(() => ({
     ...loadPrefs(),
@@ -75,6 +76,8 @@ export default function AvatarRoom({
           hairStyle={prefs.hairStyle}
           presentation={prefs.presentation}
           breathingPhase={breathingPhase}
+          emotionalState={emotionalState}
+          isSpeaking={isSpeaking}
         />
         <VoiceVisualization isActive={isSpeaking} audioLevel={audioLevel} />
       </div>
