@@ -22,8 +22,10 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isAISpeaking, setIsAISpeaking] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
-  const [connectionStatus, setConnectionStatus] = useState("disconnected"); // 'connecting' | 'connected' | 'disconnected'
+  const [connectionStatus, setConnectionStatus] = useState("disconnected"); // 'connecting' | 'connected' | 'disconnected' | 'unavailable'
   const [error, setError] = useState(null);
+  const [serviceUnavailable, setServiceUnavailable] = useState(false);
+  const connectionAttempts = useRef(0);
 
   const wsRef = useRef(null);
   const mediaRecorderRef = useRef(null);
@@ -45,16 +47,40 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
 
   const connectWebSocket = () => {
     setConnectionStatus("connecting");
+    connectionAttempts.current += 1;
 
     // URL du voice-service (production ou localhost)
     const voiceServiceBase = import.meta.env.VITE_VOICE_SERVICE_URL || "wss://helo-voice-service.onrender.com";
     const wsUrl = `${voiceServiceBase}/ws/voice/${user.id}`;
-    wsRef.current = new WebSocket(wsUrl);
+
+    try {
+      wsRef.current = new WebSocket(wsUrl);
+    } catch (e) {
+      console.error("WebSocket creation failed:", e);
+      setServiceUnavailable(true);
+      setConnectionStatus("unavailable");
+      return;
+    }
+
+    // Timeout de connexion (5 secondes)
+    const connectionTimeout = setTimeout(() => {
+      if (wsRef.current && wsRef.current.readyState !== WebSocket.OPEN) {
+        wsRef.current.close();
+        if (connectionAttempts.current >= 2) {
+          setServiceUnavailable(true);
+          setConnectionStatus("unavailable");
+          setError("Service vocal temporairement indisponible");
+        }
+      }
+    }, 5000);
 
     wsRef.current.onopen = () => {
+      clearTimeout(connectionTimeout);
       console.log("WebSocket connected");
       setConnectionStatus("connected");
       setError(null);
+      setServiceUnavailable(false);
+      connectionAttempts.current = 0;
     };
 
     wsRef.current.onmessage = async (event) => {
@@ -76,14 +102,24 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
     };
 
     wsRef.current.onerror = (error) => {
+      clearTimeout(connectionTimeout);
       console.error("WebSocket error:", error);
-      setError("Erreur de connexion au service vocal");
-      setConnectionStatus("disconnected");
+      if (connectionAttempts.current >= 2) {
+        setServiceUnavailable(true);
+        setConnectionStatus("unavailable");
+        setError("Service vocal temporairement indisponible");
+      } else {
+        setError("Erreur de connexion au service vocal");
+        setConnectionStatus("disconnected");
+      }
     };
 
     wsRef.current.onclose = () => {
+      clearTimeout(connectionTimeout);
       console.log("WebSocket closed");
-      setConnectionStatus("disconnected");
+      if (!serviceUnavailable) {
+        setConnectionStatus("disconnected");
+      }
     };
   };
 
@@ -261,6 +297,39 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
   // ========================================================================
 
   const device = useDeviceDetection();
+
+  // Afficher un écran d'attente si le service est indisponible
+  if (serviceUnavailable) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "var(--color-background)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: device.isMobile ? "var(--space-md)" : "var(--space-xl)",
+        }}
+      >
+        <Panel style={{ maxWidth: 500, textAlign: "center", padding: "var(--space-2xl)" }}>
+          <div style={{ fontSize: 48, marginBottom: "var(--space-lg)" }}>📞</div>
+          <Text as="h2" size="xl" style={{ marginBottom: "var(--space-md)" }}>
+            Appel vocal en cours de déploiement
+          </Text>
+          <Text color="secondary" style={{ marginBottom: "var(--space-xl)", lineHeight: 1.6 }}>
+            Cette fonctionnalité sera bientôt disponible. En attendant, vous pouvez
+            utiliser la conversation écrite qui offre la même qualité d'accompagnement.
+          </Text>
+          <Text size="sm" color="tertiary" style={{ marginBottom: "var(--space-lg)" }}>
+            La synthèse vocale est disponible dans le chat écrit (icône haut-parleur)
+          </Text>
+          <Button onClick={() => window.history.back()} variant="primary">
+            Retourner au chat
+          </Button>
+        </Panel>
+      </div>
+    );
+  }
 
   return (
     <div
