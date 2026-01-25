@@ -70,6 +70,7 @@ export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(true); // Ajout: chargement initial
   const [step, setStep] = useState("intro");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [emotionalState, setEmotionalState] = useState("calm");
@@ -88,6 +89,7 @@ export default function App() {
   // Restore user session on mount (Supabase)
   useEffect(() => {
     const restoreSession = async () => {
+      setIsLoadingSession(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
 
@@ -97,16 +99,23 @@ export default function App() {
             id: session.user.id,
             email: session.user.email,
             first_name: profile?.first_name || session.user.user_metadata?.first_name || '',
-            onboarding_completed: profile?.onboarding_completed || false,
+            onboarding_completed: profile?.onboarding_completed === true, // Strict check
             preferences: profile?.preferences || {},
             ...profile,
           };
           setUser(userData);
           setShowLanding(false);
           setShowAuth(false);
+
+          // Si onboarding terminé, aller directement à Home
+          if (userData.onboarding_completed) {
+            setShowHome(true);
+          }
         }
       } catch (e) {
         console.error("Error restoring user session:", e);
+      } finally {
+        setIsLoadingSession(false);
       }
     };
 
@@ -263,6 +272,31 @@ export default function App() {
               }}
             >
               Préparation de votre espace...
+            </div>
+          </div>
+        </div>
+      </EmotionalFeedback>
+    );
+  }
+
+  // Pendant le chargement de la session, afficher un loader
+  if (isLoadingSession) {
+    return (
+      <EmotionalFeedback state="calm">
+        <div className="container">
+          <div
+            className="card"
+            style={{ textAlign: "center", padding: "var(--space-3xl)" }}
+          >
+            <Logo size={60} showText={true} />
+            <div
+              style={{
+                marginTop: "var(--space-xl)",
+                color: "var(--color-text-secondary)",
+                fontSize: "var(--font-size-sm)",
+              }}
+            >
+              Chargement...
             </div>
           </div>
         </div>

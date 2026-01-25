@@ -119,7 +119,6 @@ export default function Home({
           <Button
             onClick={onStartCall}
             variant="secondary"
-            disabled
             style={{
               fontSize: "var(--font-size-lg)",
               padding: "var(--space-xl)",
@@ -127,8 +126,6 @@ export default function Home({
               alignItems: "center",
               justifyContent: "center",
               gap: "var(--space-sm)",
-              opacity: 0.5,
-              cursor: "not-allowed",
               flexDirection: "column",
             }}
           >
@@ -136,9 +133,6 @@ export default function Home({
               <span style={{ fontSize: "1.5rem" }}>📞</span>
               <span>Appel visio</span>
             </div>
-            <small style={{ fontSize: "var(--font-size-xs)", opacity: 0.7 }}>
-              Bientôt disponible
-            </small>
           </Button>
         </div>
 

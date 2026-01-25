@@ -81,29 +81,11 @@ export default function AvatarView({
   hairStyle = "none",
   presentation = "neutral",
   breathingPhase = 0,
-  emotionalState = "neutral", // neutral, listening, empathy, support, calm
-  isSpeaking = false,
 }) {
-  // Respiration adaptée à l'état émotionnel
-  const breathingIntensity = emotionalState === "calm" ? 0.01 : emotionalState === "listening" ? 0.02 : 0.015;
-  const breathScale = 1 + Math.sin(breathingPhase) * breathingIntensity;
+  // Respiration subtile - cycle de 6 secondes (conforme aux principes thérapeutiques)
+  // L'avatar ne "réagit" pas, il respire de manière stable et apaisante
+  const breathScale = 1 + Math.sin(breathingPhase) * 0.015; // ±1.5% variation
   const breathOpacity = 0.85 + Math.sin(breathingPhase) * 0.08;
-
-  // Inclinaison subtile selon l'état (empathie = penché vers l'avant)
-  const tiltAngle = emotionalState === "empathy" ? 2 : emotionalState === "listening" ? 1 : 0;
-
-  // Couleur du halo selon l'état émotionnel
-  const haloColors = {
-    neutral: "rgba(123, 168, 192, 0.12)",
-    listening: "rgba(99, 179, 237, 0.18)",
-    empathy: "rgba(72, 187, 120, 0.18)",
-    support: "rgba(237, 137, 54, 0.15)",
-    calm: "rgba(79, 209, 197, 0.18)",
-  };
-  const haloColor = haloColors[emotionalState] || haloColors.neutral;
-
-  // Animation subtile des bras quand parle
-  const armOffset = isSpeaking ? Math.sin(breathingPhase * 2) * 2 : 0;
 
   return (
     <svg
@@ -113,22 +95,11 @@ export default function AvatarView({
       className="avatar-figure"
       aria-label="Présence thérapeutique"
       style={{
-        transform: `scale(${breathScale}) rotate(${tiltAngle}deg)`,
-        transformOrigin: "center bottom",
+        transform: `scale(${breathScale})`,
         opacity: breathOpacity,
         transition: "transform 0.8s ease-in-out, opacity 0.8s ease-in-out",
       }}
     >
-      {/* Halo émotionnel - aura douce derrière l'avatar */}
-      <ellipse
-        cx="110"
-        cy="140"
-        rx="95"
-        ry="105"
-        fill={haloColor}
-        style={{ transition: "fill 1.5s ease-in-out" }}
-      />
-
       {/* Chair (stylized) */}
       <g className="chair-element">
         <path
@@ -170,24 +141,22 @@ export default function AvatarView({
         {/* Torso seated - ajusté selon présentation */}
         <Body presentation={presentation} />
 
-        {/* Arms over armrests - gentle, relaxed posture with subtle movement */}
+        {/* Arms over armrests - gentle, relaxed posture */}
         <path
-          d={`M68 ${178 + armOffset} Q 90 ${182 + armOffset} 94 190`}
+          d="M68 178 Q 90 182 94 190"
           stroke="#6E90A0"
           strokeWidth="6"
           fill="none"
           opacity="0.8"
           className="arm-left"
-          style={{ transition: "d 0.3s ease-out" }}
         />
         <path
-          d={`M152 ${178 - armOffset} Q 130 ${182 - armOffset} 126 190`}
+          d="M152 178 Q 130 182 126 190"
           stroke="#6E90A0"
           strokeWidth="6"
           fill="none"
           opacity="0.8"
           className="arm-right"
-          style={{ transition: "d 0.3s ease-out" }}
         />
       </g>
     </svg>

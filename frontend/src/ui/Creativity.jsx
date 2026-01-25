@@ -786,7 +786,7 @@ export default function Creativity({ user, api, onBackToHome }) {
           </Panel>
         )}
 
-        {activeTab === "creative" && !showEditor && (
+        {(activeTab === "creative" || activeTab === "coloring") && !showEditor && (
           <div style={{ marginBottom: "var(--space-xl)" }}>
             <ColoringCanvas
               user={user}
