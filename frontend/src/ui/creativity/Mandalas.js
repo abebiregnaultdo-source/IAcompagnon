@@ -95,15 +95,32 @@ export const MANDALAS = [
 ];
 
 export const PROTOCOL_PALETTES = {
-  apaisement: ["#4FD1C5", "#63B3ED", "#90CDF4", "#BEE3F8", "#E6FFFA"],
-  expression: [
-    "#E53E3E",
-    "#DD6B20",
-    "#D69E2E",
-    "#38A169",
-    "#3182CE",
-    "#805AD5",
-    "#D53F8C",
+  apaisement: [
+    "#4FD1C5", "#63B3ED", "#90CDF4", "#BEE3F8", "#E6FFFA", // Bleus/Turquoises
+    "#9AE6B4", "#68D391", "#48BB78", // Verts doux
+    "#E2E8F0", "#CBD5E0", "#A0AEC0", // Gris apaisants
+    "#FED7E2", "#FBB6CE", "#F687B3", // Roses doux
+    "#C3DAFE", "#A3BFFA", "#7F9CF5", // Lavandes
+    "#FEEBC8", "#FBD38D", "#F6AD55", // Pêche/Abricot
   ],
-  integration: ["#2B6CB0", "#68D391", "#ED8936", "#9F7AEA", "#319795"],
+  expression: [
+    "#E53E3E", "#C53030", "#9B2C2C", // Rouges
+    "#DD6B20", "#C05621", "#9C4221", // Oranges
+    "#D69E2E", "#B7791F", "#975A16", // Jaunes/Ors
+    "#38A169", "#2F855A", "#276749", // Verts
+    "#3182CE", "#2B6CB0", "#2C5282", // Bleus
+    "#805AD5", "#6B46C1", "#553C9A", // Violets
+    "#D53F8C", "#B83280", "#97266D", // Roses vifs
+    "#319795", "#2C7A7B", "#285E61", // Teals
+  ],
+  integration: [
+    "#2B6CB0", "#3182CE", "#4299E1", // Bleus profonds
+    "#68D391", "#48BB78", "#38A169", // Verts nature
+    "#ED8936", "#DD6B20", "#C05621", // Oranges chauds
+    "#9F7AEA", "#805AD5", "#6B46C1", // Violets mystiques
+    "#319795", "#2C7A7B", "#285E61", // Teals équilibre
+    "#F6AD55", "#ED8936", "#DD6B20", // Ambrés
+    "#FC8181", "#F56565", "#E53E3E", // Corail/Rouge
+    "#76E4F7", "#0BC5EA", "#00B5D8", // Cyans
+  ],
 };

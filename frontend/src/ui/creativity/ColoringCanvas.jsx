@@ -40,20 +40,32 @@ export default function ColoringCanvas({ user, api, onSaved }) {
     loadManifest();
   }, []);
 
+  // Appliquer le style responsive au SVG après le rendu
+  useEffect(() => {
+    if (svgContainerRef.current) {
+      const svg = svgContainerRef.current.querySelector("svg");
+      if (svg) {
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+        svg.style.maxWidth = "100%";
+        svg.style.maxHeight = "100%";
+      }
+    }
+  }, [selectedMandala]);
+
   const handleFill = (evt) => {
     const target = evt.target;
-    if (
-      !target ||
-      !(
-        target.tagName === "path" ||
-        target.tagName === "circle" ||
-        target.tagName === "polygon" ||
-        target.tagName === "rect"
-      )
-    )
-      return;
-    // set fill on clicked shape
+    if (!target) return;
+
+    // Normaliser le tagName (peut être en majuscules selon le navigateur)
+    const tagName = target.tagName.toLowerCase();
+    const fillableTags = ["path", "circle", "polygon", "rect", "ellipse"];
+
+    if (!fillableTags.includes(tagName)) return;
+
+    // Remplir avec la couleur sélectionnée
     target.setAttribute("fill", color);
+    target.style.fill = color; // Backup pour les styles inline
   };
 
   const handleSave = async () => {
@@ -85,7 +97,7 @@ export default function ColoringCanvas({ user, api, onSaved }) {
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "280px 1fr",
+        gridTemplateColumns: mobileView ? "1fr" : "280px 1fr",
         gap: "var(--space-lg)",
       }}
     >
@@ -346,7 +358,15 @@ export default function ColoringCanvas({ user, api, onSaved }) {
         <div
           ref={svgContainerRef}
           onClick={handleFill}
-          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          style={{
+            width: "100%",
+            maxWidth: mobileView ? "100%" : "500px",
+            aspectRatio: "1 / 1",
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
           dangerouslySetInnerHTML={{ __html: selectedMandala.svg }}
         />
       </div>
