@@ -279,3 +279,147 @@ export async function updateProgress(userId, updates) {
   if (error) throw error;
   return data;
 }
+
+// =============================================
+// DREAMS HELPERS (Journal des rêves)
+// =============================================
+
+export async function getDreams(userId, limit = 50) {
+  const { data, error } = await supabase
+    .from('dreams')
+    .select('*')
+    .eq('user_id', userId)
+    .order('dream_date', { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+  return data || [];
+}
+
+export async function getDream(dreamId) {
+  const { data, error } = await supabase
+    .from('dreams')
+    .select('*')
+    .eq('id', dreamId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function addDream(userId, dream) {
+  const { data, error } = await supabase
+    .from('dreams')
+    .insert({
+      user_id: userId,
+      dream_date: dream.dream_date || new Date().toISOString().slice(0, 10),
+      title: dream.title,
+      content: dream.content,
+      therapeutic_context: dream.therapeutic_context,
+      emotional_state: dream.emotional_state || {},
+      self_interpretation: dream.self_interpretation,
+      ai_interpretation: dream.ai_interpretation,
+      tags: dream.tags || [],
+      themes: dream.themes || [],
+      is_recurring: dream.is_recurring || false,
+      lucidity_level: dream.lucidity_level || 0,
+      emotional_intensity: dream.emotional_intensity || 5,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateDream(dreamId, updates) {
+  const { data, error } = await supabase
+    .from('dreams')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', dreamId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteDream(dreamId) {
+  const { error } = await supabase
+    .from('dreams')
+    .delete()
+    .eq('id', dreamId);
+
+  if (error) throw error;
+}
+
+export async function getDreamsByTheme(userId, theme) {
+  const { data, error } = await supabase
+    .from('dreams')
+    .select('*')
+    .eq('user_id', userId)
+    .contains('themes', [theme])
+    .order('dream_date', { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+}
+
+// =============================================
+// MEDITATIONS STORAGE HELPERS (Private bucket)
+// =============================================
+
+/**
+ * Récupère une URL signée temporaire pour accéder à un fichier audio privé
+ * L'URL expire après 1 heure pour des raisons de sécurité
+ *
+ * @param {string} userId - ID de l'utilisateur
+ * @param {string} fileName - Nom du fichier (ex: 'liberation-transgenerationnelle.mp3')
+ * @returns {Promise<string|null>} URL signée ou null si erreur
+ */
+export async function getMeditationSignedUrl(userId, fileName) {
+  const filePath = `${userId}/${fileName}`;
+
+  const { data, error } = await supabase
+    .storage
+    .from('meditations')
+    .createSignedUrl(filePath, 3600); // 1 heure d'expiration
+
+  if (error) {
+    console.error('Erreur récupération URL méditation:', error);
+    return null;
+  }
+
+  return data?.signedUrl || null;
+}
+
+/**
+ * Liste les méditations disponibles pour un utilisateur
+ *
+ * @param {string} userId - ID de l'utilisateur
+ * @returns {Promise<Array>} Liste des fichiers
+ */
+export async function listUserMeditations(userId) {
+  const { data, error } = await supabase
+    .storage
+    .from('meditations')
+    .list(userId, {
+      limit: 100,
+      sortBy: { column: 'created_at', order: 'desc' }
+    });
+
+  if (error) {
+    console.error('Erreur liste méditations:', error);
+    return [];
+  }
+
+  return data || [];
+}
+
+/**
+ * Upload une méditation pour un utilisateur (admin seulement via dashboard Supabase)
+ * Cette fonction est documentée mais l'upload se fait manuellement via Supabase Dashboard
+ * pour les fichiers personnalisés de chaque utilisateur.
+ *
+ * Structure du bucket: meditations/{user_id}/{filename}.mp3
+ */

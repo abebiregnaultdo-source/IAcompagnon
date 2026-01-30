@@ -382,11 +382,14 @@ async def generate(req: GenerateRequest):
     if req.profile.get('user_id_hash'):
         req.policy['user_id_hash'] = req.profile.get('user_id_hash')
 
+    # Récupérer le profil étendu (spirituel, transgénérationnel, etc.)
+    extended_profile = req.profile.get('extended_profile')
+
     # === CAS SPÉCIAL: Message de bienvenue (premier contact) ===
     is_welcome = req.policy.get('is_welcome', False) or req.profile.get('is_first_message', False)
     if is_welcome and len(req.messages) == 0:
-        # Générer un message d'accueil personnalisé via RAG
-        welcome_text = engine.generate_welcome_message(user_name, user_state)
+        # Générer un message d'accueil personnalisé (avec profil étendu si disponible)
+        welcome_text = engine.generate_welcome_message(user_name, user_state, extended_profile)
         return {
             'text': welcome_text,
             'intention_id': 'welcome',
@@ -395,7 +398,8 @@ async def generate(req: GenerateRequest):
             'prompt_used': None,
             'model_used': None,
             'emotion_context': None,
-            'rag_info': {'protocol_id': 'welcome', 'source': 'welcome'}
+            'rag_info': {'protocol_id': 'welcome', 'source': 'welcome'},
+            'has_extended_profile': extended_profile is not None
         }
 
     # IMPORTANT: Passer les messages au pipeline pour le RAG vectoriel
@@ -492,7 +496,7 @@ async def generate(req: GenerateRequest):
         'emotion_analysis': emotion_analysis
     }
 
-    out = engine.run_pipeline(user_state, req.policy)
+    out = engine.run_pipeline(user_state, req.policy, extended_profile)
 
     # Supervision clinique: alerte 3114 si détresse élevée (fallback passif)
     alert_prefix = None

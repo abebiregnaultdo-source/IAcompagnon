@@ -171,7 +171,8 @@ export default function Chat({
             profile: {
               first_name: user.first_name,
               user_id_hash: user.id,
-              is_first_message: true
+              is_first_message: true,
+              extended_profile: user.extended_profile || null
             },
             policy: {
               tone: user.tone || "neutre",
@@ -256,7 +257,11 @@ export default function Chat({
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           messages: newMsgs.map((m) => ({ role: m.role, content: m.content })),
-          profile: { first_name: user.first_name, user_id_hash: user.id },
+          profile: {
+            first_name: user.first_name,
+            user_id_hash: user.id,
+            extended_profile: user.extended_profile || null
+          },
           policy: { tone: user.tone || "neutre", phase: scores.phase, scores },
         }),
       });

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Logo from "./components/Logo";
 import Button from "./components/Button";
 import UserMenu from "./components/UserMenu";
 import SubscriptionBanner from "./components/SubscriptionBanner";
+import MantrasQuickAccess from "./components/MantrasQuickAccess";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 
 /**
@@ -16,9 +18,14 @@ export default function Home({
   onOpenSettings,
   onOpenResources,
   onOpenCreativity,
+  onOpenDreams,
+  onOpenSpiritualProfile,
   onLogout,
 }) {
   const device = useDeviceDetection();
+  const [showMantras, setShowMantras] = useState(false);
+  const hasMantras = user?.extended_profile?.mantras?.length > 0;
+  const hasExtendedProfile = user?.extended_profile != null;
 
   return (
     <div
@@ -219,7 +226,93 @@ export default function Home({
           >
             🎨 Créativité
           </button>
+
+          <button
+            onClick={onOpenDreams}
+            style={{
+              padding: "var(--space-lg)",
+              background: "var(--color-surface-1)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-md)",
+              cursor: "pointer",
+              textAlign: "center",
+              transition: "var(--transition-fast)",
+              fontSize: "var(--font-size-md)",
+              color: "var(--color-text-primary)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--color-surface-2)";
+              e.currentTarget.style.borderColor = "var(--color-primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--color-surface-1)";
+              e.currentTarget.style.borderColor = "var(--color-border)";
+            }}
+          >
+            🌙 Journal des Rêves
+          </button>
         </div>
+
+        {/* Accès au profil spirituel (si disponible) */}
+        {hasExtendedProfile && (
+          <div style={{ marginBottom: "var(--space-lg)" }}>
+            <button
+              onClick={onOpenSpiritualProfile}
+              style={{
+                width: "100%",
+                padding: "var(--space-md)",
+                background: "linear-gradient(135deg, rgba(123, 168, 192, 0.1), rgba(138, 186, 168, 0.1))",
+                border: "1px dashed var(--color-primary)",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                textAlign: "center",
+                fontSize: "var(--font-size-md)",
+                color: "var(--color-primary)",
+                transition: "var(--transition-fast)",
+                marginBottom: "var(--space-sm)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.2), rgba(138, 186, 168, 0.2))";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.1), rgba(138, 186, 168, 0.1))";
+              }}
+            >
+              🔮 Mon Profil Spirituel
+            </button>
+
+            {/* Accès rapide aux mantras */}
+            {hasMantras && (
+              <button
+                onClick={() => setShowMantras(true)}
+                style={{
+                  width: "100%",
+                  padding: "var(--space-sm)",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  textAlign: "center",
+                  fontSize: "var(--font-size-sm)",
+                  color: "var(--color-text-secondary)",
+                  transition: "var(--transition-fast)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = "var(--color-primary)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = "var(--color-text-secondary)";
+                }}
+              >
+                ✨ Accès rapide : Mes Mantras
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Modal Mantras */}
+        {showMantras && (
+          <MantrasQuickAccess user={user} onClose={() => setShowMantras(false)} />
+        )}
 
         {/* Footer avec déconnexion */}
         <div style={{ paddingTop: "var(--space-lg)", borderTop: "1px solid var(--color-border)" }}>

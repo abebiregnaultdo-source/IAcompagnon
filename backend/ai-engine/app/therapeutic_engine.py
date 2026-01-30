@@ -269,7 +269,8 @@ class TherapeuticEngine:
         user_message: str,
         conversation_history: List[Dict[str, str]],
         user_name: str = "ami",
-        user_state: Optional[Dict[str, Any]] = None
+        user_state: Optional[Dict[str, Any]] = None,
+        extended_profile: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Génère une réponse thérapeutique.
@@ -279,6 +280,7 @@ class TherapeuticEngine:
             conversation_history: L'historique complet de la conversation
             user_name: Le prénom de l'utilisateur
             user_state: État émotionnel optionnel (détresse, espoir, énergie)
+            extended_profile: Profil étendu (spirituel, transgénérationnel, numérologie, etc.)
 
         Returns:
             Dict avec 'text', 'crisis_detected', 'technique_used'
@@ -294,8 +296,8 @@ class TherapeuticEngine:
                 'model_used': 'crisis_protocol'
             }
 
-        # 2. Construire le prompt personnalisé
-        system_prompt = self._build_system_prompt(user_name, user_state)
+        # 2. Construire le prompt personnalisé (avec profil étendu si disponible)
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile)
 
         # 3. Construire les messages (historique + nouveau message)
         messages = list(conversation_history)  # Copie
@@ -322,7 +324,12 @@ class TherapeuticEngine:
             'model_used': 'claude-3-5-sonnet'
         }
 
-    def _build_system_prompt(self, user_name: str, user_state: Optional[Dict] = None) -> str:
+    def _build_system_prompt(
+        self,
+        user_name: str,
+        user_state: Optional[Dict] = None,
+        extended_profile: Optional[Dict] = None
+    ) -> str:
         """Construit le prompt système personnalisé."""
         prompt = THERAPEUTIC_SYSTEM_PROMPT
 
@@ -346,13 +353,102 @@ class TherapeuticEngine:
             elif energie < 30:
                 context_lines.append("\n💤 Énergie basse - Réponses courtes, pas de demandes d'efforts.")
 
+        # Intégrer le profil étendu (spirituel/transgénérationnel) si disponible
+        if extended_profile:
+            context_lines.append("\n## PROFIL APPROFONDI DE L'UTILISATEUR")
+
+            # Identité et lignées
+            if 'identite' in extended_profile:
+                identite = extended_profile['identite']
+                if 'prenoms_complets' in identite:
+                    trad = identite['prenoms_complets'].get('traditionnel')
+                    if trad:
+                        context_lines.append(f"- Nom traditionnel: {trad}")
+
+            if 'lignees' in extended_profile:
+                lignees = extended_profile['lignees']
+                if 'paternelle' in lignees:
+                    pat = lignees['paternelle']
+                    context_lines.append(f"- Lignée paternelle: {pat.get('nom', '')} ({pat.get('origine', '')})")
+                if 'maternelle' in lignees:
+                    mat = lignees['maternelle']
+                    context_lines.append(f"- Lignée maternelle: {mat.get('nom_officiel', '')} - {mat.get('statut', '')}")
+
+            # Thèmes thérapeutiques
+            if 'themes_therapeutiques' in extended_profile:
+                themes = extended_profile['themes_therapeutiques']
+                if 'lecon_centrale' in themes:
+                    context_lines.append(f"\n### LEÇON DE VIE CENTRALE")
+                    context_lines.append(f"{themes['lecon_centrale']}")
+                if 'patterns' in themes:
+                    context_lines.append(f"\n### PATTERNS IDENTIFIÉS")
+                    for p in themes['patterns']:
+                        context_lines.append(f"- {p}")
+                if 'croyances_limitantes' in themes:
+                    context_lines.append(f"\n### CROYANCES LIMITANTES À TRANSFORMER")
+                    for c in themes['croyances_limitantes']:
+                        context_lines.append(f"- \"{c}\"")
+                if 'ressources' in themes:
+                    context_lines.append(f"\n### RESSOURCES INTÉRIEURES")
+                    for r in themes['ressources']:
+                        context_lines.append(f"- {r}")
+
+            # Message central
+            if 'message_central' in extended_profile:
+                context_lines.append(f"\n### MESSAGE CENTRAL POUR CETTE PERSONNE")
+                context_lines.append(f"\"{extended_profile['message_central']}\"")
+
+            # Mantras personnels
+            if 'mantras' in extended_profile:
+                context_lines.append(f"\n### MANTRAS PERSONNELS (à rappeler si pertinent)")
+                for m in extended_profile['mantras'][:3]:  # Les 3 premiers
+                    context_lines.append(f"- \"{m}\"")
+
+            # Numérologie
+            if 'numerologie' in extended_profile:
+                num = extended_profile['numerologie']
+                if 'chemin_signification' in num:
+                    context_lines.append(f"\n### GUIDANCE NUMÉROLOGIQUE")
+                    context_lines.append(f"- Chemin de vie: {num.get('chemin_signification', '')}")
+
+            # Fâ (divination béninoise)
+            if 'fa_divination' in extended_profile:
+                fa = extended_profile['fa_divination']
+                context_lines.append(f"\n### SIGNE FÂ")
+                context_lines.append(f"- Signe: {fa.get('signe', '')}")
+                context_lines.append(f"- Signification: {fa.get('signification', '')}")
+
+            # Instructions spéciales pour l'IA
+            context_lines.append(f"\n### INSTRUCTIONS SPÉCIALES")
+            context_lines.append("- Évite le mot 'lutte' ou 'lutter' (l'inconscient entend le mot)")
+            context_lines.append("- Privilégie les formulations orientées vers 'recevoir' plutôt que 'forcer'")
+            context_lines.append("- Si elle parle de difficulté à lâcher prise, rappelle doucement sa leçon centrale")
+            context_lines.append("- Tu peux mentionner ses mantras quand c'est pertinent")
+
         prompt += "\n".join(context_lines)
         return prompt
 
-    def generate_welcome_message(self, user_name: str, user_state: Optional[Dict] = None) -> str:
+    def generate_welcome_message(
+        self,
+        user_name: str,
+        user_state: Optional[Dict] = None,
+        extended_profile: Optional[Dict] = None
+    ) -> str:
         """Génère un message d'accueil personnalisé."""
-        system_prompt = self._build_system_prompt(user_name, user_state)
-        system_prompt += "\n\n## INSTRUCTION SPÉCIALE\nC'est le PREMIER message de la conversation. Accueille chaleureusement l'utilisateur, présente-toi brièvement, et invite-le à partager ce qu'il souhaite. Sois bref (2-3 phrases)."
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile)
+
+        # Instruction spéciale pour le message d'accueil
+        welcome_instruction = "\n\n## INSTRUCTION SPÉCIALE\nC'est le PREMIER message de la conversation. Accueille chaleureusement l'utilisateur, présente-toi brièvement, et invite-le à partager ce qu'il souhaite. Sois bref (2-3 phrases)."
+
+        # Si profil étendu disponible, personnaliser davantage
+        if extended_profile:
+            nom_trad = None
+            if 'identite' in extended_profile and 'prenoms_complets' in extended_profile['identite']:
+                nom_trad = extended_profile['identite']['prenoms_complets'].get('traditionnel')
+            if nom_trad:
+                welcome_instruction += f"\nTu peux utiliser son prénom usuel ({user_name}) ou son nom traditionnel ({nom_trad}) si tu le sens approprié."
+
+        system_prompt += welcome_instruction
 
         welcome = self.llm.generate(
             system_prompt=system_prompt,
@@ -395,9 +491,14 @@ class TherapeuticEngine:
     # MÉTHODES DE COMPATIBILITÉ (pour main.py existant)
     # ========================================================================
 
-    def run_pipeline(self, user_state: Dict[str, Any], policy: Dict[str, Any]) -> Dict[str, Any]:
+    def run_pipeline(self, user_state: Dict[str, Any], policy: Dict[str, Any], extended_profile: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Point d'entrée compatible avec l'ancien code.
+
+        Args:
+            user_state: État émotionnel de l'utilisateur
+            policy: Politique de conversation (inclut l'historique)
+            extended_profile: Profil étendu (spirituel, transgénérationnel, numérologie, etc.)
         """
         user_name = user_state.get('user_name', 'ami')
 
@@ -412,12 +513,13 @@ class TherapeuticEngine:
                 last_user_message = msg.get('content', '')
                 break
 
-        # Générer la réponse
+        # Générer la réponse (avec profil étendu si disponible)
         result = self.generate_response(
             user_message=last_user_message,
             conversation_history=messages,
             user_name=user_name,
-            user_state=user_state
+            user_state=user_state,
+            extended_profile=extended_profile
         )
 
         # Format de retour compatible

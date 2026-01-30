@@ -10,6 +10,8 @@ import CrisisDemo from "./CrisisDemo";
 import Resources from "./Resources";
 import Library from "./Library";
 import Creativity from "./Creativity";
+import DreamJournal from "./DreamJournal";
+import SpiritualProfile from "./SpiritualProfile";
 import { Dashboard } from "./Dashboard";
 import Pricing from "./Pricing";
 import CGV from "./legal/CGV";
@@ -78,6 +80,8 @@ export default function App() {
   const [resourcesPage, setResourcesPage] = useState("home");
   const [showLibrary, setShowLibrary] = useState(false);
   const [showCreativity, setShowCreativity] = useState(false);
+  const [showDreams, setShowDreams] = useState(false);
+  const [showSpiritualProfile, setShowSpiritualProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
@@ -167,6 +171,8 @@ export default function App() {
         showDashboard ||
         showLibrary ||
         showCreativity ||
+        showDreams ||
+        showSpiritualProfile ||
         showResources ||
         showPricing ||
         showLegalPage;
@@ -382,6 +388,14 @@ export default function App() {
             setShowHome(false);
             setShowCreativity(true);
           }}
+          onOpenDreams={() => {
+            setShowHome(false);
+            setShowDreams(true);
+          }}
+          onOpenSpiritualProfile={() => {
+            setShowHome(false);
+            setShowSpiritualProfile(true);
+          }}
           onLogout={async () => {
             // Déconnecter de Supabase
             await signOut();
@@ -396,6 +410,8 @@ export default function App() {
             setShowDashboard(false);
             setShowLibrary(false);
             setShowCreativity(false);
+            setShowDreams(false);
+            setShowSpiritualProfile(false);
             setShowResources(false);
             setShowPricing(false);
             setShowLegalPage(null);
@@ -507,6 +523,8 @@ export default function App() {
               setShowDashboard(false);
               setShowLibrary(false);
               setShowCreativity(false);
+              setShowDreams(false);
+              setShowSpiritualProfile(false);
               setShowResources(false);
               setShowPricing(false);
               setShowLegalPage(null);
@@ -564,6 +582,8 @@ export default function App() {
               setShowDashboard(false);
               setShowLibrary(false);
               setShowCreativity(false);
+              setShowDreams(false);
+              setShowSpiritualProfile(false);
               setShowResources(false);
               setShowPricing(false);
               setShowLegalPage(null);
@@ -599,6 +619,36 @@ export default function App() {
           api={api}
           onBackToHome={() => {
             setShowCreativity(false);
+            setShowHome(true);
+          }}
+        />
+      </EmotionalFeedback>
+    );
+  }
+
+  // Afficher le journal des rêves si demandé
+  if (showDreams) {
+    return (
+      <EmotionalFeedback state="calm">
+        <DreamJournal
+          user={user}
+          onBack={() => {
+            setShowDreams(false);
+            setShowHome(true);
+          }}
+        />
+      </EmotionalFeedback>
+    );
+  }
+
+  // Afficher le profil spirituel si demandé
+  if (showSpiritualProfile) {
+    return (
+      <EmotionalFeedback state="calm">
+        <SpiritualProfile
+          user={user}
+          onBack={() => {
+            setShowSpiritualProfile(false);
             setShowHome(true);
           }}
         />
