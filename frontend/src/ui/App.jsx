@@ -97,31 +97,8 @@ export default function App() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
 
-        // MODE DEV TEMPORAIRE : Connexion automatique pour Christelle
-        const devMode = !session?.user;
-        const devUserId = 'fac92d81-7df0-48d9-bc3e-694e8a140f5f';
-
-        if (devMode) {
-          console.log('[HELO] Mode dev: connexion automatique');
-          const profile = await getProfile(devUserId);
-          console.log('[HELO] Dev mode - Profile loaded:', profile);
-          console.log('[HELO] Dev mode - Extended profile:', profile?.extended_profile);
-          const userData = {
-            id: devUserId,
-            email: 'christelle@test.com',
-            first_name: profile?.first_name || 'Christelle',
-            onboarding_completed: true,
-            preferences: profile?.preferences || {},
-            ...profile,
-          };
-          console.log('[HELO] Dev mode - User data:', userData);
-          setUser(userData);
-          setShowLanding(false);
-          setShowAuth(false);
-          setShowHome(true);
-          setIsLoadingSession(false);
-          return;
-        }
+        // Mode dev désactivé - utiliser l'auth normale
+        // Pour tester en local : se connecter avec un compte Supabase
 
         if (session?.user) {
           const profile = await getProfile(session.user.id);
