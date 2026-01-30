@@ -497,6 +497,166 @@ export default function Library({ onBackToHome }) {
       url: "https://www.youtube.com/watch?v=mPZkdNFkNps",
       tags: ["nature", "sommeil", "pluie"],
     },
+
+    // ============================================================
+    // TRANSGÉNÉRATIONNEL & ENFANT INTÉRIEUR
+    // ============================================================
+    {
+      id: 70,
+      category: "transgen",
+      title: "Aïe, mes aïeux !",
+      author: "Anne Ancelin Schützenberger",
+      description:
+        "Le livre fondateur sur la psychogénéalogie. Comment les traumatismes se transmettent de génération en génération.",
+      synopsis:
+        "Anne Ancelin Schützenberger montre comment nos problèmes actuels peuvent être liés à des événements vécus par nos ancêtres : deuils non faits, secrets de famille, injustices. Elle propose des outils pour identifier ces héritages invisibles et s'en libérer.",
+      pourquoi_le_lire:
+        "Pour comprendre les liens entre ton histoire familiale et tes blocages actuels. Essentiel si tu sens que tu 'portes' quelque chose qui ne t'appartient pas.",
+      type: "Livre",
+      url: null,
+      tags: ["transgénérationnel", "psychogénéalogie", "famille"],
+    },
+    {
+      id: 71,
+      category: "transgen",
+      title: "Ces enfants malades de leurs parents",
+      author: "Anne Ancelin Schützenberger",
+      description:
+        "Comment les maladies et les accidents peuvent être liés à l'histoire familiale. Approche psychosomatique transgénérationnelle.",
+      type: "Livre",
+      url: null,
+      tags: ["transgénérationnel", "psychosomatique", "famille"],
+    },
+    {
+      id: 72,
+      category: "transgen",
+      title: "Retrouver l'enfant en soi",
+      author: "John Bradshaw",
+      description:
+        "Comment guérir les blessures de l'enfance pour vivre pleinement adulte. Exercices pratiques de reparentage.",
+      synopsis:
+        "John Bradshaw explique comment les blessures d'enfance (abandon, rejet, humiliation, injustice, trahison) continuent d'affecter notre vie adulte. Il propose un processus de guérison pour retrouver et consoler notre enfant intérieur blessé.",
+      pourquoi_le_lire:
+        "Si tu sens que des réactions émotionnelles te 'dépassent', ou si tu veux comprendre pourquoi certains schémas se répètent dans ta vie.",
+      type: "Livre",
+      url: null,
+      tags: ["enfant intérieur", "blessures", "guérison"],
+    },
+    {
+      id: 73,
+      category: "transgen",
+      title: "Le syndrome du jumeau perdu",
+      author: "Alfred et Bettina Austermann",
+      description:
+        "Sur les jumeaux perdus in utero et leur impact psychologique sur le survivant. Un sujet méconnu mais fréquent.",
+      type: "Livre",
+      url: null,
+      tags: ["jumeau perdu", "grossesse", "deuil périnatal"],
+    },
+
+    // ============================================================
+    // LÂCHER PRISE & SPIRITUALITÉ
+    // ============================================================
+    {
+      id: 74,
+      category: "spirituel",
+      title: "Le pouvoir du moment présent",
+      author: "Eckhart Tolle",
+      description:
+        "Best-seller mondial sur la présence et le lâcher prise. Comment se libérer du mental et vivre l'instant.",
+      synopsis:
+        "Eckhart Tolle enseigne comment sortir de l'identification au mental, source de souffrance. Il montre que le 'moment présent' est la seule réalité, et que s'y ancrer libère de l'anxiété et de la dépression.",
+      pourquoi_le_lire:
+        "Si tu as du mal à lâcher prise, si ton mental tourne en boucle, ou si tu veux découvrir une approche spirituelle accessible.",
+      type: "Livre",
+      url: null,
+      tags: ["présence", "lâcher prise", "spiritualité"],
+    },
+    {
+      id: 75,
+      category: "spirituel",
+      title: "Lâcher prise",
+      author: "Guy Finley",
+      description:
+        "Comment se libérer de ce qui nous retient : peurs, colère, ressentiments. Approche pratique et spirituelle.",
+      type: "Livre",
+      url: null,
+      tags: ["lâcher prise", "libération", "spiritualité"],
+    },
+
+    // ============================================================
+    // HYPNOSE & AUTO-HYPNOSE
+    // ============================================================
+    {
+      id: 76,
+      category: "hypnose",
+      title: "Ma voix t'accompagnera",
+      author: "Milton Erickson",
+      description:
+        "Recueil de contes thérapeutiques du père de l'hypnose moderne. Histoires à lire avant de dormir.",
+      type: "Livre",
+      url: null,
+      tags: ["hypnose", "contes", "Erickson"],
+    },
+    {
+      id: 77,
+      category: "hypnose",
+      title: "L'auto-hypnose",
+      author: "Kévin Finel",
+      description:
+        "Guide pratique d'auto-hypnose par le fondateur d'ARCHE. Techniques accessibles pour débutants.",
+      type: "Livre",
+      url: null,
+      tags: ["auto-hypnose", "pratique", "ARCHE"],
+    },
+
+    // ============================================================
+    // FÂ & TRADITIONS AFRICAINES
+    // ============================================================
+    {
+      id: 78,
+      category: "traditions",
+      title: "Le Fa, une géomancie divinatoire du Golfe du Bénin",
+      author: "Bernard Maupoil",
+      description:
+        "Référence académique sur le Fâ béninois. Étude ethnographique complète du système de divination.",
+      type: "Livre académique",
+      url: null,
+      tags: ["Fâ", "Bénin", "divination", "ethnographie"],
+    },
+    {
+      id: 79,
+      category: "traditions",
+      title: "Ifá Divination",
+      author: "William Bascom",
+      description:
+        "Communication between Gods and Men in West Africa. Étude de l'Ifá chez les Yoruba du Nigeria.",
+      type: "Livre académique (anglais)",
+      url: null,
+      tags: ["Ifá", "Yoruba", "Nigeria", "divination"],
+    },
+    {
+      id: 80,
+      category: "traditions",
+      title: "Les Agudas",
+      author: "Milton Guran",
+      description:
+        "Histoire des Afro-Brésiliens du Bénin et du Togo. Descendants d'esclaves revenus d'Amérique.",
+      type: "Livre historique",
+      url: null,
+      tags: ["Aguda", "Brésil", "Bénin", "histoire"],
+    },
+    {
+      id: 81,
+      category: "traditions",
+      title: "Racines",
+      author: "Alex Haley",
+      description:
+        "Roman historique sur les origines africaines et l'esclavage. Quête identitaire d'un Afro-Américain.",
+      type: "Roman",
+      url: null,
+      tags: ["Afrique", "esclavage", "identité", "Gambie"],
+    },
   ];
 
   const categories = [
@@ -505,6 +665,10 @@ export default function Library({ onBackToHome }) {
     { id: "aide", label: "Aide" },
     { id: "outil", label: "Outils" },
     { id: "livre", label: "Livres" },
+    { id: "transgen", label: "Transgénérationnel" },
+    { id: "spirituel", label: "Spiritualité" },
+    { id: "hypnose", label: "Hypnose" },
+    { id: "traditions", label: "Traditions africaines" },
     { id: "article", label: "Articles" },
     { id: "podcast", label: "Podcasts" },
     { id: "video", label: "Vidéos" },
