@@ -1,0 +1,126 @@
+{
+  "user_id": "fac92d81-7df0-48d9-bc3e-694e8a140f5f",
+  "session_date": "2026-01-30",
+  "session_type": "deep_exploration",
+  "duration_approx": "plusieurs heures",
+
+  "themes_explores": [
+    {
+      "theme": "Analyse session thérapeutique",
+      "contenu": "Analyse d'une session d'hypnothérapie avec Séverine, identification des éléments manquants pour une vraie régression"
+    },
+    {
+      "theme": "Création scripts hypnose personnalisés",
+      "contenu": "Script régression profonde (croyances, scène fondatrice, enfant intérieur) + Script libération transgénérationnelle (ancêtres, fardeaux, bénédiction)"
+    },
+    {
+      "theme": "Numérologie complète",
+      "contenu": "Chemin de Vie 2, Expression 11 (naissance) et 6 (actuel), Année Personnelle 3 (2026), chiffres porte-bonheur"
+    },
+    {
+      "theme": "Thème astral karmique",
+      "contenu": "Soleil Lion, Lune Bélier, Ascendant Cancer, Nœud Nord Verseau Maison 8 = apprendre à recevoir"
+    },
+    {
+      "theme": "Fâ - Divination béninoise",
+      "contenu": "Signe Abla Ho-Ka (118) = 'Celle qui tape d'un seul coup et reçoit'"
+    },
+    {
+      "theme": "Origines et lignées",
+      "contenu": "Lignée paternelle Aguda (do Rego), lignée maternelle royale Yoruba Omô Oba Oyô (Sindikou-Chitou/Adjilèyè), descendance Oduduwa"
+    },
+    {
+      "theme": "Prénoms et identité",
+      "contenu": "Analyse des prénoms (Inès rejeté, Adjokè = 'celle qui reçoit l'amour', AZIZET = nom myènè gabonais stratégique)"
+    },
+    {
+      "theme": "Grand-mère ange gardien",
+      "contenu": "Mamie Mariama Tidjani, née Akogbeto Houévo"
+    }
+  ],
+
+  "revelations_cles": [
+    {
+      "revelation": "Toutes les sources convergent vers le même message",
+      "detail": "Numérologie (2), Astrologie (Nœud Nord M8), Fâ (Abla Ho-Ka), Nom (Adjokè) = RECEVOIR au lieu de forcer"
+    },
+    {
+      "revelation": "Lignée royale oubliée",
+      "detail": "Descendante des rois d'Oyo (Omô Oba Oyô), Oduduwa non honoré, déconnexion ancestrale"
+    },
+    {
+      "revelation": "Rejet de tous ses prénoms",
+      "detail": "N'aime aucun de ses prénoms (Faoziath, Christelle, Inès, même Adjokè au début) = possible sentiment de non-légitimité"
+    },
+    {
+      "revelation": "2025 année difficile expliquée",
+      "detail": "Année Personnelle 2 (gestation, patience) vécue avec perte de bébé et maladie = conflit entre l'énergie de l'année et les épreuves"
+    }
+  ],
+
+  "patterns_identifies": [
+    "Forcer là où elle devrait recevoir",
+    "Difficulté à lâcher prise (ne peut pas quitter le PC)",
+    "Impatience (alors que Chemin de Vie = patience)",
+    "Porter ce qui ne lui appartient pas (transgénérationnel)",
+    "Minimiser ses origines royales"
+  ],
+
+  "ressources_creees": [
+    {
+      "type": "script_hypnose",
+      "nom": "Script régression profonde",
+      "fichier": "script_regression_profonde_complet.txt",
+      "objectif": "Libérer croyances limitantes, trouver scène fondatrice"
+    },
+    {
+      "type": "script_hypnose",
+      "nom": "Script libération transgénérationnelle",
+      "fichier": "script_liberation_transgenerationnelle.txt",
+      "objectif": "Rencontrer ancêtres (Agudas, Omô Oba Oyô, Oduduwa, Mamie), rendre fardeaux, recevoir bénédiction"
+    },
+    {
+      "type": "programme",
+      "nom": "Programme TRIPP Kōkua",
+      "fichier": "programme_tripp_kokua.txt",
+      "objectif": "Routine quotidienne/hebdomadaire VR"
+    },
+    {
+      "type": "profil_complet",
+      "nom": "Profil étendu",
+      "fichier": "profil_christelle.json",
+      "objectif": "Toutes les données numérologie, astro, Fâ, lignées"
+    }
+  ],
+
+  "mantras_valides": [
+    "Je crée. Je reçois. Facilement.",
+    "Je lâche. Je laisse venir.",
+    "Ce que je crée se concrétise.",
+    "J'ai le droit de recevoir.",
+    "Mon corps sait. Mon esprit sait. Je leur fais confiance.",
+    "Je suis Omô Oba Oyô. Je suis Adjokè. Je reçois ce qui me revient de droit.",
+    "Je suis Abla Ho-Ka. Quand je suis alignée, ça vient d'un coup."
+  ],
+
+  "reves_rapportes": [
+    {
+      "date": "2026-01-30",
+      "contenu": "Salle de classe, foule à photographier, impossible de placer tout le monde, peur qu'il manque quelqu'un",
+      "interpretation": "Lien avec travail transgénérationnel - placer tous les ancêtres, peur d'en oublier"
+    }
+  ],
+
+  "prochaines_etapes_suggerees": [
+    "Faire le script transgénérationnel (attendre 2-3 jours avant régression)",
+    "Poser questions à la famille (qui a choisi Inès? AZIZET signifie quoi en myènè? Grand-père a créé SINDIKOU?)",
+    "Honorer Oduduwa et les ancêtres",
+    "Pratiquer les mantras quotidiennement"
+  ],
+
+  "elements_a_integrer_script": [
+    "Agudas (remerciement direct pour avoir traversé l'esclavage)",
+    "Abla Ho-Ka (ancrage Fâ)",
+    "Mamie Mariama Tidjani (ange gardien, moment intime)"
+  ]
+}

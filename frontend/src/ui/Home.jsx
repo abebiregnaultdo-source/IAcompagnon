@@ -25,7 +25,8 @@ export default function Home({
   const device = useDeviceDetection();
   const [showMantras, setShowMantras] = useState(false);
   const hasMantras = user?.extended_profile?.mantras?.length > 0;
-  const hasExtendedProfile = user?.extended_profile != null;
+  // Toujours afficher le profil spirituel - les données peuvent être chargées depuis Supabase
+  const hasExtendedProfile = true;
 
   return (
     <div

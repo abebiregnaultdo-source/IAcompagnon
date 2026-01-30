@@ -480,15 +480,19 @@ function MeditationsTab({ profile, userId }) {
 
       if (signedUrl) {
         setAudioUrls(prev => ({ ...prev, [index]: signedUrl }));
-        // Attendre que l'audio soit chargé avant de jouer
-        setTimeout(() => playAudio(index), 100);
+        // Attendre que le DOM soit mis à jour avec la nouvelle URL
+        // puis playAudio gèrera l'attente du chargement
+        setTimeout(() => {
+          playAudio(index);
+          setLoadingAudio(prev => ({ ...prev, [index]: false }));
+        }, 200);
       } else {
-        alert("Cette méditation n'est pas encore disponible dans ton espace privé. Contacte le support pour l'activer.");
+        alert("Cette méditation n'est pas encore disponible dans ton espace privé.\n\nAs-tu bien uploadé les fichiers dans Supabase Storage ?\nChemin: meditations/" + userId + "/" + meditation.fileName);
+        setLoadingAudio(prev => ({ ...prev, [index]: false }));
       }
     } catch (error) {
       console.error("Erreur chargement audio:", error);
-      alert("Erreur lors du chargement de l'audio. Réessaie plus tard.");
-    } finally {
+      alert("Erreur lors du chargement de l'audio: " + error.message);
       setLoadingAudio(prev => ({ ...prev, [index]: false }));
     }
   };
@@ -499,8 +503,32 @@ function MeditationsTab({ profile, userId }) {
 
     const audio = document.getElementById(`audio-${index}`);
     if (audio) {
-      audio.play();
-      setPlayingIndex(index);
+      // Pour les gros fichiers, on commence à jouer dès que possible (streaming)
+      audio.play()
+        .then(() => {
+          setPlayingIndex(index);
+          setLoadingAudio(prev => ({ ...prev, [index]: false }));
+        })
+        .catch(err => {
+          console.error("Erreur lecture audio:", err);
+          // Si l'audio n'est pas encore prêt, attendre un peu
+          if (err.name === 'NotAllowedError') {
+            alert("Clique à nouveau pour lancer la lecture (restriction navigateur).");
+          } else {
+            // Réessayer après un court délai
+            setTimeout(() => {
+              audio.play()
+                .then(() => {
+                  setPlayingIndex(index);
+                  setLoadingAudio(prev => ({ ...prev, [index]: false }));
+                })
+                .catch(() => {
+                  alert("Le fichier est en cours de chargement. Réessaie dans quelques secondes.");
+                  setLoadingAudio(prev => ({ ...prev, [index]: false }));
+                });
+            }, 1000);
+          }
+        });
     }
   };
 
@@ -557,6 +585,17 @@ function MeditationsTab({ profile, userId }) {
                     <audio
                       id={`audio-${index}`}
                       src={audioUrls[index]}
+                      preload="auto"
+                      onLoadedMetadata={(e) => {
+                        // Dès que les métadonnées sont chargées, on peut jouer
+                        setAudioProgress(prev => ({
+                          ...prev,
+                          [index]: {
+                            current: 0,
+                            duration: e.target.duration
+                          }
+                        }));
+                      }}
                       onTimeUpdate={(e) => {
                         setAudioProgress(prev => ({
                           ...prev,
@@ -567,6 +606,10 @@ function MeditationsTab({ profile, userId }) {
                         }));
                       }}
                       onEnded={() => setPlayingIndex(null)}
+                      onError={(e) => {
+                        console.error("Erreur audio:", e);
+                        setLoadingAudio(prev => ({ ...prev, [index]: false }));
+                      }}
                     />
                   )}
                   <button

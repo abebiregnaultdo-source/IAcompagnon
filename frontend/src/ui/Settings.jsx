@@ -11,6 +11,7 @@ import Button from "./components/Button";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
+import { updatePassword } from "../lib/supabase";
 
 /**
  * Page Paramètres Utilisateur
@@ -48,6 +49,13 @@ export default function Settings({
   const [saveMessage, setSaveMessage] = useState("");
   const device = useDeviceDetection();
 
+  // État pour le changement de mot de passe
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMessage, setPasswordMessage] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+
   // Charger le contact de confiance depuis localStorage
   useEffect(() => {
     try {
@@ -76,6 +84,40 @@ export default function Settings({
     } finally {
       setIsSaving(false);
       setTimeout(() => setSaveMessage(""), 3000);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    setPasswordMessage("");
+
+    if (!newPassword.trim()) {
+      setPasswordMessage("Veuillez entrer un nouveau mot de passe");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordMessage("Le mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMessage("Les mots de passe ne correspondent pas");
+      return;
+    }
+
+    setIsChangingPassword(true);
+    try {
+      await updatePassword(newPassword);
+      setPasswordMessage("Mot de passe modifié avec succès !");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowPasswordChange(false);
+      setTimeout(() => setPasswordMessage(""), 3000);
+    } catch (error) {
+      console.error("Password change error:", error);
+      setPasswordMessage("Erreur lors du changement de mot de passe");
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -413,6 +455,110 @@ export default function Settings({
                 <span>Rapide</span>
               </div>
             </div>
+          </Panel>
+
+          {/* Section : Sécurité */}
+          <Panel className="settings-section">
+            <Text as="h2" className="settings-section-title">
+              Sécurité
+            </Text>
+
+            {!showPasswordChange ? (
+              <Button
+                onClick={() => setShowPasswordChange(true)}
+                variant="secondary"
+                style={{ width: "100%" }}
+              >
+                Changer mon mot de passe
+              </Button>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "var(--space-md)",
+                }}
+              >
+                <div className="settings-field">
+                  <label htmlFor="newPassword">Nouveau mot de passe</label>
+                  <input
+                    id="newPassword"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Au moins 6 caractères"
+                    style={{
+                      width: "100%",
+                      padding: "var(--space-sm)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)",
+                      fontSize: "var(--font-size-sm)",
+                      background: "var(--color-surface-1)",
+                    }}
+                  />
+                </div>
+
+                <div className="settings-field">
+                  <label htmlFor="confirmPassword">Confirmer le mot de passe</label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirmez votre mot de passe"
+                    style={{
+                      width: "100%",
+                      padding: "var(--space-sm)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)",
+                      fontSize: "var(--font-size-sm)",
+                      background: "var(--color-surface-1)",
+                    }}
+                  />
+                </div>
+
+                {passwordMessage && (
+                  <div
+                    style={{
+                      padding: "var(--space-sm)",
+                      borderRadius: "var(--radius-md)",
+                      fontSize: "var(--font-size-sm)",
+                      textAlign: "center",
+                      background: passwordMessage.includes("succès")
+                        ? "var(--color-accent-calm)"
+                        : "var(--color-accent-warm)",
+                      color: passwordMessage.includes("succès")
+                        ? "#5B7B6B"
+                        : "#8B6B6B",
+                    }}
+                  >
+                    {passwordMessage}
+                  </div>
+                )}
+
+                <div style={{ display: "flex", gap: "var(--space-md)" }}>
+                  <Button
+                    onClick={handlePasswordChange}
+                    disabled={isChangingPassword}
+                    style={{ flex: 1 }}
+                  >
+                    {isChangingPassword ? "Modification..." : "Confirmer"}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowPasswordChange(false);
+                      setNewPassword("");
+                      setConfirmPassword("");
+                      setPasswordMessage("");
+                    }}
+                    variant="secondary"
+                    style={{ flex: 1 }}
+                  >
+                    Annuler
+                  </Button>
+                </div>
+              </div>
+            )}
           </Panel>
 
           {/* Section 4 : Gestion de l'abonnement */}

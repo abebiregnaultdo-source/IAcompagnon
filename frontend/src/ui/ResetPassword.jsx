@@ -65,16 +65,15 @@ export default function ResetPassword({ onComplete }) {
     setIsLoading(true);
     try {
       await updatePassword(newPassword);
-      setSuccess("Votre mot de passe a été modifié avec succès !");
+      setSuccess("Votre mot de passe a été modifié avec succès ! Connexion en cours...");
 
-      // Rediriger vers la page d'accueil après 2 secondes
+      // Attendre que Supabase mette à jour la session, puis rediriger
+      // La session est déjà active après updatePassword, donc on redirige simplement
       setTimeout(() => {
-        if (onComplete) {
-          onComplete();
-        } else {
-          window.location.href = "/";
-        }
-      }, 2000);
+        // Utiliser window.location.href pour forcer un rechargement complet
+        // L'App.jsx détectera la session active et connectera l'utilisateur
+        window.location.href = "/";
+      }, 1500);
     } catch (err) {
       console.error("Password update error:", err);
       setError("Une erreur est survenue. Le lien a peut-être expiré. Veuillez réessayer.");

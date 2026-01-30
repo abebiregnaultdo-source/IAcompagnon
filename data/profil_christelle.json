@@ -1,0 +1,323 @@
+{
+  "user_id": "christelle_faoziath",
+  "created_at": "2026-01-30",
+  "updated_at": "2026-01-30",
+
+  "identite": {
+    "prenom_usuel": "Christelle",
+    "prenoms_complets": {
+      "naissance": ["Faoziath", "Christelle", "Inès"],
+      "actuel": ["Christelle", "Faoziath"],
+      "traditionnel": "Adjokè"
+    },
+    "nom_famille": {
+      "paternel": "do Rego",
+      "maternel": "Sindikou",
+      "ajoute": "AZIZET"
+    },
+    "nom_complet_actuel": "AZIZET do Rego Christelle Faoziath",
+    "naissance": {
+      "date": "1989-08-21",
+      "heure": "04:25",
+      "lieu": "Libreville, Gabon"
+    }
+  },
+
+  "lignees": {
+    "paternelle": {
+      "nom": "do Rego",
+      "origine": "Aguda",
+      "histoire": "Descendants de Portugais/Brésiliens ou d'esclaves revenus du Brésil, installés au Bénin (Dahomey) au 18ème-19ème siècle",
+      "pays_traverses": ["Portugal/Brésil", "Bénin", "Gabon"]
+    },
+    "maternelle": {
+      "nom_officiel": "Sindikou",
+      "nom_souche": "Chitou",
+      "nom_traditionnel": "Adjilèyè",
+      "origine": "Nigeria (Oyo)",
+      "histoire": "Omô Oba Oyô - Descendants des rois de l'Empire d'Oyo, lignée royale Yoruba descendant d'Oduduwa",
+      "pays_traverses": ["Nigeria (Oyo)", "Niger", "Bénin (Porto-Novo)", "Gabon"],
+      "ancetre_divin": "Oduduwa",
+      "statut": "Lignée royale Yoruba"
+    },
+    "notes": {
+      "grand_pere_maternel": "Musulman, a probablement créé la branche Sindikou au Gabon",
+      "arriere_grand_mere": "Du Niger",
+      "mere": "Née au Gabon"
+    }
+  },
+
+  "famille_proche": {
+    "mere": {
+      "nom": "Sindikou",
+      "prenom_traditionnel_familial": "Adjilèyè"
+    },
+    "grand_mere_maternelle": {
+      "nom": "Mariama Tidjani",
+      "surnom": "Mamie",
+      "lieu_naissance": "Akogbeto Houévo, Akanni",
+      "role_spirituel": "Ange gardien"
+    }
+  },
+
+  "prenoms_analyse": {
+    "Adjoke": {
+      "origine": "Yoruba",
+      "signification": "Celle que l'on chérit ensemble / Celle qui reçoit l'amour",
+      "statut": "Nom royal",
+      "ressenti": "Trouvait 'villageois' mais commence à l'apprécier (donné à sa nièce)"
+    },
+    "Adjileye": {
+      "origine": "Yoruba",
+      "signification": "Probablement lié à honneur/dignité",
+      "statut": "Nom familial traditionnel maternel (Omô Oba Oyô)"
+    },
+    "Ines": {
+      "ressenti": "Rejet viscéral, 'ça sonne pas beau sur moi'",
+      "origine_choix": "Inconnue (peut-être le père)",
+      "histoire": "Retiré des documents quand AZIZET a été ajouté",
+      "analyse_psychogenealogie": "Possible non-dit familial, porteur de quelque chose qui ne lui appartient pas"
+    },
+    "AZIZET": {
+      "origine": "Myènè (gabonais)",
+      "raison": "Donné par sa mère pour l'assimiler aux Gabonais et avoir les avantages locaux",
+      "note": "Nom stratégique, pas un nom de lignée"
+    },
+    "Faoziath": {
+      "ressenti": "N'aimait pas"
+    },
+    "Christelle": {
+      "ressenti": "N'aimait pas non plus",
+      "note": "A inversé l'ordre à la naturalisation (Christelle avant Faoziath) - 'fausse excuse' de facilité de prononciation"
+    }
+  },
+
+  "numerologie": {
+    "chemin_de_vie": {
+      "nombre": 2,
+      "signification": "Coopération, réceptivité, équilibre, patience. Apprendre à recevoir plutôt qu'à forcer seule."
+    },
+    "expression_naissance": {
+      "nombre": 11,
+      "type": "Maître Nombre",
+      "signification": "Intuition, inspiration, sensibilité élevée, potentiel spirituel. Aussi tension nerveuse et doute si mal vécu."
+    },
+    "expression_actuelle": {
+      "nombre": 6,
+      "energie_AZIZET": 33,
+      "signification": "Responsabilité, famille, harmonie, soin des autres. Le 33 (Maître Nombre dans AZIZET) = énergie de guérisseuse/enseignante."
+    },
+    "jour_naissance": {
+      "nombre": 3,
+      "origine": "21 = 2+1 = 3",
+      "signification": "Créativité, communication, expression"
+    },
+    "annee_personnelle_2026": {
+      "nombre": 3,
+      "signification": "Créativité, expression, expansion. Après la gestation du 2 (2025), c'est l'éclosion."
+    },
+    "adjoke_energie": {
+      "nombre": "19/1",
+      "note": "19 = nombre de dette karmique (indépendance), mais comme nom traditionnel = énergie de lignée"
+    },
+    "chiffres_porte_bonheur": [2, 3, 6, 9, 11, 33],
+    "dette_karmique": "Aucune dans les calculs principaux"
+  },
+
+  "astrologie": {
+    "soleil": {
+      "signe": "Lion",
+      "degre": "28°03'",
+      "maison": 2,
+      "signification": "Identité rayonnante, créative, généreuse. En Maison 2: valeurs, ressources, ce que tu construis."
+    },
+    "lune": {
+      "signe": "Bélier",
+      "degre": "22°52'",
+      "maison": 9,
+      "signification": "Émotions impulsives, combatives, besoin d'indépendance. En Maison 9: quête de sens, étranger, spiritualité."
+    },
+    "ascendant": {
+      "signe": "Cancer",
+      "degre": "28°10'",
+      "signification": "Apparence/approche sensible, protectrice, liée à la famille et aux racines."
+    },
+    "milieu_du_ciel": {
+      "signe": "Taureau",
+      "degre": "2°19'",
+      "signification": "Carrière/vocation: construire du concret, de la stabilité, de la beauté."
+    },
+    "noeud_nord": {
+      "signe": "Verseau",
+      "degre": "5°16'",
+      "maison": 8,
+      "signification": "Direction karmique: apprendre le détachement, recevoir des autres, transformation."
+    },
+    "noeud_sud": {
+      "signe": "Lion",
+      "maison": 2,
+      "signification": "Passé karmique: tendance à tout faire seule, ego, indépendance excessive."
+    },
+    "saturne": {
+      "signe": "Capricorne",
+      "maison": 6,
+      "retrograde": true,
+      "signification": "Leçons karmiques sur travail et santé - issues de vies antérieures."
+    },
+    "pluton": {
+      "signe": "Scorpion",
+      "maison": 5,
+      "signification": "Transformation profonde par la créativité et la procréation."
+    }
+  },
+
+  "fa_divination": {
+    "signe": "Abla Ho-Ka",
+    "numero": 118,
+    "famille": "Abla (16ème signe mère)",
+    "signification_litterale": "Abla tape d'un seul coup et reçoit",
+    "message": "Quand tu es alignée, ça vient d'un coup. Pas dans l'effort prolongé mais dans l'alignement.",
+    "element_Ka": "Associé à l'abondance, la richesse, la création matérielle",
+    "source": "Bernard Maupoil, 'La Géomancie à l'ancienne Côte des Esclaves' (1943)"
+  },
+
+  "pierres_associees": [
+    {
+      "pierre": "Péridot",
+      "lien": "Pierre du Lion (Soleil)",
+      "proprietes": "Abondance, guérison émotionnelle, lâcher-prise"
+    },
+    {
+      "pierre": "Cornaline",
+      "lien": "Pierre du Bélier (Lune)",
+      "proprietes": "Fertilité, créativité, vitalité, ancrage"
+    },
+    {
+      "pierre": "Pierre de Lune",
+      "lien": "Pierre du Cancer (Ascendant)",
+      "proprietes": "Féminité, cycles, intuition, réceptivité"
+    }
+  ],
+
+  "themes_therapeutiques": {
+    "lecon_centrale": "Apprendre à recevoir au lieu de forcer",
+    "patterns_identifies": [
+      "Forcer là où elle devrait recevoir",
+      "Tout porter seule",
+      "Difficulté à accepter l'aide",
+      "Rejet de ses propres prénoms/origines",
+      "Difficulté à lâcher prise",
+      "Impatience (alors que le Chemin de Vie enseigne la patience)"
+    ],
+    "croyances_limitantes": [
+      "Ça ne marche pas pour moi",
+      "Je dois me battre pour tout",
+      "Je dois tout faire seule"
+    ],
+    "ressources_interieures": [
+      "Créativité puissante (Lion, Maison 5, jour 21=3)",
+      "Lignée royale (Omô Oba Oyô)",
+      "Signe Fâ favorable (Abla Ho-Ka)",
+      "Ange gardien (Mamie Mariama Tidjani)"
+    ],
+    "contexte_vie": {
+      "pma": true,
+      "perte_bebe_2025": true,
+      "maladie_2025": true,
+      "creation_activite": true
+    }
+  },
+
+  "mantras_personnels": [
+    {
+      "principal": "Je crée. Je reçois. Facilement."
+    },
+    {
+      "contexte": "Quand tu forces",
+      "mantra": "Je lâche. Je laisse venir."
+    },
+    {
+      "contexte": "Quand tu doutes",
+      "mantra": "Ce que je crée se concrétise."
+    },
+    {
+      "contexte": "Quand tu te sens illégitime",
+      "mantra": "J'ai le droit de recevoir."
+    },
+    {
+      "contexte": "Quand c'est dur",
+      "mantra": "Ça vient à moi facilement."
+    },
+    {
+      "contexte": "Peur (PMA ou travail)",
+      "mantra": "Mon corps sait. Mon esprit sait. Je leur fais confiance."
+    },
+    {
+      "contexte": "Alignement lignée",
+      "mantra": "Je suis Omô Oba Oyô. Je suis Adjokè. Je reçois ce qui me revient de droit."
+    },
+    {
+      "contexte": "Alignement Fâ",
+      "mantra": "Je suis Abla Ho-Ka. Quand je suis alignée, ça vient d'un coup."
+    }
+  ],
+
+  "synthese_convergence": {
+    "message_central": "Tu es une créatrice puissante qui a appris à forcer, et ta vie t'enseigne à recevoir.",
+    "sources_convergentes": [
+      {"source": "Numérologie (Chemin 2)", "message": "Recevoir, coopérer"},
+      {"source": "Astrologie (Nœud Nord M8)", "message": "Recevoir des autres"},
+      {"source": "Fâ (Abla Ho-Ka)", "message": "Recevoir d'un coup quand alignée"},
+      {"source": "Nom Adjokè", "message": "Celle qui reçoit l'amour"}
+    ]
+  },
+
+  "accompagnement_preferences": {
+    "approche_recommandee": "exploration_context",
+    "ton": "chaleureux, direct, sans flatterie excessive",
+    "eviter": [
+      "Mot 'lutte' (l'inconscient entend le mot)",
+      "Forcer ou pousser",
+      "Conseils non sollicités",
+      "Wikipedia comme source"
+    ],
+    "techniques_resonantes": [
+      "Hypnose Ericksonienne",
+      "Psychogénéalogie",
+      "Travail transgénérationnel",
+      "Mantras/Affirmations",
+      "Travail sur les lignées"
+    ]
+  },
+
+  "scripts_crees": [
+    {
+      "nom": "Script régression profonde",
+      "fichier": "script_regression_profonde_complet.txt",
+      "duree": "25-35 min",
+      "objectif": "Libérer les croyances limitantes, trouver la scène fondatrice"
+    },
+    {
+      "nom": "Script libération transgénérationnelle",
+      "fichier": "script_liberation_transgenerationnelle.txt",
+      "duree": "30-40 min",
+      "objectif": "Rencontrer les ancêtres, rendre les fardeaux, recevoir la bénédiction",
+      "elements_specifiques": [
+        "Agudas (lignée paternelle)",
+        "Omô Oba Oyô (lignée maternelle royale)",
+        "Oduduwa (ancêtre divin)",
+        "Mamie Mariama Tidjani (ange gardien)",
+        "Abla Ho-Ka (signe Fâ)",
+        "Libération du prénom Inès"
+      ]
+    }
+  ],
+
+  "reves_significatifs": [
+    {
+      "date": "2026-01-30",
+      "contenu": "Salle de classe, foule à photographier, impossible de placer tout le monde, certains partent et il faut réorganiser, peur qu'il manque quelqu'un",
+      "interpretation_possible": "Lien avec le travail transgénérationnel - essayer de 'placer' tous les ancêtres, peur d'en oublier"
+    }
+  ]
+}

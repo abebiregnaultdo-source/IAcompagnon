@@ -11,11 +11,18 @@ export default function SubscriptionBanner({ userId }) {
 
   const fetchStatus = async () => {
     try {
-      const r = await fetch(`/api/subscription/status?user_id=${encodeURIComponent(userId)}`);
+      const r = await fetch(`https://helo-backend.onrender.com/api/subscription/status?user_id=${encodeURIComponent(userId)}`);
+      if (!r.ok) {
+        // Si l'endpoint n'existe pas, on assume un essai gratuit
+        setSubscription({ status: 'trial', days_remaining: 14 });
+        return;
+      }
       const data = await r.json();
       setSubscription(data);
     } catch (e) {
       console.error('Error fetching subscription:', e);
+      // Fallback: essai gratuit par défaut
+      setSubscription({ status: 'trial', days_remaining: 14 });
     } finally {
       setLoading(false);
     }

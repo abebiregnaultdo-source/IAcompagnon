@@ -19,7 +19,7 @@ export function Dashboard({ user, onClose, onResumeSession }) {
   async function loadSessions() {
     try {
       setLoading(true);
-      const response = await fetch(`/api/history/${user.id}`);
+      const response = await fetch(`https://helo-backend.onrender.com/api/history/${user.id}`);
 
       if (!response.ok) {
         throw new Error("Impossible de charger l'historique");
