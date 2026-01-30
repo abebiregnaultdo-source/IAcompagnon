@@ -104,6 +104,8 @@ export default function App() {
         if (devMode) {
           console.log('[HELO] Mode dev: connexion automatique');
           const profile = await getProfile(devUserId);
+          console.log('[HELO] Dev mode - Profile loaded:', profile);
+          console.log('[HELO] Dev mode - Extended profile:', profile?.extended_profile);
           const userData = {
             id: devUserId,
             email: 'christelle@test.com',
@@ -112,6 +114,7 @@ export default function App() {
             preferences: profile?.preferences || {},
             ...profile,
           };
+          console.log('[HELO] Dev mode - User data:', userData);
           setUser(userData);
           setShowLanding(false);
           setShowAuth(false);
