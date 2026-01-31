@@ -657,6 +657,122 @@ export default function Library({ onBackToHome }) {
       url: null,
       tags: ["Afrique", "esclavage", "identité", "Gambie"],
     },
+    {
+      id: 82,
+      category: "traditions",
+      title: "L'Empire d'Oyo",
+      author: "Robin Law",
+      description:
+        "Histoire de l'Empire Yoruba d'Oyo, l'un des plus puissants d'Afrique de l'Ouest. Origine des lignées royales Omô Oba Oyô.",
+      type: "Livre historique (anglais)",
+      url: null,
+      tags: ["Oyo", "Yoruba", "empire", "royauté", "Nigeria"],
+    },
+    {
+      id: 83,
+      category: "traditions",
+      title: "Oduduwa - L'ancêtre divin des Yoruba",
+      author: "Traditions orales Yoruba",
+      description:
+        "Oduduwa, descendant du ciel à Ilé-Ifè, est l'ancêtre mythique de tous les Yoruba. Les rois d'Oyo descendent de lui.",
+      type: "Mythologie",
+      url: "https://fr.wikipedia.org/wiki/Oduduwa",
+      tags: ["Oduduwa", "Yoruba", "Ifè", "mythologie", "ancêtre"],
+    },
+
+    // ============================================================
+    // TAO & SAGESSE ORIENTALE
+    // ============================================================
+    {
+      id: 84,
+      category: "spirituel",
+      title: "Tao Te King",
+      author: "Lao Tseu",
+      description:
+        "Le texte fondateur du Taoïsme. Sagesse du non-agir, du lâcher-prise et du flux naturel de la vie.",
+      synopsis:
+        "En 81 courts chapitres, Lao Tseu enseigne le Tao (la Voie) : l'art de vivre en harmonie avec le flux naturel de l'univers. Le sage n'impose pas, il suit. Il ne force pas, il reçoit. Une philosophie de l'équilibre et du lâcher-prise.",
+      pourquoi_le_lire:
+        "Si tu cherches à comprendre le 'recevoir plutôt que forcer', le Tao est ton allié. C'est exactement ton chemin de vie 2.",
+      type: "Texte sacré",
+      url: null,
+      tags: ["Tao", "sagesse", "lâcher-prise", "non-agir"],
+    },
+    {
+      id: 85,
+      category: "spirituel",
+      title: "Le Tao de la physique",
+      author: "Fritjof Capra",
+      description:
+        "Parallèles entre physique quantique et sagesse orientale. La science moderne rejoint les intuitions anciennes.",
+      type: "Livre",
+      url: null,
+      tags: ["Tao", "physique quantique", "science", "spiritualité"],
+    },
+
+    // ============================================================
+    // NUMÉROLOGIE & ASTROLOGIE
+    // ============================================================
+    {
+      id: 86,
+      category: "spirituel",
+      title: "La Numérologie - Votre chemin de vie",
+      author: "Jean-Daniel Fermier",
+      description:
+        "Guide complet de numérologie. Calcul et interprétation du chemin de vie, nombre d'expression, année personnelle.",
+      synopsis:
+        "La numérologie est l'étude du sens des nombres dans notre vie. Ton chemin de vie (calculé à partir de ta date de naissance) révèle ta mission de vie, tes défis et tes talents innés.",
+      pourquoi_le_lire:
+        "Pour comprendre ton chemin de vie 2 (recevoir, coopérer) et ton expression 11/6 en profondeur.",
+      type: "Guide pratique",
+      url: null,
+      tags: ["numérologie", "chemin de vie", "chiffres", "destin"],
+    },
+    {
+      id: 87,
+      category: "spirituel",
+      title: "Le grand livre de l'astrologie",
+      author: "Hadès (Alain Yaouanc)",
+      description:
+        "Référence francophone en astrologie. Interprétation des signes, maisons, aspects planétaires.",
+      type: "Livre",
+      url: null,
+      tags: ["astrologie", "thème natal", "planètes", "zodiaque"],
+    },
+    {
+      id: 88,
+      category: "spirituel",
+      title: "Les noeuds lunaires en astrologie",
+      author: "Celeste Teal",
+      description:
+        "Le noeud nord indique ce que tu viens apprendre dans cette vie. Le noeud sud, ce que tu maîtrises déjà.",
+      synopsis:
+        "Les noeuds lunaires sont des points mathématiques qui révèlent ta direction karmique. Le noeud nord (pour toi en Verseau) indique la leçon de cette vie : apprendre à recevoir des autres, à t'ouvrir à la communauté.",
+      pourquoi_le_lire:
+        "Pour comprendre pourquoi ton noeud nord en Verseau (Maison 8) t'invite à recevoir des autres plutôt que de tout faire seule.",
+      type: "Livre",
+      url: null,
+      tags: ["astrologie", "noeuds lunaires", "karma", "évolution"],
+    },
+
+    // ============================================================
+    // PIERRES & LITHOTHÉRAPIE
+    // ============================================================
+    {
+      id: 89,
+      category: "spirituel",
+      title: "La bible des cristaux",
+      author: "Judy Hall",
+      description:
+        "Guide complet de lithothérapie. Propriétés des pierres, utilisation, purification.",
+      synopsis:
+        "Chaque pierre possède une énergie particulière. Le Péridot (ta pierre) favorise l'abondance et libère des vieux schémas. La Cornaline booste la créativité et la confiance. La Pierre de Lune équilibre les émotions.",
+      pourquoi_le_lire:
+        "Pour comprendre les propriétés de tes pierres personnelles : Péridot, Cornaline, Pierre de Lune.",
+      type: "Guide",
+      url: null,
+      tags: ["cristaux", "pierres", "lithothérapie", "énergie"],
+    },
   ];
 
   const categories = [
