@@ -423,3 +423,156 @@ export async function listUserMeditations(userId) {
  *
  * Structure du bucket: meditations/{user_id}/{filename}.mp3
  */
+
+// =============================================
+// EXTENDED PROFILE HELPERS (Édition profil spirituel)
+// =============================================
+
+/**
+ * Met à jour le profil étendu (numérologie, mantras, etc.)
+ */
+export async function updateExtendedProfile(userId, extendedProfile) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      extended_profile: extendedProfile,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * Ajoute un mantra au profil
+ */
+export async function addMantra(userId, mantra) {
+  // Récupérer le profil actuel
+  const profile = await getProfile(userId);
+  const extendedProfile = profile?.extended_profile || {};
+  const mantras = extendedProfile.mantras || [];
+
+  // Ajouter le nouveau mantra
+  mantras.push(mantra);
+
+  // Mettre à jour
+  return updateExtendedProfile(userId, {
+    ...extendedProfile,
+    mantras
+  });
+}
+
+/**
+ * Supprime un mantra du profil
+ */
+export async function removeMantra(userId, mantraIndex) {
+  const profile = await getProfile(userId);
+  const extendedProfile = profile?.extended_profile || {};
+  const mantras = extendedProfile.mantras || [];
+
+  mantras.splice(mantraIndex, 1);
+
+  return updateExtendedProfile(userId, {
+    ...extendedProfile,
+    mantras
+  });
+}
+
+// =============================================
+// PERSONAL NOTES HELPERS
+// =============================================
+
+/**
+ * Récupère les notes personnelles
+ */
+export async function getPersonalNotes(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('personal_notes')
+    .eq('id', userId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') throw error;
+  return data?.personal_notes || [];
+}
+
+/**
+ * Ajoute une note personnelle
+ */
+export async function addPersonalNote(userId, note) {
+  const notes = await getPersonalNotes(userId);
+
+  const newNote = {
+    id: `note-${Date.now()}`,
+    title: note.title,
+    content: note.content,
+    tags: note.tags || [],
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  notes.unshift(newNote);
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      personal_notes: notes,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return newNote;
+}
+
+/**
+ * Met à jour une note personnelle
+ */
+export async function updatePersonalNote(userId, noteId, updates) {
+  const notes = await getPersonalNotes(userId);
+  const noteIndex = notes.findIndex(n => n.id === noteId);
+
+  if (noteIndex === -1) throw new Error('Note not found');
+
+  notes[noteIndex] = {
+    ...notes[noteIndex],
+    ...updates,
+    updated_at: new Date().toISOString()
+  };
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({
+      personal_notes: notes,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return notes[noteIndex];
+}
+
+/**
+ * Supprime une note personnelle
+ */
+export async function deletePersonalNote(userId, noteId) {
+  const notes = await getPersonalNotes(userId);
+  const filtered = notes.filter(n => n.id !== noteId);
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      personal_notes: filtered,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId);
+
+  if (error) throw error;
+}

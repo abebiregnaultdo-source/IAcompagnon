@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import { getMeditationSignedUrl, listUserMeditations } from "../lib/supabase";
+import {
+  getMeditationSignedUrl,
+  listUserMeditations,
+  addMantra,
+  removeMantra,
+  getPersonalNotes,
+  addPersonalNote,
+  updatePersonalNote,
+  deletePersonalNote,
+  updateExtendedProfile,
+} from "../lib/supabase";
 
 /**
  * Page complète du profil spirituel/transgénérationnel
@@ -33,6 +43,7 @@ export default function SpiritualProfile({ user, onBack }) {
     { id: "lineage", label: "Lignées", icon: "🌳" },
     { id: "mantras", label: "Mantras", icon: "💫" },
     { id: "meditations", label: "Méditations", icon: "🧘" },
+    { id: "notes", label: "Notes", icon: "📝" },
   ];
 
   return (
@@ -63,12 +74,13 @@ export default function SpiritualProfile({ user, onBack }) {
       {/* Content */}
       <div style={styles.content}>
         {activeTab === "overview" && <OverviewTab profile={profile} />}
-        {activeTab === "numerology" && <NumerologyTab profile={profile} />}
+        {activeTab === "numerology" && <NumerologyTab profile={profile} userId={user?.id} />}
         {activeTab === "astrology" && <AstrologyTab profile={profile} />}
         {activeTab === "fa" && <FaTab profile={profile} />}
         {activeTab === "lineage" && <LineageTab profile={profile} />}
-        {activeTab === "mantras" && <MantrasTab profile={profile} />}
+        {activeTab === "mantras" && <MantrasTab profile={profile} userId={user?.id} />}
         {activeTab === "meditations" && <MeditationsTab profile={profile} userId={user?.id} />}
+        {activeTab === "notes" && <NotesTab userId={user?.id} />}
       </div>
     </div>
   );
@@ -366,14 +378,46 @@ function LineageTab({ profile }) {
   );
 }
 
-function MantrasTab({ profile }) {
-  const mantras = profile.mantras || [];
+function MantrasTab({ profile, userId }) {
+  const [mantras, setMantras] = useState(profile.mantras || []);
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [newMantra, setNewMantra] = useState("");
+  const [isAdding, setIsAdding] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const copyMantra = (text, index) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const handleAddMantra = async () => {
+    if (!newMantra.trim() || !userId) return;
+    setSaving(true);
+    try {
+      await addMantra(userId, newMantra.trim());
+      setMantras([...mantras, newMantra.trim()]);
+      setNewMantra("");
+      setIsAdding(false);
+    } catch (err) {
+      console.error("Erreur ajout mantra:", err);
+      alert("Erreur lors de l'ajout du mantra");
+    }
+    setSaving(false);
+  };
+
+  const handleRemoveMantra = async (index) => {
+    if (!userId) return;
+    if (!confirm("Supprimer ce mantra ?")) return;
+    setSaving(true);
+    try {
+      await removeMantra(userId, index);
+      setMantras(mantras.filter((_, i) => i !== index));
+    } catch (err) {
+      console.error("Erreur suppression mantra:", err);
+      alert("Erreur lors de la suppression");
+    }
+    setSaving(false);
   };
 
   return (
@@ -392,18 +436,58 @@ function MantrasTab({ profile }) {
         ) : (
           <div style={styles.mantrasList}>
             {mantras.map((mantra, i) => (
-              <div
-                key={i}
-                style={styles.mantraCard}
-                onClick={() => copyMantra(mantra, i)}
-              >
-                <div style={styles.mantraText}>"{mantra}"</div>
-                <div style={styles.mantraCopy}>
-                  {copiedIndex === i ? "✓ Copié" : "Tap pour copier"}
+              <div key={i} style={styles.mantraCard}>
+                <div
+                  style={{ flex: 1, cursor: "pointer" }}
+                  onClick={() => copyMantra(mantra, i)}
+                >
+                  <div style={styles.mantraText}>"{mantra}"</div>
+                  <div style={styles.mantraCopy}>
+                    {copiedIndex === i ? "✓ Copié" : "Tap pour copier"}
+                  </div>
                 </div>
+                <button
+                  onClick={() => handleRemoveMantra(i)}
+                  style={styles.deleteButton}
+                  disabled={saving}
+                >
+                  ✕
+                </button>
               </div>
             ))}
           </div>
+        )}
+
+        {/* Ajouter un mantra */}
+        {isAdding ? (
+          <div style={styles.addMantraForm}>
+            <textarea
+              value={newMantra}
+              onChange={(e) => setNewMantra(e.target.value)}
+              placeholder="Écris ton nouveau mantra..."
+              style={styles.mantraInput}
+              rows={2}
+            />
+            <div style={styles.addMantraButtons}>
+              <button
+                onClick={() => { setIsAdding(false); setNewMantra(""); }}
+                style={styles.cancelButton}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleAddMantra}
+                style={styles.saveButton}
+                disabled={saving || !newMantra.trim()}
+              >
+                {saving ? "..." : "Ajouter"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button onClick={() => setIsAdding(true)} style={styles.addButton}>
+            + Ajouter un mantra
+          </button>
         )}
       </Section>
 
@@ -657,6 +741,192 @@ function MeditationsTab({ profile, userId }) {
           <p>4. Laisse-toi guider par la voix, sans forcer</p>
           <p>5. Après l'écoute, prends quelques instants avant de te lever</p>
         </div>
+      </Section>
+    </div>
+  );
+}
+
+function NotesTab({ userId }) {
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [newNote, setNewNote] = useState({ title: "", content: "", tags: "" });
+  const [saving, setSaving] = useState(false);
+
+  // Charger les notes
+  useEffect(() => {
+    if (!userId) return;
+    const loadNotes = async () => {
+      try {
+        const data = await getPersonalNotes(userId);
+        setNotes(data || []);
+      } catch (err) {
+        console.error("Erreur chargement notes:", err);
+      }
+      setLoading(false);
+    };
+    loadNotes();
+  }, [userId]);
+
+  const handleAddNote = async () => {
+    if (!newNote.title.trim() || !newNote.content.trim()) return;
+    setSaving(true);
+    try {
+      const note = await addPersonalNote(userId, {
+        title: newNote.title.trim(),
+        content: newNote.content.trim(),
+        tags: newNote.tags.split(",").map(t => t.trim()).filter(Boolean),
+      });
+      setNotes([note, ...notes]);
+      setNewNote({ title: "", content: "", tags: "" });
+      setIsAdding(false);
+    } catch (err) {
+      console.error("Erreur ajout note:", err);
+      alert("Erreur lors de l'ajout");
+    }
+    setSaving(false);
+  };
+
+  const handleUpdateNote = async (noteId) => {
+    const note = notes.find(n => n.id === noteId);
+    if (!note) return;
+    setSaving(true);
+    try {
+      await updatePersonalNote(userId, noteId, {
+        title: note.title,
+        content: note.content,
+        tags: note.tags,
+      });
+      setEditingId(null);
+    } catch (err) {
+      console.error("Erreur mise à jour:", err);
+      alert("Erreur lors de la sauvegarde");
+    }
+    setSaving(false);
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    if (!confirm("Supprimer cette note ?")) return;
+    try {
+      await deletePersonalNote(userId, noteId);
+      setNotes(notes.filter(n => n.id !== noteId));
+    } catch (err) {
+      console.error("Erreur suppression:", err);
+      alert("Erreur lors de la suppression");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={styles.tabContent}>
+        <p style={{ textAlign: "center", color: "var(--color-text-secondary)" }}>
+          Chargement des notes...
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={styles.tabContent}>
+      <Section title="Mes Notes Personnelles">
+        <p style={{ fontSize: "var(--font-size-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--space-lg)" }}>
+          Un espace pour noter tes exercices, réflexions, observations...
+        </p>
+
+        {/* Bouton ajouter ou formulaire */}
+        {isAdding ? (
+          <div style={styles.noteForm}>
+            <input
+              type="text"
+              placeholder="Titre de la note"
+              value={newNote.title}
+              onChange={(e) => setNewNote({ ...newNote, title: e.target.value })}
+              style={styles.noteInput}
+            />
+            <textarea
+              placeholder="Contenu..."
+              value={newNote.content}
+              onChange={(e) => setNewNote({ ...newNote, content: e.target.value })}
+              style={styles.noteTextarea}
+              rows={6}
+            />
+            <input
+              type="text"
+              placeholder="Tags (séparés par des virgules)"
+              value={newNote.tags}
+              onChange={(e) => setNewNote({ ...newNote, tags: e.target.value })}
+              style={styles.noteInput}
+            />
+            <div style={styles.addMantraButtons}>
+              <button onClick={() => { setIsAdding(false); setNewNote({ title: "", content: "", tags: "" }); }} style={styles.cancelButton}>
+                Annuler
+              </button>
+              <button onClick={handleAddNote} style={styles.saveButton} disabled={saving}>
+                {saving ? "..." : "Enregistrer"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button onClick={() => setIsAdding(true)} style={styles.addButton}>
+            + Ajouter une note
+          </button>
+        )}
+
+        {/* Liste des notes */}
+        {notes.length === 0 && !isAdding ? (
+          <p style={styles.emptyText}>Aucune note enregistrée</p>
+        ) : (
+          <div style={styles.notesList}>
+            {notes.map((note) => (
+              <div key={note.id} style={styles.noteCard}>
+                {editingId === note.id ? (
+                  <>
+                    <input
+                      type="text"
+                      value={note.title}
+                      onChange={(e) => setNotes(notes.map(n => n.id === note.id ? { ...n, title: e.target.value } : n))}
+                      style={styles.noteInput}
+                    />
+                    <textarea
+                      value={note.content}
+                      onChange={(e) => setNotes(notes.map(n => n.id === note.id ? { ...n, content: e.target.value } : n))}
+                      style={styles.noteTextarea}
+                      rows={6}
+                    />
+                    <div style={styles.addMantraButtons}>
+                      <button onClick={() => setEditingId(null)} style={styles.cancelButton}>Annuler</button>
+                      <button onClick={() => handleUpdateNote(note.id)} style={styles.saveButton} disabled={saving}>
+                        {saving ? "..." : "Sauvegarder"}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={styles.noteHeader}>
+                      <h4 style={styles.noteTitle}>{note.title}</h4>
+                      <div style={styles.noteActions}>
+                        <button onClick={() => setEditingId(note.id)} style={styles.editButton}>✎</button>
+                        <button onClick={() => handleDeleteNote(note.id)} style={styles.deleteButton}>✕</button>
+                      </div>
+                    </div>
+                    <div style={styles.noteContent}>{note.content}</div>
+                    {note.tags?.length > 0 && (
+                      <div style={styles.noteTags}>
+                        {note.tags.map((tag, i) => (
+                          <span key={i} style={styles.noteTag}>{tag}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div style={styles.noteDate}>
+                      {new Date(note.created_at).toLocaleDateString('fr-FR')}
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </Section>
     </div>
   );
@@ -1142,10 +1412,12 @@ const styles = {
     gap: "var(--space-md)",
   },
   mantraCard: {
+    display: "flex",
+    alignItems: "flex-start",
+    gap: "var(--space-md)",
     background: "var(--color-surface-1)",
     borderRadius: "var(--radius-md)",
     padding: "var(--space-lg)",
-    cursor: "pointer",
     transition: "var(--transition-fast)",
     border: "1px solid var(--color-border)",
   },
@@ -1275,5 +1547,160 @@ const styles = {
     fontSize: "var(--font-size-sm)",
     color: "var(--color-text-tertiary)",
     marginTop: "var(--space-sm)",
+  },
+
+  // Édition mantras et notes
+  addButton: {
+    width: "100%",
+    padding: "var(--space-md)",
+    background: "var(--color-surface-2)",
+    border: "2px dashed var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    color: "var(--color-primary)",
+    fontSize: "var(--font-size-md)",
+    cursor: "pointer",
+    marginTop: "var(--space-md)",
+    transition: "var(--transition-fast)",
+  },
+  addMantraForm: {
+    marginTop: "var(--space-md)",
+    padding: "var(--space-lg)",
+    background: "var(--color-surface-1)",
+    borderRadius: "var(--radius-md)",
+    border: "1px solid var(--color-border)",
+  },
+  mantraInput: {
+    width: "100%",
+    padding: "var(--space-md)",
+    fontSize: "var(--font-size-md)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    background: "var(--color-background)",
+    color: "var(--color-text-primary)",
+    resize: "vertical",
+  },
+  addMantraButtons: {
+    display: "flex",
+    gap: "var(--space-sm)",
+    marginTop: "var(--space-md)",
+    justifyContent: "flex-end",
+  },
+  cancelButton: {
+    padding: "var(--space-sm) var(--space-lg)",
+    background: "transparent",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    cursor: "pointer",
+    color: "var(--color-text-secondary)",
+  },
+  saveButton: {
+    padding: "var(--space-sm) var(--space-lg)",
+    background: "var(--color-primary)",
+    border: "none",
+    borderRadius: "var(--radius-md)",
+    cursor: "pointer",
+    color: "white",
+  },
+  deleteButton: {
+    background: "transparent",
+    border: "none",
+    color: "var(--color-text-tertiary)",
+    cursor: "pointer",
+    fontSize: "var(--font-size-md)",
+    padding: "var(--space-xs)",
+    opacity: 0.6,
+    transition: "var(--transition-fast)",
+  },
+  editButton: {
+    background: "transparent",
+    border: "none",
+    color: "var(--color-primary)",
+    cursor: "pointer",
+    fontSize: "var(--font-size-md)",
+    padding: "var(--space-xs)",
+  },
+
+  // Notes
+  noteForm: {
+    marginBottom: "var(--space-lg)",
+    padding: "var(--space-lg)",
+    background: "var(--color-surface-1)",
+    borderRadius: "var(--radius-md)",
+    border: "1px solid var(--color-border)",
+  },
+  noteInput: {
+    width: "100%",
+    padding: "var(--space-md)",
+    fontSize: "var(--font-size-md)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    background: "var(--color-background)",
+    color: "var(--color-text-primary)",
+    marginBottom: "var(--space-sm)",
+  },
+  noteTextarea: {
+    width: "100%",
+    padding: "var(--space-md)",
+    fontSize: "var(--font-size-md)",
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    background: "var(--color-background)",
+    color: "var(--color-text-primary)",
+    marginBottom: "var(--space-sm)",
+    resize: "vertical",
+    fontFamily: "inherit",
+    lineHeight: "var(--line-height-relaxed)",
+  },
+  notesList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "var(--space-md)",
+    marginTop: "var(--space-lg)",
+  },
+  noteCard: {
+    background: "var(--color-surface-1)",
+    borderRadius: "var(--radius-md)",
+    padding: "var(--space-lg)",
+    border: "1px solid var(--color-border)",
+  },
+  noteHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: "var(--space-md)",
+  },
+  noteTitle: {
+    fontSize: "var(--font-size-md)",
+    fontWeight: "var(--font-weight-semibold)",
+    color: "var(--color-text-primary)",
+    margin: 0,
+  },
+  noteActions: {
+    display: "flex",
+    gap: "var(--space-xs)",
+  },
+  noteContent: {
+    fontSize: "var(--font-size-sm)",
+    color: "var(--color-text-secondary)",
+    lineHeight: "var(--line-height-relaxed)",
+    whiteSpace: "pre-wrap",
+  },
+  noteTags: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "var(--space-xs)",
+    marginTop: "var(--space-md)",
+  },
+  noteTag: {
+    fontSize: "var(--font-size-xs)",
+    padding: "var(--space-xs) var(--space-sm)",
+    background: "var(--color-primary)",
+    color: "white",
+    borderRadius: "var(--radius-full)",
+  },
+  noteDate: {
+    fontSize: "var(--font-size-xs)",
+    color: "var(--color-text-tertiary)",
+    marginTop: "var(--space-md)",
   },
 };
