@@ -95,6 +95,8 @@ export default function Chat({
   const [isSending, setIsSending] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [showAvatarFullscreen, setShowAvatarFullscreen] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [savedConversations, setSavedConversations] = useState([]);
 
   // Synthèse vocale
   const { speak, stop, isSpeaking, voiceEnabled, toggleVoice } = useSpeechSynthesis();
@@ -156,10 +158,39 @@ export default function Chat({
     };
   }, []);
 
-  // Charger le message d'accueil
+  // Charger l'historique ou le message d'accueil
   useEffect(() => {
-    const loadWelcomeMessage = async () => {
+    const loadChatData = async () => {
       if (welcomeLoaded) return;
+
+      // Charger l'historique des conversations sauvegardées
+      try {
+        const savedHistory = localStorage.getItem(`helo_conversations_${user.id}`);
+        if (savedHistory) {
+          setSavedConversations(JSON.parse(savedHistory));
+        }
+      } catch (e) {
+        // Silencieux
+      }
+
+      // Charger la conversation en cours (session actuelle)
+      try {
+        const currentSession = localStorage.getItem(`helo_chat_history_${user.id}`);
+        if (currentSession) {
+          const parsedMessages = JSON.parse(currentSession);
+          if (parsedMessages && parsedMessages.length > 0) {
+            setMessages(parsedMessages);
+            setIsTyping(false);
+            setWelcomeLoaded(true);
+            setHistoryLoaded(true);
+            return; // On a rechargé l'historique, pas besoin du message d'accueil
+          }
+        }
+      } catch (e) {
+        // Silencieux - on continue avec le message d'accueil
+      }
+
+      // Pas d'historique, charger le message d'accueil
       setIsTyping(true);
 
       try {
@@ -208,7 +239,7 @@ export default function Chat({
       }
     };
 
-    loadWelcomeMessage();
+    loadChatData();
   }, [api.base, user.first_name, user.id, user.tone, welcomeLoaded]);
 
   // Auto-scroll
@@ -234,6 +265,46 @@ export default function Chat({
       inputRef.current.focus();
     }
   }, [historyLoaded]);
+
+  // Sauvegarder la conversation actuelle dans l'historique et en commencer une nouvelle
+  const startNewConversation = () => {
+    if (messages.length > 1) { // Au moins un échange (accueil + message)
+      const conversation = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        preview: messages.find(m => m.role === "user")?.content?.slice(0, 50) || "Conversation",
+        messages: messages,
+      };
+      const updatedConversations = [conversation, ...savedConversations].slice(0, 20); // Max 20 conversations
+      setSavedConversations(updatedConversations);
+      try {
+        localStorage.setItem(`helo_conversations_${user.id}`, JSON.stringify(updatedConversations));
+      } catch (e) {
+        // Silencieux
+      }
+    }
+    // Effacer la session en cours
+    localStorage.removeItem(`helo_chat_history_${user.id}`);
+    setMessages([]);
+    setWelcomeLoaded(false);
+  };
+
+  // Charger une conversation depuis l'historique
+  const loadConversation = (conversation) => {
+    setMessages(conversation.messages);
+    setShowHistory(false);
+  };
+
+  // Supprimer une conversation de l'historique
+  const deleteConversation = (conversationId) => {
+    const updated = savedConversations.filter(c => c.id !== conversationId);
+    setSavedConversations(updated);
+    try {
+      localStorage.setItem(`helo_conversations_${user.id}`, JSON.stringify(updated));
+    } catch (e) {
+      // Silencieux
+    }
+  };
 
   const send = async () => {
     if (!input.trim() || isSending) return;
@@ -367,6 +438,69 @@ export default function Chat({
           </div>
 
           <div style={{ display: "flex", gap: "8px" }}>
+            {/* Bouton historique */}
+            <button
+              onClick={() => setShowHistory(true)}
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "12px",
+                background: savedConversations.length > 0 ? "#e2e8f0" : "#f7fafc",
+                border: "none",
+                color: savedConversations.length > 0 ? "#5A8FA8" : "#a0aec0",
+                fontSize: "18px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s",
+                position: "relative",
+              }}
+              title="Historique des conversations"
+            >
+              📋
+              {savedConversations.length > 0 && (
+                <span style={{
+                  position: "absolute",
+                  top: "-4px",
+                  right: "-4px",
+                  background: "#5A8FA8",
+                  color: "white",
+                  fontSize: "10px",
+                  borderRadius: "50%",
+                  width: "18px",
+                  height: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}>
+                  {savedConversations.length}
+                </span>
+              )}
+            </button>
+
+            {/* Bouton nouvelle conversation */}
+            <button
+              onClick={startNewConversation}
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "12px",
+                background: "#e2e8f0",
+                border: "none",
+                color: "#5A8FA8",
+                fontSize: "18px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                transition: "all 0.2s",
+              }}
+              title="Nouvelle conversation"
+            >
+              ✨
+            </button>
+
             {/* Bouton voix */}
             <button
               onClick={toggleVoice}
@@ -684,6 +818,144 @@ export default function Chat({
               <Text style={{ color: "rgba(255,255,255,0.6)", marginTop: "16px", fontSize: "14px" }}>
                 {isSpeaking ? "Helō parle..." : isTyping ? "Helō réfléchit..." : "En attente de votre message"}
               </Text>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Panneau historique des conversations */}
+      {showHistory && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            zIndex: 1000,
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            padding: "20px",
+          }}
+          onClick={() => setShowHistory(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "white",
+              borderRadius: "20px",
+              maxWidth: "500px",
+              width: "100%",
+              maxHeight: "80vh",
+              overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            {/* Header */}
+            <div
+              style={{
+                padding: "20px 24px",
+                borderBottom: "1px solid #e2e8f0",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text as="h2" size="lg" style={{ margin: 0, color: "#2d3748" }}>
+                📋 Historique
+              </Text>
+              <button
+                onClick={() => setShowHistory(false)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  fontSize: "24px",
+                  cursor: "pointer",
+                  color: "#718096",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Liste des conversations */}
+            <div style={{ flex: 1, overflow: "auto", padding: "16px" }}>
+              {savedConversations.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px 20px", color: "#718096" }}>
+                  <p style={{ fontSize: "48px", marginBottom: "16px" }}>💬</p>
+                  <p>Aucune conversation sauvegardée</p>
+                  <p style={{ fontSize: "14px", marginTop: "8px" }}>
+                    Utilise le bouton ✨ pour terminer une conversation et la sauvegarder ici
+                  </p>
+                </div>
+              ) : (
+                savedConversations.map((conv) => (
+                  <div
+                    key={conv.id}
+                    style={{
+                      padding: "16px",
+                      marginBottom: "12px",
+                      background: "#f7fafc",
+                      borderRadius: "12px",
+                      cursor: "pointer",
+                      transition: "all 0.2s",
+                      border: "1px solid transparent",
+                    }}
+                    onClick={() => loadConversation(conv)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#edf2f7";
+                      e.currentTarget.style.borderColor = "#5A8FA8";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "#f7fafc";
+                      e.currentTarget.style.borderColor = "transparent";
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <div style={{ flex: 1 }}>
+                        <Text size="sm" style={{ color: "#718096", marginBottom: "4px" }}>
+                          {new Date(conv.date).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </Text>
+                        <Text style={{ color: "#2d3748" }}>
+                          {conv.preview}...
+                        </Text>
+                        <Text size="sm" style={{ color: "#a0aec0", marginTop: "4px" }}>
+                          {conv.messages.length} messages
+                        </Text>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteConversation(conv.id);
+                        }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#e53e3e",
+                          cursor: "pointer",
+                          padding: "8px",
+                          fontSize: "16px",
+                          opacity: 0.6,
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = 0.6}
+                        title="Supprimer"
+                      >
+                        🗑
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
