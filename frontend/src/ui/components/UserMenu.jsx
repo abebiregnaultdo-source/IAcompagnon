@@ -5,6 +5,8 @@ export default function UserMenu({
   onOpenParcours,
   onOpenLibrary,
   onOpenCreativity,
+  onOpenDreams,
+  onOpenSpiritualProfile,
   onOpenSettings,
   onLogout,
 }) {
@@ -13,6 +15,29 @@ export default function UserMenu({
   const initials = user?.first_name
     ? user.first_name.charAt(0).toUpperCase()
     : "U";
+
+  const menuItemStyle = {
+    width: "100%",
+    textAlign: "left",
+    padding: "10px 14px",
+    background: "transparent",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "14px",
+    color: "var(--color-text-primary)",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    transition: "background 0.2s",
+  };
+
+  const sectionLabelStyle = {
+    padding: "8px 14px 4px",
+    fontSize: "11px",
+    color: "var(--color-text-tertiary)",
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+  };
 
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
@@ -52,109 +77,142 @@ export default function UserMenu({
       </button>
 
       {open && (
-        <div
-          role="menu"
-          style={{
-            position: "absolute",
-            right: 0,
-            marginTop: 8,
-            background: "var(--color-surface-1)",
-            border: "1px solid var(--color-border)",
-            borderRadius: 8,
-            boxShadow: "var(--shadow-md)",
-            minWidth: 180,
-            zIndex: 50,
-            overflow: "hidden",
-          }}
-        >
-          <button
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onOpenParcours && onOpenParcours();
-            }}
+        <>
+          {/* Overlay pour fermer le menu */}
+          <div
+            onClick={() => setOpen(false)}
             style={{
-              width: "100%",
-              textAlign: "left",
-              padding: "10px 12px",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 40,
+            }}
+          />
+          <div
+            role="menu"
+            style={{
+              position: "absolute",
+              right: 0,
+              marginTop: 8,
+              background: "var(--color-surface-1)",
+              border: "1px solid var(--color-border)",
+              borderRadius: 12,
+              boxShadow: "var(--shadow-lg)",
+              minWidth: 220,
+              zIndex: 50,
+              overflow: "hidden",
             }}
           >
-            Parcours
-          </button>
-          <button
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onOpenLibrary && onOpenLibrary();
-            }}
-            style={{
-              width: "100%",
-              textAlign: "left",
-              padding: "10px 12px",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Bibliothèque
-          </button>
-          <button
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onOpenCreativity && onOpenCreativity();
-            }}
-            style={{
-              width: "100%",
-              textAlign: "left",
-              padding: "10px 12px",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Créativité
-          </button>
-          <hr style={{ margin: 0 }} />
-          <button
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onOpenSettings && onOpenSettings();
-            }}
-            style={{
-              width: "100%",
-              textAlign: "left",
-              padding: "10px 12px",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Paramètres
-          </button>
-          <button
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onLogout && onLogout();
-            }}
-            style={{
-              width: "100%",
-              textAlign: "left",
-              padding: "10px 12px",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              color: "var(--color-primary)",
-            }}
-          >
-            Se déconnecter
-          </button>
-        </div>
+            {/* Section: Moi & Spiritualité */}
+            <div style={sectionLabelStyle}>Moi & Spiritualité</div>
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onOpenSpiritualProfile && onOpenSpiritualProfile();
+              }}
+              style={menuItemStyle}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span>🔮</span>
+              <span>Profil Spirituel</span>
+            </button>
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onOpenDreams && onOpenDreams();
+              }}
+              style={menuItemStyle}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span>🌙</span>
+              <span>Journal des Rêves</span>
+            </button>
+
+            {/* Section: Apprentissage */}
+            <div style={sectionLabelStyle}>Apprentissage</div>
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onOpenParcours && onOpenParcours();
+              }}
+              style={menuItemStyle}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span>📖</span>
+              <span>Parcours</span>
+            </button>
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onOpenLibrary && onOpenLibrary();
+              }}
+              style={menuItemStyle}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span>📚</span>
+              <span>Bibliothèque</span>
+            </button>
+
+            {/* Section: Expression */}
+            <div style={sectionLabelStyle}>Expression</div>
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onOpenCreativity && onOpenCreativity();
+              }}
+              style={menuItemStyle}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span>🎨</span>
+              <span>Créativité</span>
+            </button>
+
+            <hr style={{ margin: "8px 0", borderColor: "var(--color-border)" }} />
+
+            {/* Section: Paramètres */}
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onOpenSettings && onOpenSettings();
+              }}
+              style={menuItemStyle}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span>⚙️</span>
+              <span>Paramètres</span>
+            </button>
+            <button
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                onLogout && onLogout();
+              }}
+              style={{
+                ...menuItemStyle,
+                color: "var(--color-text-secondary)",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+            >
+              <span>🚪</span>
+              <span>Se déconnecter</span>
+            </button>
+          </div>
+        </>
       )}
     </div>
   );

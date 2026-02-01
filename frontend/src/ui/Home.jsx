@@ -25,8 +25,6 @@ export default function Home({
   const device = useDeviceDetection();
   const [showMantras, setShowMantras] = useState(false);
   const hasMantras = user?.extended_profile?.mantras?.length > 0;
-  // Toujours afficher le profil spirituel - les données peuvent être chargées depuis Supabase
-  const hasExtendedProfile = true;
 
   return (
     <div
@@ -59,6 +57,8 @@ export default function Home({
             onOpenParcours={onOpenDashboard}
             onOpenLibrary={onOpenResources}
             onOpenCreativity={onOpenCreativity}
+            onOpenDreams={onOpenDreams}
+            onOpenSpiritualProfile={onOpenSpiritualProfile}
             onOpenSettings={onOpenSettings}
             onLogout={onLogout}
           />
@@ -144,158 +144,97 @@ export default function Home({
           </Button>
         </div>
 
-        {/* Navigation rapide - 3 boutons */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-md)",
-            marginBottom: "var(--space-xl)",
-          }}
-        >
-          <button
-            onClick={onOpenDashboard}
+        {/* GROUPE 1 : Moi & Spiritualité */}
+        <div style={{ marginBottom: "var(--space-xl)" }}>
+          <p
             style={{
-              padding: "var(--space-lg)",
-              background: "var(--color-surface-1)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-md)",
-              cursor: "pointer",
-              textAlign: "center",
-              transition: "var(--transition-fast)",
-              fontSize: "var(--font-size-md)",
-              color: "var(--color-text-primary)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-2)";
-              e.currentTarget.style.borderColor = "var(--color-primary)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-1)";
-              e.currentTarget.style.borderColor = "var(--color-border)";
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text-tertiary)",
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              marginBottom: "var(--space-sm)",
             }}
           >
-            📖 Parcours
-          </button>
-
-          <button
-            onClick={onOpenResources}
+            Moi & Spiritualité
+          </p>
+          <div
             style={{
-              padding: "var(--space-lg)",
-              background: "var(--color-surface-1)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-md)",
-              cursor: "pointer",
-              textAlign: "center",
-              transition: "var(--transition-fast)",
-              fontSize: "var(--font-size-md)",
-              color: "var(--color-text-primary)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-2)";
-              e.currentTarget.style.borderColor = "var(--color-primary)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-1)";
-              e.currentTarget.style.borderColor = "var(--color-border)";
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-sm)",
             }}
           >
-            📚 Bibliothèque
-          </button>
-
-          <button
-            onClick={onOpenCreativity}
-            style={{
-              padding: "var(--space-lg)",
-              background: "var(--color-surface-1)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-md)",
-              cursor: "pointer",
-              textAlign: "center",
-              transition: "var(--transition-fast)",
-              fontSize: "var(--font-size-md)",
-              color: "var(--color-text-primary)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-2)";
-              e.currentTarget.style.borderColor = "var(--color-primary)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-1)";
-              e.currentTarget.style.borderColor = "var(--color-border)";
-            }}
-          >
-            🎨 Créativité
-          </button>
-
-          <button
-            onClick={onOpenDreams}
-            style={{
-              padding: "var(--space-lg)",
-              background: "var(--color-surface-1)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-md)",
-              cursor: "pointer",
-              textAlign: "center",
-              transition: "var(--transition-fast)",
-              fontSize: "var(--font-size-md)",
-              color: "var(--color-text-primary)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-2)";
-              e.currentTarget.style.borderColor = "var(--color-primary)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-1)";
-              e.currentTarget.style.borderColor = "var(--color-border)";
-            }}
-          >
-            🌙 Journal des Rêves
-          </button>
-        </div>
-
-        {/* Accès au profil spirituel (si disponible) */}
-        {hasExtendedProfile && (
-          <div style={{ marginBottom: "var(--space-lg)" }}>
             <button
               onClick={onOpenSpiritualProfile}
               style={{
-                width: "100%",
-                padding: "var(--space-md)",
-                background: "linear-gradient(135deg, rgba(123, 168, 192, 0.1), rgba(138, 186, 168, 0.1))",
-                border: "1px dashed var(--color-primary)",
+                padding: "var(--space-md) var(--space-lg)",
+                background: "linear-gradient(135deg, rgba(123, 168, 192, 0.15), rgba(138, 186, 168, 0.15))",
+                border: "1px solid var(--color-primary)",
                 borderRadius: "var(--radius-md)",
                 cursor: "pointer",
-                textAlign: "center",
+                textAlign: "left",
                 fontSize: "var(--font-size-md)",
-                color: "var(--color-primary)",
+                color: "var(--color-text-primary)",
                 transition: "var(--transition-fast)",
-                marginBottom: "var(--space-sm)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-sm)",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.2), rgba(138, 186, 168, 0.2))";
+                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.25), rgba(138, 186, 168, 0.25))";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.1), rgba(138, 186, 168, 0.1))";
+                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.15), rgba(138, 186, 168, 0.15))";
               }}
             >
-              🔮 Mon Profil Spirituel
+              <span>🔮</span>
+              <span>Mon Profil Spirituel</span>
             </button>
 
-            {/* Accès rapide aux mantras */}
+            <button
+              onClick={onOpenDreams}
+              style={{
+                padding: "var(--space-md) var(--space-lg)",
+                background: "var(--color-surface-1)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                textAlign: "left",
+                fontSize: "var(--font-size-md)",
+                color: "var(--color-text-primary)",
+                transition: "var(--transition-fast)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-sm)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--color-surface-2)";
+                e.currentTarget.style.borderColor = "var(--color-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--color-surface-1)";
+                e.currentTarget.style.borderColor = "var(--color-border)";
+              }}
+            >
+              <span>🌙</span>
+              <span>Journal des Rêves</span>
+            </button>
+
             {hasMantras && (
               <button
                 onClick={() => setShowMantras(true)}
                 style={{
-                  width: "100%",
-                  padding: "var(--space-sm)",
+                  padding: "var(--space-sm) var(--space-lg)",
                   background: "transparent",
                   border: "none",
                   cursor: "pointer",
-                  textAlign: "center",
+                  textAlign: "left",
                   fontSize: "var(--font-size-sm)",
                   color: "var(--color-text-secondary)",
                   transition: "var(--transition-fast)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-sm)",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = "var(--color-primary)";
@@ -304,11 +243,136 @@ export default function Home({
                   e.currentTarget.style.color = "var(--color-text-secondary)";
                 }}
               >
-                ✨ Accès rapide : Mes Mantras
+                <span>✨</span>
+                <span>Accès rapide : Mes Mantras</span>
               </button>
             )}
           </div>
-        )}
+        </div>
+
+        {/* GROUPE 2 : Apprentissage */}
+        <div style={{ marginBottom: "var(--space-xl)" }}>
+          <p
+            style={{
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text-tertiary)",
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              marginBottom: "var(--space-sm)",
+            }}
+          >
+            Apprentissage
+          </p>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "var(--space-sm)",
+            }}
+          >
+            <button
+              onClick={onOpenDashboard}
+              style={{
+                padding: "var(--space-md) var(--space-lg)",
+                background: "var(--color-surface-1)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                textAlign: "left",
+                fontSize: "var(--font-size-md)",
+                color: "var(--color-text-primary)",
+                transition: "var(--transition-fast)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-sm)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--color-surface-2)";
+                e.currentTarget.style.borderColor = "var(--color-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--color-surface-1)";
+                e.currentTarget.style.borderColor = "var(--color-border)";
+              }}
+            >
+              <span>📖</span>
+              <span>Parcours</span>
+            </button>
+
+            <button
+              onClick={onOpenResources}
+              style={{
+                padding: "var(--space-md) var(--space-lg)",
+                background: "var(--color-surface-1)",
+                border: "1px solid var(--color-border)",
+                borderRadius: "var(--radius-md)",
+                cursor: "pointer",
+                textAlign: "left",
+                fontSize: "var(--font-size-md)",
+                color: "var(--color-text-primary)",
+                transition: "var(--transition-fast)",
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-sm)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "var(--color-surface-2)";
+                e.currentTarget.style.borderColor = "var(--color-primary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "var(--color-surface-1)";
+                e.currentTarget.style.borderColor = "var(--color-border)";
+              }}
+            >
+              <span>📚</span>
+              <span>Bibliothèque</span>
+            </button>
+          </div>
+        </div>
+
+        {/* GROUPE 3 : Expression */}
+        <div style={{ marginBottom: "var(--space-lg)" }}>
+          <p
+            style={{
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text-tertiary)",
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+              marginBottom: "var(--space-sm)",
+            }}
+          >
+            Expression
+          </p>
+          <button
+            onClick={onOpenCreativity}
+            style={{
+              width: "100%",
+              padding: "var(--space-md) var(--space-lg)",
+              background: "var(--color-surface-1)",
+              border: "1px solid var(--color-border)",
+              borderRadius: "var(--radius-md)",
+              cursor: "pointer",
+              textAlign: "left",
+              fontSize: "var(--font-size-md)",
+              color: "var(--color-text-primary)",
+              transition: "var(--transition-fast)",
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-sm)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "var(--color-surface-2)";
+              e.currentTarget.style.borderColor = "var(--color-primary)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "var(--color-surface-1)";
+              e.currentTarget.style.borderColor = "var(--color-border)";
+            }}
+          >
+            <span>🎨</span>
+            <span>Créativité</span>
+          </button>
+        </div>
 
         {/* Modal Mantras */}
         {showMantras && (
