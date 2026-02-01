@@ -25,6 +25,8 @@ export default function Home({
   const device = useDeviceDetection();
   const [showMantras, setShowMantras] = useState(false);
   const hasMantras = user?.extended_profile?.mantras?.length > 0;
+  // Module spiritualité en beta - visible uniquement si l'utilisateur a un extended_profile
+  const hasSpiritualAccess = user?.extended_profile && Object.keys(user.extended_profile).length > 0;
 
   return (
     <div
@@ -54,6 +56,7 @@ export default function Home({
         >
           <UserMenu
             user={user}
+            hasSpiritualAccess={hasSpiritualAccess}
             onOpenParcours={onOpenDashboard}
             onOpenLibrary={onOpenResources}
             onOpenCreativity={onOpenCreativity}
@@ -144,8 +147,8 @@ export default function Home({
           </Button>
         </div>
 
-        {/* GROUPE 1 : Moi & Spiritualité */}
-        <div style={{ marginBottom: "var(--space-xl)" }}>
+        {/* GROUPE 1 : Moi & Spiritualité - Beta, visible uniquement si extended_profile */}
+        {hasSpiritualAccess && <div style={{ marginBottom: "var(--space-xl)" }}>
           <p
             style={{
               fontSize: "var(--font-size-sm)",
@@ -248,7 +251,7 @@ export default function Home({
               </button>
             )}
           </div>
-        </div>
+        </div>}
 
         {/* GROUPE 2 : Apprentissage */}
         <div style={{ marginBottom: "var(--space-xl)" }}>

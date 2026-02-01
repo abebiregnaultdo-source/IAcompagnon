@@ -2,6 +2,7 @@ import { useState } from "react";
 
 export default function UserMenu({
   user,
+  hasSpiritualAccess = false,
   onOpenParcours,
   onOpenLibrary,
   onOpenCreativity,
@@ -105,34 +106,38 @@ export default function UserMenu({
               overflow: "hidden",
             }}
           >
-            {/* Section: Moi & Spiritualité */}
-            <div style={sectionLabelStyle}>Moi & Spiritualité</div>
-            <button
-              role="menuitem"
-              onClick={() => {
-                setOpen(false);
-                onOpenSpiritualProfile && onOpenSpiritualProfile();
-              }}
-              style={menuItemStyle}
-              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-            >
-              <span>🔮</span>
-              <span>Profil Spirituel</span>
-            </button>
-            <button
-              role="menuitem"
-              onClick={() => {
-                setOpen(false);
-                onOpenDreams && onOpenDreams();
-              }}
-              style={menuItemStyle}
-              onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
-              onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-            >
-              <span>🌙</span>
-              <span>Journal des Rêves</span>
-            </button>
+            {/* Section: Moi & Spiritualité - Beta, visible uniquement si hasSpiritualAccess */}
+            {hasSpiritualAccess && (
+              <>
+                <div style={sectionLabelStyle}>Moi & Spiritualité</div>
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setOpen(false);
+                    onOpenSpiritualProfile && onOpenSpiritualProfile();
+                  }}
+                  style={menuItemStyle}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  <span>🔮</span>
+                  <span>Profil Spirituel</span>
+                </button>
+                <button
+                  role="menuitem"
+                  onClick={() => {
+                    setOpen(false);
+                    onOpenDreams && onOpenDreams();
+                  }}
+                  style={menuItemStyle}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "var(--color-surface-2)"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                >
+                  <span>🌙</span>
+                  <span>Journal des Rêves</span>
+                </button>
+              </>
+            )}
 
             {/* Section: Apprentissage */}
             <div style={sectionLabelStyle}>Apprentissage</div>
