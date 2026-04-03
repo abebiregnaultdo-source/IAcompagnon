@@ -405,7 +405,7 @@ export default function Chat({
             justifyContent: "space-between",
             marginBottom: "24px",
             padding: "16px 20px",
-            background: "white",
+            background: "#F8FAFB",
             borderRadius: "16px",
             boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
           }}
@@ -465,7 +465,7 @@ export default function Chat({
                   top: "-4px",
                   right: "-4px",
                   background: "#5A8FA8",
-                  color: "white",
+                  color: "#F2F6F7",
                   fontSize: "10px",
                   borderRadius: "50%",
                   width: "18px",
@@ -532,7 +532,7 @@ export default function Chat({
                 borderRadius: "12px",
                 background: "linear-gradient(135deg, #5A8FA8 0%, #7BA8C0 100%)",
                 border: "none",
-                color: "white",
+                color: "#F2F6F7",
                 fontSize: "18px",
                 cursor: "pointer",
                 display: "flex",
@@ -550,7 +550,7 @@ export default function Chat({
         {/* Zone de conversation */}
         <div
           style={{
-            background: "white",
+            background: "#F8FAFB",
             borderRadius: "20px",
             boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
             overflow: "hidden",
@@ -714,7 +714,7 @@ export default function Chat({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <Text as="h2" size="lg" style={{ margin: 0, color: "white" }}>
+              <Text as="h2" size="lg" style={{ margin: 0, color: "#F2F6F7" }}>
                 Consultation avec Helō
               </Text>
               <div
@@ -736,7 +736,7 @@ export default function Chat({
                 borderRadius: "50%",
                 background: "rgba(255,255,255,0.1)",
                 border: "none",
-                color: "white",
+                color: "#F2F6F7",
                 fontSize: "18px",
                 cursor: "pointer",
               }}
@@ -770,7 +770,7 @@ export default function Chat({
                     margin: "0 auto 24px",
                   }}
                 >
-                  <Text style={{ color: "white", fontSize: "16px", lineHeight: "1.6" }}>
+                  <Text style={{ color: "#F2F6F7", fontSize: "16px", lineHeight: "1.6" }}>
                     "{messages[messages.length - 1].content}"
                   </Text>
                 </div>
@@ -785,7 +785,7 @@ export default function Chat({
                     borderRadius: "30px",
                     background: voiceEnabled ? "#48bb78" : "rgba(255,255,255,0.2)",
                     border: "none",
-                    color: "white",
+                    color: "#F2F6F7",
                     fontSize: "15px",
                     cursor: "pointer",
                     display: "flex",
@@ -804,7 +804,7 @@ export default function Chat({
                       borderRadius: "30px",
                       background: "#e53e3e",
                       border: "none",
-                      color: "white",
+                      color: "#F2F6F7",
                       fontSize: "15px",
                       cursor: "pointer",
                     }}
@@ -844,7 +844,7 @@ export default function Chat({
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: "white",
+              background: "#F8FAFB",
               borderRadius: "20px",
               maxWidth: "500px",
               width: "100%",

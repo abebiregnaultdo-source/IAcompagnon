@@ -82,10 +82,9 @@ export default function AvatarView({
   presentation = "neutral",
   breathingPhase = 0,
 }) {
-  // Respiration subtile - cycle de 6 secondes (conforme aux principes thérapeutiques)
-  // L'avatar ne "réagit" pas, il respire de manière stable et apaisante
-  const breathScale = 1 + Math.sin(breathingPhase) * 0.015; // ±1.5% variation
-  const breathOpacity = 0.85 + Math.sin(breathingPhase) * 0.08;
+  // La respiration est gérée uniquement par l'animation CSS `gentle-breath`
+  // dans avatar.css (cycle 6s, ±1.5% scale). Pas de JS ici pour éviter
+  // le conflit entre inline transform et le CSS transform: translateX(-50%).
 
   return (
     <svg
@@ -94,11 +93,6 @@ export default function AvatarView({
       viewBox="0 0 220 240"
       className="avatar-figure"
       aria-label="Présence thérapeutique"
-      style={{
-        transform: `scale(${breathScale})`,
-        opacity: breathOpacity,
-        transition: "transform 0.8s ease-in-out, opacity 0.8s ease-in-out",
-      }}
     >
       {/* Chair (stylized) */}
       <g className="chair-element">

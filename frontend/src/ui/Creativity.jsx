@@ -5,7 +5,7 @@ import Text from "./components/Text";
 import Panel from "./components/Panel";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import CreativeSpaceIntro from "./creativity/CreativeSpaceIntro";
-import ColoringCanvas from "./creativity/ColoringCanvas";
+import DrawingCanvas from "./creativity/DrawingCanvas";
 import Portfolio from "./creativity/Portfolio";
 
 /**
@@ -788,7 +788,7 @@ export default function Creativity({ user, api, onBackToHome }) {
 
         {(activeTab === "creative" || activeTab === "coloring") && !showEditor && (
           <div style={{ marginBottom: "var(--space-xl)" }}>
-            <ColoringCanvas
+            <DrawingCanvas
               user={user}
               api={api}
               onSaved={() => {

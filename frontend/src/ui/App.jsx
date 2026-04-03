@@ -39,10 +39,13 @@ export default function App() {
   const adminMode = urlParams.get("admin");
   const isResetPasswordPage = window.location.pathname === "/reset-password";
 
-  const api = useMemo(() => ({ base: "https://helo-backend.onrender.com" }), []);
+  const api = useMemo(() => ({
+    base: import.meta.env.VITE_BACKEND_URL || "https://helo-backend.onrender.com"
+  }), []);
 
-  // Show admin dashboard if requested with correct key
-  if (adminMode === "helo2024admin") {
+  // Show admin dashboard if requested with correct key (from env variable)
+  const adminKey = import.meta.env.VITE_ADMIN_KEY || "helo2024admin";
+  if (adminMode && adminMode === adminKey) {
     return (
       <AdminDashboard
         api={api}
@@ -210,6 +213,25 @@ export default function App() {
       setIsTransitioning(false);
       setShowHome(true); // Afficher la page d'accueil après l'onboarding
     }, 600);
+  };
+
+  const handleLogout = async () => {
+    await signOut();
+    localStorage.removeItem("helo_current_user");
+    setUser(null);
+    setShowHome(false);
+    setShowAuth(false);
+    setShowChat(false);
+    setShowSettings(false);
+    setShowDashboard(false);
+    setShowLibrary(false);
+    setShowCreativity(false);
+    setShowDreams(false);
+    setShowSpiritualProfile(false);
+    setShowResources(false);
+    setShowPricing(false);
+    setShowLegalPage(null);
+    setShowLanding(true);
   };
 
   const handleAuthenticated = (userData) => {
@@ -381,10 +403,6 @@ export default function App() {
             setShowHome(false);
             setShowSettings(true);
           }}
-          onOpenGuide={() => {
-            setShowHome(false);
-            setShowResources(true);
-          }}
           onOpenResources={() => {
             setShowHome(false);
             setShowLibrary(true);
@@ -401,28 +419,7 @@ export default function App() {
             setShowHome(false);
             setShowSpiritualProfile(true);
           }}
-          onLogout={async () => {
-            // Déconnecter de Supabase
-            await signOut();
-            // Nettoyer la session localStorage
-            localStorage.removeItem("helo_current_user");
-            // Réinitialiser tous les états
-            setUser(null);
-            setShowHome(false);
-            setShowAuth(false);
-            setShowChat(false);
-            setShowSettings(false);
-            setShowDashboard(false);
-            setShowLibrary(false);
-            setShowCreativity(false);
-            setShowDreams(false);
-            setShowSpiritualProfile(false);
-            setShowResources(false);
-            setShowPricing(false);
-            setShowLegalPage(null);
-            // Retourner à la landing page
-            setShowLanding(true);
-          }}
+          onLogout={handleLogout}
         />
       </EmotionalFeedback>
     );
@@ -514,28 +511,7 @@ export default function App() {
               setShowSettings(false);
               setShowLegalPage(page);
             }}
-            onLogout={async () => {
-              // Déconnecter de Supabase
-              await signOut();
-              // Nettoyer la session localStorage
-              localStorage.removeItem("helo_current_user");
-              // Réinitialiser tous les états
-              setUser(null);
-              setShowHome(false);
-              setShowAuth(false);
-              setShowChat(false);
-              setShowSettings(false);
-              setShowDashboard(false);
-              setShowLibrary(false);
-              setShowCreativity(false);
-              setShowDreams(false);
-              setShowSpiritualProfile(false);
-              setShowResources(false);
-              setShowPricing(false);
-              setShowLegalPage(null);
-              // Retourner à la landing page
-              setShowLanding(true);
-            }}
+            onLogout={handleLogout}
           />
         </div>
       </EmotionalFeedback>
@@ -573,28 +549,12 @@ export default function App() {
               setShowDashboard(false);
               setShowHome(true);
             }}
-            onLogout={async () => {
-              // Déconnecter de Supabase
-              await signOut();
-              // Nettoyer la session localStorage
-              localStorage.removeItem("helo_current_user");
-              // Réinitialiser tous les états
-              setUser(null);
-              setShowHome(false);
-              setShowAuth(false);
-              setShowChat(false);
-              setShowSettings(false);
+            onResumeSession={(sessionId) => {
               setShowDashboard(false);
-              setShowLibrary(false);
-              setShowCreativity(false);
-              setShowDreams(false);
-              setShowSpiritualProfile(false);
-              setShowResources(false);
-              setShowPricing(false);
-              setShowLegalPage(null);
-              // Retourner à la landing page
-              setShowLanding(true);
+              setShowChat(true);
+              // sessionId available for future use (load specific session)
             }}
+            onLogout={handleLogout}
           />
         </div>
       </EmotionalFeedback>

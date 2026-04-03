@@ -69,11 +69,29 @@
     fill 2s ease-in-out;
 }
 
+/* Wrapper positioning — translateX for centering lives here,
+   breathing animation uses only scale so they don't conflict */
 .avatar-figure {
   position: absolute;
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
+  transform-origin: center bottom;
+  animation: gentle-breath 6s ease-in-out infinite;
+}
+
+/* Gentle breathing animation — uses translate + scale together
+   so the centering is preserved throughout the cycle */
+@keyframes gentle-breath {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.015);
+    opacity: 0.93;
+  }
 }
 
 /* Simplified presence styling - no facial features */
@@ -88,23 +106,6 @@
 
 .presence-silhouette {
   transform-origin: center;
-}
-
-/* Gentle breathing animation */
-@keyframes gentle-breath {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.85;
-  }
-  50% {
-    transform: scale(1.015);
-    opacity: 0.93;
-  }
-}
-
-.avatar-figure {
-  animation: gentle-breath 6s ease-in-out infinite;
 }
 
 /* Subtle posture elements */

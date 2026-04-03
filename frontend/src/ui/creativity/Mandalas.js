@@ -1,17 +1,42 @@
 // Simple mandala library (SVG strings) for MVP coloring
 
+// Helper: generate concentric ring paths (annulus) instead of overlapping circles
+function _ringPath(cx, cy, outerR, innerR, segments = 64) {
+  // Outer circle clockwise, inner counter-clockwise → fillable ring
+  const pts = (r, cw) => {
+    const p = [];
+    for (let i = 0; i <= segments; i++) {
+      const a = ((cw ? i : segments - i) * 2 * Math.PI) / segments;
+      p.push(`${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`);
+    }
+    return p.join(' L');
+  };
+  return `M${pts(outerR, true)} Z M${pts(innerR, false)} Z`;
+}
+
+const STROKE = '#3A4048'; // Warm grey instead of pure black
+
 export const MANDALAS = [
   {
     id: "concentric_1",
     name: "Mandalas concentriques",
     protocol: "apaisement",
-    svg: `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:#000;stroke-width:2;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g><circle class="st0" cx="300" cy="300" r="280"/><circle class="st0" cx="300" cy="300" r="240"/><circle class="st0" cx="300" cy="300" r="200"/><circle class="st0" cx="300" cy="300" r="160"/><circle class="st0" cx="300" cy="300" r="120"/><circle class="st0" cx="300" cy="300" r="80"/><circle class="st0" cx="300" cy="300" r="40"/></g></svg>`,
+    svg: (() => {
+      const radii = [280, 240, 200, 160, 120, 80, 40];
+      const rings = [];
+      for (let i = 0; i < radii.length - 1; i++) {
+        rings.push(`<path fill="#fff" stroke="${STROKE}" stroke-width="2" cursor="pointer" d="${_ringPath(300, 300, radii[i], radii[i + 1])}"/>`);
+      }
+      // Center disc
+      rings.push(`<circle fill="#fff" stroke="${STROKE}" stroke-width="2" cursor="pointer" cx="300" cy="300" r="40"/>`);
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">${rings.join('')}</svg>`;
+    })(),
   },
   {
     id: "floral_1",
     name: "Rosace florale",
     protocol: "integration",
-    svg: `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:#000;stroke-width:2;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"> ${Array.from(
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:${STROKE};stroke-width:2;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"> ${Array.from(
       { length: 12 },
     )
       .map(
@@ -24,7 +49,7 @@ export const MANDALAS = [
     id: "narrative_sections",
     name: "Mandala narratif (sections)",
     protocol: "expression",
-    svg: `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:#000;stroke-width:2;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g>${Array.from(
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:${STROKE};stroke-width:2;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g>${Array.from(
       { length: 8 },
     )
       .map(
@@ -45,7 +70,7 @@ export const MANDALAS = [
     name: "Kaleidoscope",
     protocol: "integration",
     svg:
-      `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:#111;stroke-width:1.5;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"><circle class="st0" r="280"/>` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:${STROKE};stroke-width:1.5;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"><circle class="st0" r="280"/>` +
       new Array(24)
         .fill(0)
         .map(
@@ -57,10 +82,10 @@ export const MANDALAS = [
   },
   {
     id: "geometric_lace",
-    name: "Geometric Lace",
+    name: "Dentelle géométrique",
     protocol: "apaisement",
     svg:
-      `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:#1b1b1b;stroke-width:1.8;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"><circle class="st0" r="260"/>` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:${STROKE};stroke-width:1.8;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"><circle class="st0" r="260"/>` +
       new Array(12)
         .fill(0)
         .map(
@@ -79,10 +104,10 @@ export const MANDALAS = [
   },
   {
     id: "lotus_pattern",
-    name: "Lotus Pattern",
+    name: "Lotus",
     protocol: "expression",
     svg:
-      `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:#0c2733;stroke-width:2;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"><circle class="st0" cx="0" cy="0" r="220"/>` +
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600"><defs><style>.st0{fill:#fff;stroke:${STROKE};stroke-width:2;cursor:pointer}.st0:hover{opacity:0.8}</style></defs><g transform="translate(300,300)"><circle class="st0" cx="0" cy="0" r="220"/>` +
       new Array(8)
         .fill(0)
         .map(

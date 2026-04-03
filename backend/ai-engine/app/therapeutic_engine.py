@@ -470,8 +470,8 @@ class TherapeuticEngine:
             }
             with open(self.memory_path, 'a', encoding='utf-8') as f:
                 f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Impossible de logger l'interaction: {e}")
 
     def _log_crisis(self, message: str):
         """Log les alertes de crise."""
@@ -484,8 +484,8 @@ class TherapeuticEngine:
                     'type': 'crisis_detection',
                     'message_preview': message[:100]
                 }, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"CRITIQUE: Impossible de logger l'alerte de crise: {e}")
 
     # ========================================================================
     # MÉTHODES DE COMPATIBILITÉ (pour main.py existant)

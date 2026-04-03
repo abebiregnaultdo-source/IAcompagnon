@@ -25,19 +25,19 @@ export const ROOM_THEMES = [
   {
     id: "calm",
     label: "Calme",
-    bg: "linear-gradient(180deg, #EAF3F6 0%, #FFFFFF 100%)",
+    bg: "linear-gradient(180deg, #EAF3F6 0%, #F2F6F7 100%)",
     accents: "#B8D8E7",
   },
   {
     id: "warm",
     label: "Chaleureux",
-    bg: "linear-gradient(180deg, #FFF3E6 0%, #FFFFFF 100%)",
+    bg: "linear-gradient(180deg, #FFF3E6 0%, #F9F5F0 100%)",
     accents: "#E6C2A5",
   },
   {
     id: "pro",
     label: "Professionnel",
-    bg: "linear-gradient(180deg, #EEF0F4 0%, #FFFFFF 100%)",
+    bg: "linear-gradient(180deg, #EEF0F4 0%, #F4F5F7 100%)",
     accents: "#C7D0DB",
   },
 ];

@@ -2,19 +2,20 @@ import { useEffect, useState } from "react";
 
 /**
  * Dashboard Admin - Analytics pour améliorer l'accompagnement
- * Accessible via /?admin=helo2024admin
+ * Accessible via /?admin=<VITE_ADMIN_KEY>
  */
 export default function AdminDashboard({ api, onBack }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastRefresh, setLastRefresh] = useState(new Date());
+  const adminKey = import.meta.env.VITE_ADMIN_KEY || "helo2024admin";
 
   const fetchAnalytics = async () => {
     try {
       setLoading(true);
       const res = await fetch(
-        `${api.base}/admin/analytics?key=helo2024admin`
+        `${api.base}/admin/analytics?key=${adminKey}`
       );
       const json = await res.json();
       if (json.error) {

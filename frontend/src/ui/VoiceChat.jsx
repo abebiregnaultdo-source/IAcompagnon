@@ -37,21 +37,30 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
   // CONNEXION WEBSOCKET
   // ========================================================================
 
+  // Le service vocal n'est pas encore déployé — afficher le fallback immédiatement
+  // au lieu de tenter une connexion WebSocket qui échouera toujours.
+  const voiceServiceUrl = import.meta.env.VITE_VOICE_SERVICE_URL;
   useEffect(() => {
+    if (!voiceServiceUrl) {
+      // Pas d'URL configurée → le service n'est pas déployé
+      setServiceUnavailable(true);
+      setConnectionStatus("unavailable");
+      return;
+    }
     connectWebSocket();
-
-    return () => {
-      disconnectWebSocket();
-    };
+    return () => { disconnectWebSocket(); };
   }, []);
 
   const connectWebSocket = () => {
+    if (!voiceServiceUrl) {
+      setServiceUnavailable(true);
+      setConnectionStatus("unavailable");
+      return;
+    }
     setConnectionStatus("connecting");
     connectionAttempts.current += 1;
 
-    // URL du voice-service (production ou localhost)
-    const voiceServiceBase = import.meta.env.VITE_VOICE_SERVICE_URL || "wss://helo-voice-service.onrender.com";
-    const wsUrl = `${voiceServiceBase}/ws/voice/${user.id}`;
+    const wsUrl = `${voiceServiceUrl}/ws/voice/${user.id}`;
 
     try {
       wsRef.current = new WebSocket(wsUrl);
@@ -76,7 +85,6 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
 
     wsRef.current.onopen = () => {
       clearTimeout(connectionTimeout);
-      console.log("WebSocket connected");
       setConnectionStatus("connected");
       setError(null);
       setServiceUnavailable(false);
@@ -87,16 +95,11 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
       const message = JSON.parse(event.data);
 
       if (message.type === "transcript") {
-        // Ajouter transcription à l'historique
         setMessages((prev) => [
           ...prev,
-          {
-            role: message.role,
-            content: message.text,
-          },
+          { role: message.role, content: message.text },
         ]);
       } else if (message.type === "audio") {
-        // Jouer l'audio de l'IA
         await playAudio(message.data);
       }
     };
@@ -116,7 +119,6 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
 
     wsRef.current.onclose = () => {
       clearTimeout(connectionTimeout);
-      console.log("WebSocket closed");
       if (!serviceUnavailable) {
         setConnectionStatus("disconnected");
       }

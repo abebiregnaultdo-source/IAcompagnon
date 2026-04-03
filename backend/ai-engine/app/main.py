@@ -443,8 +443,9 @@ async def generate(req: GenerateRequest):
                             'phase': phase,
                             'note': 'CRISIS_ACTIVE_DETECTION'
                         }, ensure_ascii=False) + "\n")
-                except Exception:
-                    pass
+                except Exception as e:
+                    import logging
+                    logging.getLogger(__name__).error(f"CRITIQUE: Impossible de logger l'alerte de crise: {e}")
 
                 # Retourner immédiatement la réponse de crise
                 return {
@@ -483,11 +484,12 @@ async def generate(req: GenerateRequest):
                 user_state['emotion_suggested_phase'] = suggested_phase
 
     except ImportError:
-        # emotion_detector non disponible, continuer sans
-        pass
+        # emotion_detector non disponible (modèle DistilBERT absent), continuer sans
+        logger = logging.getLogger(__name__)
+        logger.info("emotion_detector non disponible — détection émotionnelle désactivée")
     except Exception as e:
-        import logging
-        logging.getLogger(__name__).warning(f"Emotion detection error: {e}")
+        logger = logging.getLogger(__name__)
+        logger.error(f"ALERTE: Erreur détection de crise/émotions: {e}", exc_info=True)
 
     req.policy['conversation_context'] = {
         'messages': messages_for_context,
@@ -513,8 +515,9 @@ async def generate(req: GenerateRequest):
                     'phase': phase,
                     'note': 'detresse>=80'
                 }, ensure_ascii=False) + "\n")
-        except Exception:
-            pass
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"CRITIQUE: Impossible de logger l'alerte détresse: {e}")
 
     text = out.get('text','')
     if alert_prefix:
