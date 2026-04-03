@@ -300,37 +300,17 @@ export default function VoiceChat({ api, user, onEmotionalStateChange }) {
 
   const device = useDeviceDetection();
 
-  // Afficher un écran d'attente si le service est indisponible
+  // Si le service est indisponible, rediriger silencieusement vers le chat écrit
+  // (le bouton "Appel visio" est déjà masqué côté Home, ceci est un filet de sécurité)
+  useEffect(() => {
+    if (serviceUnavailable && onEmotionalStateChange) {
+      // Pas de page "en cours de déploiement" — on redirige directement
+      window.history.back();
+    }
+  }, [serviceUnavailable]);
+
   if (serviceUnavailable) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "var(--color-background)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: device.isMobile ? "var(--space-md)" : "var(--space-xl)",
-        }}
-      >
-        <Panel style={{ maxWidth: 500, textAlign: "center", padding: "var(--space-2xl)" }}>
-          <div style={{ fontSize: 48, marginBottom: "var(--space-lg)" }}>📞</div>
-          <Text as="h2" size="xl" style={{ marginBottom: "var(--space-md)" }}>
-            Appel vocal en cours de déploiement
-          </Text>
-          <Text color="secondary" style={{ marginBottom: "var(--space-xl)", lineHeight: 1.6 }}>
-            Cette fonctionnalité sera bientôt disponible. En attendant, vous pouvez
-            utiliser la conversation écrite qui offre la même qualité d'accompagnement.
-          </Text>
-          <Text size="sm" color="tertiary" style={{ marginBottom: "var(--space-lg)" }}>
-            La synthèse vocale est disponible dans le chat écrit (icône haut-parleur)
-          </Text>
-          <Button onClick={() => window.history.back()} variant="primary">
-            Retourner au chat
-          </Button>
-        </Panel>
-      </div>
-    );
+    return null; // Render rien pendant la redirection
   }
 
   return (

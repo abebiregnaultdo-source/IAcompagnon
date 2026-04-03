@@ -50,8 +50,8 @@ export default function Home({
         <div
           style={{
             position: "absolute",
-            top: "var(--space-lg)",
-            right: "var(--space-lg)",
+            top: device.isMobile ? "var(--space-sm)" : "var(--space-lg)",
+            right: device.isMobile ? "var(--space-sm)" : "var(--space-lg)",
           }}
         >
           <UserMenu
@@ -127,24 +127,8 @@ export default function Home({
             <span>Écrire un message</span>
           </Button>
 
-          <Button
-            onClick={onStartCall}
-            variant="secondary"
-            style={{
-              fontSize: "var(--font-size-lg)",
-              padding: "var(--space-xl)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "var(--space-sm)",
-              flexDirection: "column",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
-              <span style={{ fontSize: "1.5rem" }}>📞</span>
-              <span>Appel visio</span>
-            </div>
-          </Button>
+          {/* Appel visio masqué — le service vocal n'est pas encore déployé.
+              Le bouton réapparaîtra automatiquement quand VITE_VOICE_SERVICE_URL sera configuré. */}
         </div>
 
         {/* GROUPE 1 : Moi & Spiritualité - Beta, visible uniquement si extended_profile */}

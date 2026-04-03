@@ -403,11 +403,13 @@ export default function Chat({
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: "24px",
-            padding: "16px 20px",
+            marginBottom: device.isMobile ? "12px" : "24px",
+            padding: device.isMobile ? "10px 12px" : "16px 20px",
             background: "#F8FAFB",
             borderRadius: "16px",
             boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+            gap: "8px",
+            flexWrap: "nowrap",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -437,13 +439,13 @@ export default function Chat({
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div style={{ display: "flex", gap: device.isMobile ? "4px" : "8px" }}>
             {/* Bouton historique */}
             <button
               onClick={() => setShowHistory(true)}
               style={{
-                width: "44px",
-                height: "44px",
+                width: device.isMobile ? "36px" : "44px",
+                height: device.isMobile ? "36px" : "44px",
                 borderRadius: "12px",
                 background: savedConversations.length > 0 ? "#e2e8f0" : "#f7fafc",
                 border: "none",
@@ -483,13 +485,13 @@ export default function Chat({
             <button
               onClick={startNewConversation}
               style={{
-                width: "44px",
-                height: "44px",
+                width: device.isMobile ? "36px" : "44px",
+                height: device.isMobile ? "36px" : "44px",
                 borderRadius: "12px",
                 background: "#e2e8f0",
                 border: "none",
                 color: "#5A8FA8",
-                fontSize: "18px",
+                fontSize: device.isMobile ? "16px" : "18px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -505,13 +507,13 @@ export default function Chat({
             <button
               onClick={toggleVoice}
               style={{
-                width: "44px",
-                height: "44px",
+                width: device.isMobile ? "36px" : "44px",
+                height: device.isMobile ? "36px" : "44px",
                 borderRadius: "12px",
                 background: voiceEnabled ? "#5A8FA8" : "#e2e8f0",
                 border: "none",
-                color: voiceEnabled ? "white" : "#718096",
-                fontSize: "18px",
+                color: voiceEnabled ? "#F2F6F7" : "#718096",
+                fontSize: device.isMobile ? "16px" : "18px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -527,13 +529,13 @@ export default function Chat({
             <button
               onClick={() => setShowAvatarFullscreen(true)}
               style={{
-                width: "44px",
-                height: "44px",
+                width: device.isMobile ? "36px" : "44px",
+                height: device.isMobile ? "36px" : "44px",
                 borderRadius: "12px",
                 background: "linear-gradient(135deg, #5A8FA8 0%, #7BA8C0 100%)",
                 border: "none",
                 color: "#F2F6F7",
-                fontSize: "18px",
+                fontSize: device.isMobile ? "16px" : "18px",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -583,7 +585,7 @@ export default function Chat({
                     background: m.role === "user"
                       ? "linear-gradient(135deg, #5A8FA8 0%, #7BA8C0 100%)"
                       : "#f7fafc",
-                    color: m.role === "user" ? "white" : "#2d3748",
+                    color: m.role === "user" ? "#F2F6F7" : "#2d3748",
                     fontSize: "15px",
                     lineHeight: "1.5",
                     boxShadow: m.role === "user"
@@ -669,7 +671,7 @@ export default function Chat({
                     ? "linear-gradient(135deg, #5A8FA8 0%, #7BA8C0 100%)"
                     : "#e2e8f0",
                   border: "none",
-                  color: input.trim() && !isSending ? "white" : "#a0aec0",
+                  color: input.trim() && !isSending ? "#F2F6F7" : "#a0aec0",
                   fontSize: "20px",
                   cursor: input.trim() && !isSending ? "pointer" : "not-allowed",
                   display: "flex",
