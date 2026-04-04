@@ -188,11 +188,11 @@ export default function App() {
     }
   }, [user]);
 
-  const handleUserReady = async (profileData) => {
+  const handleUserReady = (profileData) => {
     // Fusionner le profil d'onboarding avec l'utilisateur existant
     const updatedUser = { ...user, ...profileData, onboarding_completed: true };
 
-    // Sauvegarder dans Supabase avec retry
+    // Sauvegarder dans Supabase en background (non-bloquant)
     const saveData = {
       first_name: profileData.first_name,
       preferences: {
@@ -203,22 +203,25 @@ export default function App() {
       onboarding_completed: true,
     };
 
-    let saved = false;
-    for (let attempt = 0; attempt < 3 && !saved; attempt++) {
-      try {
-        await updateProfile(user.id, saveData);
-        saved = true;
-        console.log("[HELO] Onboarding saved to Supabase successfully");
-      } catch (e) {
-        console.error(`[HELO] Error saving onboarding (attempt ${attempt + 1}/3):`, e);
-        if (attempt < 2) await new Promise(r => setTimeout(r, 1000));
+    // Fire-and-forget: retry en background, ne bloque JAMAIS la transition
+    (async () => {
+      let saved = false;
+      for (let attempt = 0; attempt < 3 && !saved; attempt++) {
+        try {
+          await updateProfile(user.id, saveData);
+          saved = true;
+          console.log("[HELO] Onboarding saved to Supabase successfully");
+        } catch (e) {
+          console.error(`[HELO] Error saving onboarding (attempt ${attempt + 1}/3):`, e);
+          if (attempt < 2) await new Promise(r => setTimeout(r, 1000));
+        }
       }
-    }
+      if (!saved) {
+        console.error("[HELO] CRITICAL: Failed to save onboarding after 3 attempts");
+      }
+    })();
 
-    if (!saved) {
-      console.error("[HELO] CRITICAL: Failed to save onboarding after 3 attempts");
-    }
-
+    // Transition IMMÉDIATE vers Home — jamais bloquée par Supabase
     setIsTransitioning(true);
     setTimeout(() => {
       setUser(updatedUser);
