@@ -73,6 +73,7 @@ export default function Home({
         flexDirection: "column",
         alignItems: "center",
         padding: device.isMobile ? "16px 16px 32px" : "40px 24px 48px",
+        overflowY: "auto",
       }}
     >
       {/* Top bar: menu utilisateur */}

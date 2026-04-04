@@ -111,7 +111,8 @@ export default function App() {
             id: session.user.id,
             email: session.user.email,
             first_name: profile?.first_name || session.user.user_metadata?.first_name || '',
-            onboarding_completed: profile?.onboarding_completed === true, // Strict check
+            onboarding_completed: profile?.onboarding_completed === true
+              || localStorage.getItem(`helo_onboarding_${session.user.id}`) === "true",
             preferences: profile?.preferences || {},
             ...profile,
           };
@@ -147,7 +148,8 @@ export default function App() {
             id: session.user.id,
             email: session.user.email,
             first_name: profile?.first_name || session.user.user_metadata?.first_name || '',
-            onboarding_completed: profile?.onboarding_completed || false,
+            onboarding_completed: profile?.onboarding_completed === true
+              || localStorage.getItem(`helo_onboarding_${session.user.id}`) === "true",
             preferences: profile?.preferences || {},
             ...profile,
           };
@@ -218,6 +220,8 @@ export default function App() {
       }
       if (!saved) {
         console.error("[HELO] CRITICAL: Failed to save onboarding after 3 attempts");
+        // Fallback localStorage pour éviter que l'onboarding se relance
+        localStorage.setItem(`helo_onboarding_${user.id}`, "true");
       }
     })();
 
@@ -232,6 +236,7 @@ export default function App() {
 
   const handleLogout = async () => {
     await signOut();
+    if (user?.id) localStorage.removeItem(`helo_onboarding_${user.id}`);
     localStorage.removeItem("helo_current_user");
     setUser(null);
     setShowHome(false);
