@@ -54,7 +54,7 @@ export default function LandingPage({ onGetStarted }) {
       <section className="landing-hero">
         <div className="landing-container">
           <h1>La perte transforme tout.</h1>
-          <p className="landing-hero-subtitle">Helō est là, avec vous.</p>
+          <p className="landing-hero-subtitle"><span style={{ fontFamily: "'Inter', sans-serif" }}>Helō</span> est là, avec vous.</p>
           <p className="landing-hero-description">
             Un espace doux et sécurisant pour vivre votre deuil, à votre rythme.
           </p>
