@@ -1,14 +1,13 @@
 import { useState } from "react";
 import Logo from "./components/Logo";
-import Button from "./components/Button";
 import UserMenu from "./components/UserMenu";
 import SubscriptionBanner from "./components/SubscriptionBanner";
 import MantrasQuickAccess from "./components/MantrasQuickAccess";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 
 /**
- * Page d'accueil après connexion - VERSION MINIMALISTE
- * Design épuré centré sur les actions principales
+ * Page d'accueil après connexion - VERSION PREMIUM
+ * Design thérapeutique épuré, chaleureux et professionnel
  */
 export default function Home({
   user,
@@ -24,366 +23,311 @@ export default function Home({
 }) {
   const device = useDeviceDetection();
   const [showMantras, setShowMantras] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState(null);
   const hasMantras = user?.extended_profile?.mantras?.length > 0;
-  // Module spiritualité en beta - visible uniquement si l'utilisateur a un extended_profile
   const hasSpiritualAccess = user?.extended_profile && Object.keys(user.extended_profile).length > 0;
+
+  // Style de carte réutilisable
+  const cardStyle = (id) => ({
+    padding: device.isMobile ? "16px 18px" : "18px 22px",
+    background: hoveredCard === id
+      ? "linear-gradient(135deg, rgba(123, 168, 192, 0.08), rgba(138, 186, 168, 0.06))"
+      : "rgba(242, 246, 247, 0.6)",
+    border: hoveredCard === id
+      ? "1px solid rgba(123, 168, 192, 0.3)"
+      : "1px solid rgba(123, 168, 192, 0.1)",
+    borderRadius: "14px",
+    cursor: "pointer",
+    textAlign: "left",
+    fontSize: device.isMobile ? "14px" : "15px",
+    color: "#3a4048",
+    transition: "all 0.3s ease",
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    width: "100%",
+    transform: hoveredCard === id ? "translateY(-1px)" : "none",
+    boxShadow: hoveredCard === id
+      ? "0 4px 16px rgba(123, 168, 192, 0.12)"
+      : "0 1px 4px rgba(0, 0, 0, 0.03)",
+  });
+
+  const iconCircle = (bg) => ({
+    width: device.isMobile ? "38px" : "42px",
+    height: device.isMobile ? "38px" : "42px",
+    borderRadius: "12px",
+    background: bg,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: device.isMobile ? "18px" : "20px",
+    flexShrink: 0,
+  });
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "var(--color-background)",
+        background: "linear-gradient(180deg, #f5f2ed 0%, #eef3f6 50%, #f5f2ed 100%)",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        padding: device.isMobile ? "var(--space-md)" : "var(--space-xl)",
+        padding: device.isMobile ? "16px 16px 32px" : "40px 24px 48px",
       }}
     >
+      {/* Top bar: menu utilisateur */}
       <div
         style={{
-          maxWidth: "500px",
           width: "100%",
-          textAlign: "center",
+          maxWidth: "520px",
+          display: "flex",
+          justifyContent: "flex-end",
+          marginBottom: device.isMobile ? "8px" : "16px",
         }}
       >
-        {/* User menu en haut à droite */}
-        <div
-          style={{
-            position: "absolute",
-            top: device.isMobile ? "var(--space-sm)" : "var(--space-lg)",
-            right: device.isMobile ? "var(--space-sm)" : "var(--space-lg)",
-          }}
-        >
-          <UserMenu
-            user={user}
-            hasSpiritualAccess={hasSpiritualAccess}
-            onOpenParcours={onOpenDashboard}
-            onOpenLibrary={onOpenResources}
-            onOpenCreativity={onOpenCreativity}
-            onOpenDreams={onOpenDreams}
-            onOpenSpiritualProfile={onOpenSpiritualProfile}
-            onOpenSettings={onOpenSettings}
-            onLogout={onLogout}
-          />
-        </div>
+        <UserMenu
+          user={user}
+          hasSpiritualAccess={hasSpiritualAccess}
+          onOpenParcours={onOpenDashboard}
+          onOpenLibrary={onOpenResources}
+          onOpenCreativity={onOpenCreativity}
+          onOpenDreams={onOpenDreams}
+          onOpenSpiritualProfile={onOpenSpiritualProfile}
+          onOpenSettings={onOpenSettings}
+          onLogout={onLogout}
+        />
+      </div>
 
+      <div
+        style={{
+          maxWidth: "520px",
+          width: "100%",
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         {/* Subscription banner */}
-        <div style={{ marginBottom: "var(--space-xl)" }}>
+        <div style={{ marginBottom: "24px" }}>
           <SubscriptionBanner userId={user?.id} />
         </div>
 
-        {/* Header simple avec logo */}
-        <div style={{ marginBottom: "var(--space-2xl)" }}>
-          <div style={{ marginBottom: "var(--space-lg)" }}>
-            <Logo size={60} showText={true} />
+        {/* Header */}
+        <div style={{ textAlign: "center", marginBottom: device.isMobile ? "28px" : "36px" }}>
+          <div style={{ marginBottom: "20px" }}>
+            <Logo size={52} showText={true} />
           </div>
 
           <h1
             style={{
-              fontSize: device.isMobile ? "28px" : "32px",
-              fontWeight: "var(--font-weight-normal)",
-              color: "var(--color-text-primary)",
-              marginBottom: "var(--space-sm)",
+              fontSize: device.isMobile ? "26px" : "30px",
+              fontWeight: 400,
+              color: "#3a4048",
+              marginBottom: "6px",
+              letterSpacing: "-0.3px",
+              fontFamily: "'Inter', system-ui, sans-serif",
             }}
           >
-            Bonjour, {user?.first_name || "Ge"}
+            Bonjour, {user?.first_name || "vous"}
           </h1>
 
           <p
             style={{
-              fontSize: "var(--font-size-md)",
-              color: "var(--color-text-secondary)",
-              fontWeight: "var(--font-weight-normal)",
+              fontSize: device.isMobile ? "15px" : "16px",
+              color: "#7a8490",
+              fontWeight: 400,
+              margin: 0,
             }}
           >
-            Je suis là pour vous
+            Comment allez-vous aujourd'hui ?
           </p>
         </div>
 
-        {/* Actions principales */}
-        <div
+        {/* Action principale : Écrire */}
+        <button
+          onClick={onStartConversation}
+          onMouseEnter={() => setHoveredCard("main")}
+          onMouseLeave={() => setHoveredCard(null)}
           style={{
+            width: "100%",
+            padding: device.isMobile ? "20px 24px" : "24px 28px",
+            background: hoveredCard === "main"
+              ? "linear-gradient(135deg, #6a9db8 0%, #7BA8C0 100%)"
+              : "linear-gradient(135deg, #7BA8C0 0%, #8ab4c8 100%)",
+            border: "none",
+            borderRadius: "16px",
+            cursor: "pointer",
             display: "flex",
-            flexDirection: "column",
-            gap: "var(--space-md)",
-            marginBottom: "var(--space-2xl)",
+            alignItems: "center",
+            gap: "16px",
+            marginBottom: device.isMobile ? "28px" : "36px",
+            transition: "all 0.35s ease",
+            transform: hoveredCard === "main" ? "translateY(-2px)" : "none",
+            boxShadow: hoveredCard === "main"
+              ? "0 8px 28px rgba(123, 168, 192, 0.35)"
+              : "0 4px 16px rgba(123, 168, 192, 0.2)",
           }}
         >
-          <Button
-            onClick={onStartConversation}
+          <div
             style={{
-              fontSize: "var(--font-size-lg)",
-              padding: "var(--space-xl)",
+              width: "48px",
+              height: "48px",
+              borderRadius: "14px",
+              background: "rgba(242, 246, 247, 0.25)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "var(--space-sm)",
-              background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))",
-              border: "none",
-              boxShadow: "0 4px 12px rgba(123, 168, 192, 0.3)",
+              fontSize: "22px",
+              flexShrink: 0,
             }}
           >
-            <span style={{ fontSize: "1.5rem" }}>💬</span>
-            <span>Écrire un message</span>
-          </Button>
+            💬
+          </div>
+          <div style={{ textAlign: "left" }}>
+            <div
+              style={{
+                fontSize: device.isMobile ? "16px" : "17px",
+                fontWeight: 500,
+                color: "#F2F6F7",
+                marginBottom: "2px",
+              }}
+            >
+              Commencer une conversation
+            </div>
+            <div
+              style={{
+                fontSize: device.isMobile ? "12px" : "13px",
+                color: "rgba(242, 246, 247, 0.75)",
+                fontWeight: 400,
+              }}
+            >
+              Je suis là pour vous écouter
+            </div>
+          </div>
+        </button>
 
-          {/* Appel visio masqué — le service vocal n'est pas encore déployé.
-              Le bouton réapparaîtra automatiquement quand VITE_VOICE_SERVICE_URL sera configuré. */}
+        {/* Grille de fonctionnalités */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: device.isMobile ? "10px" : "12px",
+            marginBottom: "24px",
+          }}
+        >
+          {/* Parcours */}
+          <button
+            onClick={onOpenDashboard}
+            onMouseEnter={() => setHoveredCard("parcours")}
+            onMouseLeave={() => setHoveredCard(null)}
+            style={cardStyle("parcours")}
+          >
+            <div style={iconCircle("rgba(123, 168, 192, 0.12)")}>📖</div>
+            <span style={{ fontWeight: 450 }}>Parcours</span>
+          </button>
+
+          {/* Bibliothèque */}
+          <button
+            onClick={onOpenResources}
+            onMouseEnter={() => setHoveredCard("biblio")}
+            onMouseLeave={() => setHoveredCard(null)}
+            style={cardStyle("biblio")}
+          >
+            <div style={iconCircle("rgba(138, 186, 168, 0.12)")}>📚</div>
+            <span style={{ fontWeight: 450 }}>Bibliothèque</span>
+          </button>
+
+          {/* Créativité */}
+          <button
+            onClick={onOpenCreativity}
+            onMouseEnter={() => setHoveredCard("crea")}
+            onMouseLeave={() => setHoveredCard(null)}
+            style={cardStyle("crea")}
+          >
+            <div style={iconCircle("rgba(192, 168, 123, 0.12)")}>🎨</div>
+            <span style={{ fontWeight: 450 }}>Créativité</span>
+          </button>
+
+          {/* Spiritualité ou placeholder */}
+          {hasSpiritualAccess ? (
+            <button
+              onClick={onOpenSpiritualProfile}
+              onMouseEnter={() => setHoveredCard("spirit")}
+              onMouseLeave={() => setHoveredCard(null)}
+              style={cardStyle("spirit")}
+            >
+              <div style={iconCircle("rgba(168, 140, 192, 0.12)")}>🔮</div>
+              <span style={{ fontWeight: 450 }}>Profil Spirituel</span>
+            </button>
+          ) : (
+            <div style={{ ...cardStyle("empty"), cursor: "default", opacity: 0 }} />
+          )}
         </div>
 
-        {/* GROUPE 1 : Moi & Spiritualité - Beta, visible uniquement si extended_profile */}
-        {hasSpiritualAccess && <div style={{ marginBottom: "var(--space-xl)" }}>
-          <p
-            style={{
-              fontSize: "var(--font-size-sm)",
-              color: "var(--color-text-tertiary)",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-              marginBottom: "var(--space-sm)",
-            }}
-          >
-            Moi & Spiritualité
-          </p>
+        {/* Modules secondaires si spiritual access */}
+        {hasSpiritualAccess && (
           <div
             style={{
               display: "flex",
-              flexDirection: "column",
-              gap: "var(--space-sm)",
+              gap: device.isMobile ? "10px" : "12px",
+              marginBottom: "24px",
             }}
           >
             <button
-              onClick={onOpenSpiritualProfile}
-              style={{
-                padding: "var(--space-md) var(--space-lg)",
-                background: "linear-gradient(135deg, rgba(123, 168, 192, 0.15), rgba(138, 186, 168, 0.15))",
-                border: "1px solid var(--color-primary)",
-                borderRadius: "var(--radius-md)",
-                cursor: "pointer",
-                textAlign: "left",
-                fontSize: "var(--font-size-md)",
-                color: "var(--color-text-primary)",
-                transition: "var(--transition-fast)",
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-sm)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.25), rgba(138, 186, 168, 0.25))";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "linear-gradient(135deg, rgba(123, 168, 192, 0.15), rgba(138, 186, 168, 0.15))";
-              }}
-            >
-              <span>🔮</span>
-              <span>Mon Profil Spirituel</span>
-            </button>
-
-            <button
               onClick={onOpenDreams}
-              style={{
-                padding: "var(--space-md) var(--space-lg)",
-                background: "var(--color-surface-1)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "var(--radius-md)",
-                cursor: "pointer",
-                textAlign: "left",
-                fontSize: "var(--font-size-md)",
-                color: "var(--color-text-primary)",
-                transition: "var(--transition-fast)",
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-sm)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--color-surface-2)";
-                e.currentTarget.style.borderColor = "var(--color-primary)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--color-surface-1)";
-                e.currentTarget.style.borderColor = "var(--color-border)";
-              }}
+              onMouseEnter={() => setHoveredCard("dreams")}
+              onMouseLeave={() => setHoveredCard(null)}
+              style={{ ...cardStyle("dreams"), flex: 1 }}
             >
-              <span>🌙</span>
-              <span>Journal des Rêves</span>
+              <div style={iconCircle("rgba(140, 160, 192, 0.12)")}>🌙</div>
+              <span style={{ fontWeight: 450 }}>Journal des Rêves</span>
             </button>
 
             {hasMantras && (
               <button
                 onClick={() => setShowMantras(true)}
-                style={{
-                  padding: "var(--space-sm) var(--space-lg)",
-                  background: "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  fontSize: "var(--font-size-sm)",
-                  color: "var(--color-text-secondary)",
-                  transition: "var(--transition-fast)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "var(--space-sm)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = "var(--color-primary)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = "var(--color-text-secondary)";
-                }}
+                onMouseEnter={() => setHoveredCard("mantras")}
+                onMouseLeave={() => setHoveredCard(null)}
+                style={{ ...cardStyle("mantras"), flex: 1 }}
               >
-                <span>✨</span>
-                <span>Accès rapide : Mes Mantras</span>
+                <div style={iconCircle("rgba(192, 180, 140, 0.12)")}>✨</div>
+                <span style={{ fontWeight: 450 }}>Mes Mantras</span>
               </button>
             )}
           </div>
-        </div>}
-
-        {/* GROUPE 2 : Apprentissage */}
-        <div style={{ marginBottom: "var(--space-xl)" }}>
-          <p
-            style={{
-              fontSize: "var(--font-size-sm)",
-              color: "var(--color-text-tertiary)",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-              marginBottom: "var(--space-sm)",
-            }}
-          >
-            Apprentissage
-          </p>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "var(--space-sm)",
-            }}
-          >
-            <button
-              onClick={onOpenDashboard}
-              style={{
-                padding: "var(--space-md) var(--space-lg)",
-                background: "var(--color-surface-1)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "var(--radius-md)",
-                cursor: "pointer",
-                textAlign: "left",
-                fontSize: "var(--font-size-md)",
-                color: "var(--color-text-primary)",
-                transition: "var(--transition-fast)",
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-sm)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--color-surface-2)";
-                e.currentTarget.style.borderColor = "var(--color-primary)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--color-surface-1)";
-                e.currentTarget.style.borderColor = "var(--color-border)";
-              }}
-            >
-              <span>📖</span>
-              <span>Parcours</span>
-            </button>
-
-            <button
-              onClick={onOpenResources}
-              style={{
-                padding: "var(--space-md) var(--space-lg)",
-                background: "var(--color-surface-1)",
-                border: "1px solid var(--color-border)",
-                borderRadius: "var(--radius-md)",
-                cursor: "pointer",
-                textAlign: "left",
-                fontSize: "var(--font-size-md)",
-                color: "var(--color-text-primary)",
-                transition: "var(--transition-fast)",
-                display: "flex",
-                alignItems: "center",
-                gap: "var(--space-sm)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = "var(--color-surface-2)";
-                e.currentTarget.style.borderColor = "var(--color-primary)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = "var(--color-surface-1)";
-                e.currentTarget.style.borderColor = "var(--color-border)";
-              }}
-            >
-              <span>📚</span>
-              <span>Bibliothèque</span>
-            </button>
-          </div>
-        </div>
-
-        {/* GROUPE 3 : Expression */}
-        <div style={{ marginBottom: "var(--space-lg)" }}>
-          <p
-            style={{
-              fontSize: "var(--font-size-sm)",
-              color: "var(--color-text-tertiary)",
-              textTransform: "uppercase",
-              letterSpacing: "0.5px",
-              marginBottom: "var(--space-sm)",
-            }}
-          >
-            Expression
-          </p>
-          <button
-            onClick={onOpenCreativity}
-            style={{
-              width: "100%",
-              padding: "var(--space-md) var(--space-lg)",
-              background: "var(--color-surface-1)",
-              border: "1px solid var(--color-border)",
-              borderRadius: "var(--radius-md)",
-              cursor: "pointer",
-              textAlign: "left",
-              fontSize: "var(--font-size-md)",
-              color: "var(--color-text-primary)",
-              transition: "var(--transition-fast)",
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-sm)",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-2)";
-              e.currentTarget.style.borderColor = "var(--color-primary)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = "var(--color-surface-1)";
-              e.currentTarget.style.borderColor = "var(--color-border)";
-            }}
-          >
-            <span>🎨</span>
-            <span>Créativité</span>
-          </button>
-        </div>
-
-        {/* Modal Mantras */}
-        {showMantras && (
-          <MantrasQuickAccess user={user} onClose={() => setShowMantras(false)} />
         )}
 
-        {/* Footer avec déconnexion */}
-        <div style={{ paddingTop: "var(--space-lg)", borderTop: "1px solid var(--color-border)" }}>
+        {/* Footer discret */}
+        <div
+          style={{
+            marginTop: "auto",
+            paddingTop: "24px",
+            textAlign: "center",
+          }}
+        >
           <button
             onClick={onLogout}
+            onMouseEnter={(e) => e.currentTarget.style.color = "#5a6068"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "#a0a8b4"}
             style={{
-              padding: "var(--space-sm) var(--space-lg)",
+              padding: "8px 16px",
               border: "none",
               background: "transparent",
-              color: "var(--color-text-tertiary)",
-              fontSize: "var(--font-size-sm)",
+              color: "#a0a8b4",
+              fontSize: "13px",
               cursor: "pointer",
-              textDecoration: "underline",
+              transition: "color 0.3s ease",
             }}
           >
             Se déconnecter
           </button>
         </div>
       </div>
+
+      {/* Modal Mantras */}
+      {showMantras && (
+        <MantrasQuickAccess user={user} onClose={() => setShowMantras(false)} />
+      )}
     </div>
   );
 }
