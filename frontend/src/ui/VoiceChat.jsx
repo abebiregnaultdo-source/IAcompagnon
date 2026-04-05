@@ -134,8 +134,11 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
   }, [messages, transcript]);
 
   // ========================================================================
-  // TTS — Synthèse vocale
+  // TTS — Synthèse vocale (Edge TTS haute qualité → fallback navigateur)
   // ========================================================================
+
+  const voiceServiceUrl = import.meta.env.VITE_VOICE_SERVICE_URL;
+  const audioContextRef = useRef(null);
 
   const getVoice = useCallback(() => {
     const voices = window.speechSynthesis.getVoices();
@@ -147,10 +150,55 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
     return premiumVoice || frenchVoices[0] || voices[0];
   }, []);
 
-  const speakText = useCallback((text) => {
-    if (!text) return;
-    window.speechSynthesis.cancel();
+  // TTS via Edge TTS (voix neurale Microsoft — qualité quasi-humaine)
+  const speakViaEdgeTTS = useCallback(async (text) => {
+    try {
+      const response = await fetch(voiceServiceUrl + "/api/synthesize", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          text,
+          voice_config: { voice_id: "fr-FR-DeniseNeural", speed: 0.95, pitch: 1.0 }
+        }),
+      });
+      if (!response.ok) throw new Error("Voice service error");
+      const data = await response.json();
+      if (!data.audio_base64) throw new Error("No audio data");
 
+      // Décoder et jouer l'audio MP3
+      const audioBytes = Uint8Array.from(atob(data.audio_base64), c => c.charCodeAt(0));
+      if (!audioContextRef.current) audioContextRef.current = new AudioContext();
+      const audioBuffer = await audioContextRef.current.decodeAudioData(audioBytes.buffer);
+      const source = audioContextRef.current.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioContextRef.current.destination);
+
+      if (isComponentMounted.current) {
+        setIsSpeaking(true);
+        setStatus("speaking");
+      }
+
+      source.onended = () => {
+        if (isComponentMounted.current) {
+          setIsSpeaking(false);
+          setStatus("ready");
+          if (autoListen) {
+            setTimeout(() => { if (isComponentMounted.current) startListening(); }, 500);
+          }
+        }
+      };
+
+      source.start();
+      return true; // Succès
+    } catch (e) {
+      console.warn("[HELO] Edge TTS failed, falling back to browser TTS:", e.message);
+      return false; // Échec → fallback
+    }
+  }, [voiceServiceUrl, autoListen]);
+
+  // TTS fallback via navigateur
+  const speakViaBrowser = useCallback((text) => {
+    window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.voice = getVoice();
     utterance.rate = 0.92;
@@ -159,33 +207,36 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
     utterance.lang = 'fr-FR';
 
     utterance.onstart = () => {
-      if (isComponentMounted.current) {
-        setIsSpeaking(true);
-        setStatus("speaking");
-      }
+      if (isComponentMounted.current) { setIsSpeaking(true); setStatus("speaking"); }
     };
     utterance.onend = () => {
       if (isComponentMounted.current) {
         setIsSpeaking(false);
         setStatus("ready");
-        // Reprendre l'écoute automatiquement après que l'IA a fini de parler
         if (autoListen) {
-          setTimeout(() => {
-            if (isComponentMounted.current) startListening();
-          }, 500);
+          setTimeout(() => { if (isComponentMounted.current) startListening(); }, 500);
         }
       }
     };
     utterance.onerror = () => {
-      if (isComponentMounted.current) {
-        setIsSpeaking(false);
-        setStatus("ready");
-      }
+      if (isComponentMounted.current) { setIsSpeaking(false); setStatus("ready"); }
     };
-
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
   }, [getVoice, autoListen]);
+
+  // Fonction principale TTS : Edge TTS si disponible, sinon navigateur
+  const speakText = useCallback(async (text) => {
+    if (!text) return;
+    window.speechSynthesis.cancel();
+
+    if (voiceServiceUrl) {
+      const success = await speakViaEdgeTTS(text);
+      if (success) return;
+    }
+    // Fallback navigateur
+    speakViaBrowser(text);
+  }, [voiceServiceUrl, speakViaEdgeTTS, speakViaBrowser]);
 
   // ========================================================================
   // STT — Reconnaissance vocale
