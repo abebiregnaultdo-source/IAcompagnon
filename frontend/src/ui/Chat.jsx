@@ -514,15 +514,23 @@ export default function Chat({
     <div
       className="fade-in"
       style={{
-        minHeight: "100vh",
+        height: "100vh",
         background: "linear-gradient(180deg, #f8fafb 0%, #eef3f6 100%)",
         padding: device.isMobile ? "16px" : "32px",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
       }}
     >
       <div
         style={{
           maxWidth: "800px",
           margin: "0 auto",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          minHeight: 0,
         }}
       >
         {/* Header modernisé */}
@@ -707,14 +715,18 @@ export default function Chat({
             borderRadius: "20px",
             boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
             overflow: "hidden",
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* Messages */}
           <div
             ref={viewRef}
             style={{
-              minHeight: "400px",
-              maxHeight: "calc(100vh - 320px)",
+              flex: 1,
+              minHeight: 0,
               overflowY: "auto",
               padding: "24px",
             }}
@@ -822,6 +834,7 @@ export default function Chat({
               padding: "16px 24px 24px",
               borderTop: "1px solid #edf2f7",
               background: "#fafbfc",
+              flexShrink: 0,
             }}
           >
             <div

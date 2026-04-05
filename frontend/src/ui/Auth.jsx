@@ -168,7 +168,7 @@ export default function Auth({ onAuthenticated }) {
         </p>
 
         {mode === "login" ? (
-          <div className="slide-in">
+          <form className="slide-in" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
             <h2
               style={{
                 marginBottom: "var(--space-lg)",
@@ -254,7 +254,7 @@ export default function Auth({ onAuthenticated }) {
               }}
             >
               <Button
-                onClick={handleLogin}
+                type="submit"
                 disabled={isLoading || !email.trim() || !password.trim()}
                 style={{ width: "100%" }}
               >
@@ -318,9 +318,9 @@ export default function Auth({ onAuthenticated }) {
                 S'inscrire
               </button>
             </div>
-          </div>
+          </form>
         ) : mode === "register" ? (
-          <div className="slide-in">
+          <form className="slide-in" onSubmit={(e) => { e.preventDefault(); handleRegister(); }}>
             <h2
               style={{
                 marginBottom: "var(--space-lg)",
@@ -438,7 +438,7 @@ export default function Auth({ onAuthenticated }) {
               }}
             >
               <Button
-                onClick={handleRegister}
+                type="submit"
                 disabled={
                   isLoading ||
                   !email.trim() ||
@@ -481,7 +481,7 @@ export default function Auth({ onAuthenticated }) {
                 Se connecter
               </button>
             </div>
-          </div>
+          </form>
         ) : (
           /* Mode: Mot de passe oublié */
           <div className="slide-in">
