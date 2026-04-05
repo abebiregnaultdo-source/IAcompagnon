@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import AvatarRoom from "./avatar/AvatarRoom";
+import AvatarView from "./avatar/AvatarView";
 import Message from "./components/Message";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
@@ -535,6 +536,64 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
           >
             Auto {autoListen ? "ON" : "OFF"}
           </button>
+        </div>
+
+        {/* Avatar central — comme un appel audio */}
+        <div style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          marginBottom: "16px",
+          padding: "20px 0",
+        }}>
+          <div style={{
+            width: device.isMobile ? "100px" : "120px",
+            height: device.isMobile ? "100px" : "120px",
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #e8f0f5 0%, #d4e4ed 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            boxShadow: isSpeaking
+              ? "0 0 0 6px rgba(138, 186, 168, 0.3), 0 8px 32px rgba(0,0,0,0.1)"
+              : isListening
+                ? "0 0 0 6px rgba(224, 80, 80, 0.2), 0 8px 32px rgba(0,0,0,0.1)"
+                : "0 4px 20px rgba(0,0,0,0.08)",
+            transition: "box-shadow 0.5s ease",
+          }}>
+            <AvatarView
+              skinColor="#C98E6B"
+              hairStyle="bun"
+              presentation="feminine"
+            />
+          </div>
+          <div style={{
+            marginTop: "12px",
+            fontSize: "18px",
+            fontWeight: 500,
+            color: "#3a4048",
+          }}>
+            Helō
+          </div>
+          <div style={{
+            fontSize: "13px",
+            color: currentStatus.color,
+            marginTop: "4px",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}>
+            <span style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              background: currentStatus.color,
+              display: "inline-block",
+              animation: (isListening || isSpeaking) ? "pulse 1.5s infinite" : "none",
+            }} />
+            {currentStatus.label}
+          </div>
         </div>
 
         {/* Zone messages */}

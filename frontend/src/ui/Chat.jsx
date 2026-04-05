@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import AvatarRoom from "./avatar/AvatarRoom";
+import AvatarView from "./avatar/AvatarView";
 import Message from "./components/Message";
 import Button from "./components/Button";
 import Text from "./components/Text";
@@ -556,6 +557,29 @@ export default function Chat({
               ←
             </button>
 
+            {/* Mini avatar dans le header */}
+            <div style={{
+              width: device.isMobile ? "40px" : "48px",
+              height: device.isMobile ? "40px" : "48px",
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #e8f0f5 0%, #d4e4ed 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              overflow: "hidden",
+              boxShadow: isTyping || isSpeaking
+                ? "0 0 0 3px rgba(90, 143, 168, 0.3)"
+                : "0 1px 3px rgba(0,0,0,0.1)",
+              transition: "box-shadow 0.3s ease",
+            }}>
+              <AvatarView
+                skinColor="#C98E6B"
+                hairStyle="bun"
+                presentation="feminine"
+              />
+            </div>
+
             <div>
               <Text as="h1" size="lg" style={{ margin: 0, color: "#2d3748" }}>
                 Helō
@@ -695,38 +719,87 @@ export default function Chat({
               padding: "24px",
             }}
           >
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  justifyContent: m.role === "user" ? "flex-end" : "flex-start",
-                  marginBottom: "16px",
-                }}
-              >
+            {messages.map((m, i) => {
+              // Montrer l'avatar seulement pour le premier msg consécutif de l'assistant
+              const showAvatar = m.role === "assistant" &&
+                (i === 0 || messages[i - 1]?.role !== "assistant");
+
+              return (
                 <div
+                  key={i}
                   style={{
-                    maxWidth: "80%",
-                    padding: "14px 18px",
-                    borderRadius: m.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-                    background: m.role === "user"
-                      ? "linear-gradient(135deg, #5A8FA8 0%, #7BA8C0 100%)"
-                      : "#f7fafc",
-                    color: m.role === "user" ? "#F2F6F7" : "#2d3748",
-                    fontSize: "15px",
-                    lineHeight: "1.5",
-                    boxShadow: m.role === "user"
-                      ? "0 2px 8px rgba(90, 143, 168, 0.25)"
-                      : "0 1px 3px rgba(0,0,0,0.05)",
+                    display: "flex",
+                    justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+                    alignItems: "flex-end",
+                    marginBottom: m.role === "assistant" && messages[i + 1]?.role === "assistant" ? "4px" : "16px",
+                    gap: "8px",
                   }}
                 >
-                  {m.content}
+                  {/* Mini avatar à gauche des messages assistant */}
+                  {m.role === "assistant" && (
+                    <div style={{
+                      width: "32px",
+                      height: "32px",
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg, #e8f0f5 0%, #d4e4ed 100%)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      overflow: "hidden",
+                      visibility: showAvatar ? "visible" : "hidden",
+                    }}>
+                      <AvatarView
+                        skinColor="#C98E6B"
+                        hairStyle="bun"
+                        presentation="feminine"
+                      />
+                    </div>
+                  )}
+
+                  <div
+                    style={{
+                      maxWidth: "75%",
+                      padding: "14px 18px",
+                      borderRadius: m.role === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                      background: m.role === "user"
+                        ? "linear-gradient(135deg, #5A8FA8 0%, #7BA8C0 100%)"
+                        : "#f7fafc",
+                      color: m.role === "user" ? "#F2F6F7" : "#2d3748",
+                      fontSize: "15px",
+                      lineHeight: "1.6",
+                      boxShadow: m.role === "user"
+                        ? "0 2px 8px rgba(90, 143, 168, 0.25)"
+                        : "0 1px 3px rgba(0,0,0,0.05)",
+                    }}
+                  >
+                    {m.content}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {isTyping && (
-              <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "16px" }}>
+              <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "flex-end", gap: "8px", marginBottom: "16px" }}>
+                <div style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "50%",
+                  background: "linear-gradient(135deg, #e8f0f5 0%, #d4e4ed 100%)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                  overflow: "hidden",
+                  boxShadow: "0 0 0 3px rgba(90, 143, 168, 0.2)",
+                  animation: "pulse 2s infinite",
+                }}>
+                  <AvatarView
+                    skinColor="#C98E6B"
+                    hairStyle="bun"
+                    presentation="feminine"
+                  />
+                </div>
                 <div
                   style={{
                     padding: "14px 18px",
