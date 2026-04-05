@@ -5,6 +5,7 @@ import Message from "./components/Message";
 import Button from "./components/Button";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
+import ContextualSuggestion from "./creativity/ContextualSuggestion";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import { saveConversation, getConversations } from "../lib/supabase";
 
@@ -82,6 +83,7 @@ export default function Chat({
   onEmotionalStateChange,
   onBackToHome,
   onSwitchToVoice,
+  onOpenCreativity,
 }) {
   const device = useDeviceDetection();
   const [messages, setMessages] = useState([]);
@@ -100,6 +102,7 @@ export default function Chat({
   const [showHistory, setShowHistory] = useState(false);
   const [savedConversations, setSavedConversations] = useState([]);
   const [conversationMemory, setConversationMemory] = useState(null);
+  const [creativitySuggestion, setCreativitySuggestion] = useState(null);
 
   // Synthèse vocale
   const { speak, stop, isSpeaking, voiceEnabled, toggleVoice } = useSpeechSynthesis();
@@ -436,6 +439,12 @@ export default function Chat({
               });
             } else if (event.type === "done") {
               technique = event.technique || "unknown";
+            } else if (event.type === "suggest_creativity") {
+              setCreativitySuggestion({
+                title: event.title || "Envie d'exprimer ce que tu ressens ?",
+                message: event.message || "Tu pourrais essayer un outil créatif pour explorer tes émotions.",
+                tool: event.tool || "journal"
+              });
             }
           } catch (e) {
             // Ligne SSE mal formée, ignorer
@@ -445,6 +454,26 @@ export default function Chat({
 
       // Si aucun chunk n'a été reçu, fallback
       if (!firstChunkReceived) throw new Error("Streaming vide");
+
+      // Détection côté client de suggestion de créativité
+      const creativityKeywords = ['écrire', 'journal', 'lettre', 'poème', 'poésie', 'dessiner', 'coloriage', 'rituel', 'créati'];
+      const lowerText = accumulatedText.toLowerCase();
+      const suggestsCreativity = creativityKeywords.some(kw => lowerText.includes(kw));
+      const messageCount = messages.length + 1; // Current messages + new one
+      if (suggestsCreativity && messageCount >= 6) {
+        // Determine which tool based on keywords
+        let suggestedTool = 'journal';
+        if (lowerText.includes('lettre')) suggestedTool = 'journal';
+        if (lowerText.includes('poème') || lowerText.includes('poésie')) suggestedTool = 'poem';
+        if (lowerText.includes('coloriage') || lowerText.includes('dessiner')) suggestedTool = 'coloring';
+        if (lowerText.includes('rituel')) suggestedTool = 'ritual';
+
+        setCreativitySuggestion({
+          title: "Envie d'explorer tes émotions autrement ?",
+          message: "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens.",
+          tool: suggestedTool
+        });
+      }
 
       if (voiceEnabled && accumulatedText) {
         speak(accumulatedText);
@@ -827,6 +856,19 @@ export default function Chat({
               </div>
             )}
           </div>
+
+          {creativitySuggestion && (
+            <div style={{ padding: "0 4px", marginBottom: "8px" }}>
+              <ContextualSuggestion
+                suggestion={creativitySuggestion}
+                onClose={() => setCreativitySuggestion(null)}
+                onAction={() => {
+                  setCreativitySuggestion(null);
+                  if (onOpenCreativity) onOpenCreativity();
+                }}
+              />
+            </div>
+          )}
 
           {/* Zone de saisie */}
           <div

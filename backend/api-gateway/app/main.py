@@ -337,33 +337,98 @@ async def save_user_prefs(user_id: str, req: Request):
 
 @app.post('/api/creations/journal')
 async def save_journal_entry(req: Request):
-    """Sauvegarde une entrée de journal"""
+    """Sauvegarde une entrée de journal avec support de génération Claude optionnel"""
     data = await req.json()
     user_id = data.get('user_id')
     content = data.get('content')
     prompt = data.get('prompt')
     method = data.get('therapeutic_method')
+    ai_assisted = data.get('ai_assisted', False)
 
-    entry = creative_storage.save_journal_entry(user_id, content, prompt, method)
+    # Si ai_assisted est True, générer avec Claude et gérer les timeouts
+    if ai_assisted and not content:
+        try:
+            import os
+            from anthropic import Anthropic
+
+            api_key = os.getenv('ANTHROPIC_API_KEY')
+            if api_key:
+                client = Anthropic(api_key=api_key, timeout=15.0)
+
+                generation_prompt = prompt or "Écrivez une entrée de journal réfléchie et authentique."
+
+                try:
+                    response = client.messages.create(
+                        model="claude-3-5-sonnet-20241022",
+                        max_tokens=600,
+                        messages=[{
+                            "role": "user",
+                            "content": f"Aide-moi à écrire une entrée de journal. Voici le sujet : {generation_prompt}\n\nVeille à ce que l'entrée soit personnelle, honnête et thrapeutique."
+                        }],
+                        timeout=12.0
+                    )
+                    content = response.content[0].text if response.content else ""
+                except Exception as e:
+                    # Timeout ou autre erreur - utiliser fallback
+                    logger.error(f"Claude generation timeout/error: {e}")
+                    content = f"Une ébauche attendait d'être écrite sur ce sujet : {generation_prompt}\n\nPrenez le temps d'explorer vos vraies pensées et sentiments."
+        except ImportError:
+            # Anthropic SDK non disponible
+            logger.warning("Anthropic SDK not available for journal generation")
+            content = content or f"Nouvelle entrée de journal sur : {prompt or 'sujet libre'}"
+
+    entry = creative_storage.save_journal_entry(user_id, content or "", prompt, method)
     return {'success': True, 'entry': entry}
 
 
 @app.post('/api/creations/narrative')
 async def save_narrative(req: Request):
-    """Sauvegarde un narratif thérapeutique"""
+    """Sauvegarde un narratif thérapeutique avec support de génération Claude optionnel"""
     data = await req.json()
     user_id = data.get('user_id')
     title = data.get('title', 'Sans titre')
     content = data.get('content')
     narrative_type = data.get('narrative_type', 'reconstruction_temporelle')
+    ai_assisted = data.get('ai_assisted', False)
 
-    narrative = creative_storage.save_narrative(user_id, title, content, narrative_type)
+    # Si ai_assisted est True, générer avec Claude et gérer les timeouts
+    if ai_assisted and not content:
+        try:
+            import os
+            from anthropic import Anthropic
+
+            api_key = os.getenv('ANTHROPIC_API_KEY')
+            if api_key:
+                client = Anthropic(api_key=api_key, timeout=15.0)
+
+                try:
+                    narrative_prompt = f"Titre: {title}\nType: {narrative_type}\n\nEcrivez un narratif thérapeutique qui explore cette thématique de manière profonde et authentic."
+                    response = client.messages.create(
+                        model="claude-3-5-sonnet-20241022",
+                        max_tokens=800,
+                        messages=[{
+                            "role": "user",
+                            "content": narrative_prompt
+                        }],
+                        timeout=12.0
+                    )
+                    content = response.content[0].text if response.content else ""
+                except Exception as e:
+                    # Timeout ou autre erreur - utiliser fallback
+                    logger.error(f"Claude narrative generation timeout/error: {e}")
+                    content = f"Le narratif '{title}' attend d'être raconté.\n\nPrend le temps de raconter l'histoire qui est en toi, étape par étape, sans te presser."
+        except ImportError:
+            # Anthropic SDK non disponible
+            logger.warning("Anthropic SDK not available for narrative generation")
+            content = content or f"Narratif: {title}\n\nComte ton histoire ici."
+
+    narrative = creative_storage.save_narrative(user_id, title, content or "", narrative_type)
     return {'success': True, 'narrative': narrative}
 
 
 @app.post('/api/creations/poem')
 async def save_poem(req: Request):
-    """Sauvegarde un poème"""
+    """Sauvegarde un poème avec support de génération Claude optionnel"""
     data = await req.json()
     user_id = data.get('user_id')
     title = data.get('title', 'Sans titre')
@@ -371,7 +436,39 @@ async def save_poem(req: Request):
     poem_style = data.get('poem_style')
     ai_assisted = data.get('ai_assisted', False)
 
-    poem = creative_storage.save_poem(user_id, title, content, poem_style, ai_assisted)
+    # Si ai_assisted est True, générer avec Claude et gérer les timeouts
+    if ai_assisted and not content:
+        try:
+            import os
+            from anthropic import Anthropic
+
+            api_key = os.getenv('ANTHROPIC_API_KEY')
+            if api_key:
+                client = Anthropic(api_key=api_key, timeout=15.0)
+
+                try:
+                    style_description = poem_style or "libre et authentique"
+                    poem_prompt = f"Écris un poème thérapeutique intitulé '{title}' dans un style {style_description}. Le poème doit être émotionnel, personnelle et cicatrisante."
+                    response = client.messages.create(
+                        model="claude-3-5-sonnet-20241022",
+                        max_tokens=600,
+                        messages=[{
+                            "role": "user",
+                            "content": poem_prompt
+                        }],
+                        timeout=12.0
+                    )
+                    content = response.content[0].text if response.content else ""
+                except Exception as e:
+                    # Timeout ou autre erreur - utiliser fallback
+                    logger.error(f"Claude poem generation timeout/error: {e}")
+                    content = f"{title}\n\n[Poème attendant d'être écrit...]\n\nLa poésie naît quand on laisse nos mots prendre forme. À toi de continuer cette danse des mots."
+        except ImportError:
+            # Anthropic SDK non disponible
+            logger.warning("Anthropic SDK not available for poem generation")
+            content = content or f"{title}\n\n[Strophes attendant d'être écrites...]"
+
+    poem = creative_storage.save_poem(user_id, title, content or "", poem_style, ai_assisted)
     return {'success': True, 'poem': poem}
 
 

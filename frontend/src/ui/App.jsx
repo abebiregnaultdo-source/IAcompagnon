@@ -140,7 +140,7 @@ export default function App() {
         setUser(null);
         setShowLanding(true);
         setShowHome(false);
-      } else if ((event === 'PASSWORD_RECOVERY' || event === 'USER_UPDATED' || event === 'SIGNED_IN') && session?.user) {
+      } else if ((event === 'PASSWORD_RECOVERY' || event === 'USER_UPDATED') && session?.user) {
         // Après reset password ou connexion, récupérer le profil complet
         try {
           const profile = await getProfile(session.user.id);
@@ -500,6 +500,10 @@ export default function App() {
             }}
             onSwitchToVoice={() => {
               setConversationMode("voice");
+            }}
+            onOpenCreativity={() => {
+              setShowChat(false);
+              setShowCreativity(true);
             }}
           />
         </div>

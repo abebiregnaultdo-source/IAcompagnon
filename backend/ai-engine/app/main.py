@@ -533,6 +533,27 @@ async def generate(req: GenerateRequest):
     if emotion_analysis:
         emotion_context['distilbert_analysis'] = emotion_analysis
 
+    # Détection de suggestion créative
+    suggest_creativity = None
+    response_text_lower = text.lower()
+    creativity_keywords = ['écrire', 'journal', 'lettre', 'poème', 'poésie', 'dessiner', 'coloriage', 'rituel', 'créati']
+    message_count = len(req.messages)
+    if message_count >= 6 and any(kw in response_text_lower for kw in creativity_keywords):
+        suggested_tool = 'journal'
+        if 'lettre' in response_text_lower:
+            suggested_tool = 'journal'
+        if 'poème' in response_text_lower or 'poésie' in response_text_lower:
+            suggested_tool = 'poem'
+        if 'coloriage' in response_text_lower or 'dessiner' in response_text_lower:
+            suggested_tool = 'coloring'
+        if 'rituel' in response_text_lower:
+            suggested_tool = 'ritual'
+        suggest_creativity = {
+            'tool': suggested_tool,
+            'title': "Envie d'explorer tes émotions autrement ?",
+            'message': "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens."
+        }
+
     return {
         'text': text,
         'intention_id': out.get('intention_id'),
@@ -543,6 +564,7 @@ async def generate(req: GenerateRequest):
         'emotion_context': emotion_context,
         # RAG info for debugging
         'rag_info': out.get('rag_info'),
+        'suggest_creativity': suggest_creativity,
     }
 
 
@@ -642,11 +664,38 @@ async def generate_stream(req: GenerateRequest):
         alert_prefix = "Si tu te sens en danger, tu peux appeler le 3114."
 
     def event_stream():
+        accumulated_text = ""
         if alert_prefix:
             yield f"data: {json.dumps({'type': 'chunk', 'text': alert_prefix + chr(10) + chr(10)})}\n\n"
+            accumulated_text += alert_prefix + "\n\n"
 
         for chunk in engine.run_pipeline_stream(user_state, req.policy, extended_profile):
             yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+            accumulated_text += chunk
+
+        # Détection de suggestion créative
+        suggest_creativity = None
+        response_text_lower = accumulated_text.lower()
+        creativity_keywords = ['écrire', 'journal', 'lettre', 'poème', 'poésie', 'dessiner', 'coloriage', 'rituel', 'créati']
+        message_count = len(req.messages)
+        if message_count >= 6 and any(kw in response_text_lower for kw in creativity_keywords):
+            suggested_tool = 'journal'
+            if 'lettre' in response_text_lower:
+                suggested_tool = 'journal'
+            if 'poème' in response_text_lower or 'poésie' in response_text_lower:
+                suggested_tool = 'poem'
+            if 'coloriage' in response_text_lower or 'dessiner' in response_text_lower:
+                suggested_tool = 'coloring'
+            if 'rituel' in response_text_lower:
+                suggested_tool = 'ritual'
+            suggest_creativity = {
+                'tool': suggested_tool,
+                'title': "Envie d'explorer tes émotions autrement ?",
+                'message': "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens."
+            }
+
+        if suggest_creativity:
+            yield f"data: {json.dumps({'type': 'suggest_creativity', **suggest_creativity})}\n\n"
 
         yield f"data: {json.dumps({'type': 'done', 'technique': 'conversational_therapy'})}\n\n"
 

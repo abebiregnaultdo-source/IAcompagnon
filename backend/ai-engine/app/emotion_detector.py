@@ -96,6 +96,30 @@ CRISIS_KEYWORDS = {
     ]
 }
 
+# Indicateurs de contexte de deuil (grief context)
+GRIEF_CONTEXT_INDICATORS = [
+    "décédé", "décédée", "mort", "décès", "deuil",
+    "parti", "partie", "perdu", "perdue",
+    "manque", "n'est plus", "n'est plus là",
+    "absence", "disparition", "emporté", "emportée",
+    "tombeau", "funérailles", "enterrement", "crémation"
+]
+
+# Expressions de deuil normal (à NE PAS déclencher de crise)
+GRIEF_NORMAL_EXPRESSIONS = [
+    "j'oublie qu'il n'est plus là", "j'oublie qu'elle n'est plus là",
+    "j'oublie qu'il/elle n'est plus là",
+    "ça me revient d'un coup",
+    "ça me tombe dessus",
+    "je n'arrive pas à réaliser",
+    "c'est irréel",
+    "le sol se dérobe",
+    "l'irréalité",
+    "c'est pas vrai",
+    "impossible",
+    "je n'y crois pas"
+]
+
 
 def get_emotion_pipeline():
     """Lazy load le pipeline DistilBERT-emotion"""
@@ -310,11 +334,80 @@ def _is_existential_grief_context(text_lower: str) -> bool:
     return any(indicator in text_lower for indicator in grief_despair_indicators)
 
 
+def _is_normal_grief_expression(text_lower: str) -> bool:
+    """
+    Détecte si le texte contient une expression de deuil NORMAL
+    (expériences courantes de deuil qui ne sont pas des indicateurs de crise).
+
+    Exemples:
+    - "j'oublie qu'il n'est plus là" (temporary forgetting)
+    - "ça me revient d'un coup" (sudden realization)
+    - "je n'arrive pas à réaliser" (disbelief)
+    - "c'est irréel" (unreality of loss)
+    """
+    return any(expr in text_lower for expr in GRIEF_NORMAL_EXPRESSIONS)
+
+
+def _has_grief_context(text_lower: str) -> bool:
+    """
+    Détecte si le texte contient un contexte de deuil.
+    Compte le nombre d'indicateurs de deuil présents.
+
+    Returns True si au moins un indicateur de deuil est détecté.
+    """
+    grief_count = sum(1 for indicator in GRIEF_CONTEXT_INDICATORS if indicator in text_lower)
+    return grief_count > 0
+
+
+def _reduce_crisis_score_for_grief(
+    detected_patterns: List[str],
+    text_lower: str,
+    crisis_level: str
+) -> Tuple[List[str], str]:
+    """
+    Réduit le score de crise si les patterns apparaissent dans un contexte de deuil.
+
+    Logique:
+    1. Si expression de deuil normal détectée → retourner "none"
+    2. Si contexte de deuil + patterns de suicide_ideation → rétrograder le niveau
+    3. Sinon → garder le niveau original
+
+    Returns: (updated_patterns, updated_crisis_level)
+    """
+    # Vérifier si c'est une expression normale de deuil
+    if _is_normal_grief_expression(text_lower):
+        return detected_patterns + ["context: normal_grief_expression"], "none"
+
+    # Vérifier si y a un contexte de deuil
+    has_grief = _has_grief_context(text_lower)
+
+    if not has_grief:
+        return detected_patterns, crisis_level
+
+    # Si deuil + patterns de suicide_ideation
+    has_suicide = any("suicide_ideation" in p for p in detected_patterns)
+
+    if has_suicide and has_grief:
+        # Rétrograder "critical" → "medium" ou "medium" → "low"
+        if crisis_level == "critical":
+            return (
+                detected_patterns + ["context: grief_context_downgrade"],
+                "medium"
+            )
+        elif crisis_level == "medium":
+            return (
+                detected_patterns + ["context: grief_context_downgrade"],
+                "low"
+            )
+
+    return detected_patterns, crisis_level
+
+
 def detect_crisis(text: str) -> Dict[str, any]:
     """
     Détecte les indicateurs de crise dans le message.
     Inclut une analyse contextuelle pour réduire les faux positifs
-    (ex: symptômes de panique vs. idéation suicidaire réelle).
+    (ex: symptômes de panique vs. idéation suicidaire réelle, deuil normal vs. crise).
 
     Returns:
         {
@@ -342,7 +435,21 @@ def detect_crisis(text: str) -> Dict[str, any]:
             "recommended_action": "continue_normal"
         }
 
-    # === FILTRAGE CONTEXTUEL ===
+    # === FILTRAGE CONTEXTUEL DEUIL ===
+    # Vérifier si c'est une expression normale de deuil (faux positif courant)
+    detected_patterns, crisis_level = _reduce_crisis_score_for_grief(
+        detected_patterns, text_lower, "critical"
+    )
+
+    if crisis_level == "none":
+        return {
+            "is_crisis": False,
+            "crisis_level": "none",
+            "detected_patterns": detected_patterns,
+            "recommended_action": "continue_normal"
+        }
+
+    # === FILTRAGE CONTEXTUEL PANIQUE ===
     # Si les mots-clés de suicide_ideation apparaissent dans un contexte
     # de crise de panique (symptômes physiques), ne PAS déclencher le safety check
     has_suicide = any("suicide_ideation" in p for p in detected_patterns)
