@@ -64,25 +64,25 @@ export default function Auth({ onAuthenticated }) {
       setTimeout(() => {
         document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 0);
-    }, 15000); // 15 second timeout
+    }, 45000); // 45 second timeout (Render cold start can be slow)
 
     try {
       const { user, session } = await signIn(email, password);
-      clearTimeout(timeoutId);
 
       if (!user) {
+        clearTimeout(timeoutId);
         setError("Email ou mot de passe incorrect");
         setIsLoading(false);
-        // Scroll error message into view
         setTimeout(() => {
           document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }, 0);
         return;
       }
 
-      // Récupérer le profil depuis Supabase (wrapped in separate try/catch)
+      // Récupérer le profil depuis Supabase
       try {
         const profile = await getProfile(user.id);
+        clearTimeout(timeoutId);
         const userData = {
           id: user.id,
           email: user.email,
@@ -95,13 +95,25 @@ export default function Auth({ onAuthenticated }) {
 
         onAuthenticated(userData);
       } catch (profileErr) {
+        clearTimeout(timeoutId);
         console.error("Profile fetch error:", profileErr);
-        setIsLoading(false);
-        setError("Impossible de récupérer votre profil. Veuillez réessayer.");
-        // Scroll error message into view
-        setTimeout(() => {
-          document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 0);
+        // Profile not found is OK for new users - proceed with basic data
+        if (profileErr?.code === 'PGRST116' || profileErr?.message?.includes('not found')) {
+          const userData = {
+            id: user.id,
+            email: user.email,
+            first_name: user.user_metadata?.first_name || '',
+            onboarding_completed: localStorage.getItem(`helo_onboarding_${user.id}`) === "true",
+            preferences: {},
+          };
+          onAuthenticated(userData);
+        } else {
+          setIsLoading(false);
+          setError("Impossible de récupérer votre profil. Veuillez réessayer.");
+          setTimeout(() => {
+            document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          }, 0);
+        }
       }
     } catch (err) {
       clearTimeout(timeoutId);
@@ -110,7 +122,6 @@ export default function Auth({ onAuthenticated }) {
         ? "Email ou mot de passe incorrect"
         : "Erreur lors de la connexion");
       setIsLoading(false);
-      // Scroll error message into view
       setTimeout(() => {
         document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 0);
@@ -137,8 +148,19 @@ export default function Auth({ onAuthenticated }) {
     }
 
     setIsLoading(true);
+
+    // Timeout to prevent button from staying stuck
+    const registerTimeoutId = setTimeout(() => {
+      setIsLoading(false);
+      setError("L'inscription a pris trop de temps. Veuillez réessayer.");
+      setTimeout(() => {
+        document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 0);
+    }, 45000);
+
     try {
       const data = await signUp(email, password, firstName);
+      clearTimeout(registerTimeoutId);
       const user = data.user;
 
       if (!user) {
@@ -165,6 +187,7 @@ export default function Auth({ onAuthenticated }) {
         setMode("login");
       }
     } catch (err) {
+      clearTimeout(registerTimeoutId);
       console.error("Register error:", err);
       setError(err.message === "User already registered"
         ? "Cet email est déjà utilisé"
