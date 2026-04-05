@@ -1,6 +1,7 @@
 from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Literal, Dict, Any
 import os
@@ -9,7 +10,7 @@ from .llm_client import call_llm
 from .intervention_engine import execute_intervention
 from .intention_engine import run_intention
 from .therapeutic_engine import TherapeuticEngine
-import json, time
+import json, time, logging
 from hashlib import sha256
 try:
     from cryptography.fernet import Fernet
@@ -379,6 +380,10 @@ async def generate(req: GenerateRequest):
         'tone_prompt': tone_prompt,
         'user_id_hash': req.profile.get('user_id_hash')
     }
+    # Mémoire conversationnelle
+    conversation_memory = req.profile.get('conversation_memory')
+    if conversation_memory:
+        user_state['conversation_memory'] = conversation_memory
     if req.profile.get('user_id_hash'):
         req.policy['user_id_hash'] = req.profile.get('user_id_hash')
 
@@ -539,6 +544,114 @@ async def generate(req: GenerateRequest):
         # RAG info for debugging
         'rag_info': out.get('rag_info'),
     }
+
+
+@app.post('/generate/stream')
+async def generate_stream(req: GenerateRequest):
+    """Endpoint SSE pour streaming des réponses thérapeutiques."""
+    tone = req.policy.get('tone', 'neutre')
+    phase = req.policy.get('phase', 'ancrage')
+    tone_prompt = {
+        'lent': "doucement, sans te forcer",
+        'neutre': "simplement, comme c'est",
+        'enveloppant': "en te laissant entourer par ce qui te soutient",
+    }.get(tone, "simplement")
+    scores = req.policy.get('scores', {}) if isinstance(req.policy.get('scores'), dict) else {}
+    user_name = req.profile.get('first_name', 'ami')
+    user_state = {
+        'user_name': user_name,
+        'detresse': scores.get('detresse', 50),
+        'espoir': scores.get('espoir', 50),
+        'energie': scores.get('energie', 50),
+        'phase': phase,
+        'tone_prompt': tone_prompt,
+        'user_id_hash': req.profile.get('user_id_hash')
+    }
+    # Mémoire conversationnelle
+    conversation_memory = req.profile.get('conversation_memory')
+    if conversation_memory:
+        user_state['conversation_memory'] = conversation_memory
+    if req.profile.get('user_id_hash'):
+        req.policy['user_id_hash'] = req.profile.get('user_id_hash')
+
+    extended_profile = req.profile.get('extended_profile')
+
+    # Welcome messages are not streamed (short)
+    is_welcome = req.policy.get('is_welcome', False) or req.profile.get('is_first_message', False)
+    if is_welcome and len(req.messages) == 0:
+        welcome_text = engine.generate_welcome_message(user_name, user_state, extended_profile)
+        async def welcome_stream():
+            yield f"data: {json.dumps({'type': 'chunk', 'text': welcome_text})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'technique': 'accueil_personnalise'})}\n\n"
+        return StreamingResponse(welcome_stream(), media_type="text/event-stream")
+
+    messages_for_context = [
+        {'role': msg.role, 'content': msg.content}
+        for msg in req.messages
+    ]
+
+    last_user_message = ""
+    for msg in reversed(req.messages):
+        if msg.role == "user":
+            last_user_message = msg.content
+            break
+
+    # Crisis detection (not streamed — immediate response)
+    crisis_response = None
+    emotion_analysis = None
+    try:
+        from .emotion_detector import detect_crisis, detect_emotion, get_crisis_response
+        if last_user_message:
+            crisis_info = detect_crisis(last_user_message)
+            if crisis_info["is_crisis"] and crisis_info["crisis_level"] in ["critical", "high"]:
+                crisis_response = get_crisis_response(crisis_info["crisis_level"], user_name)
+                async def crisis_stream():
+                    yield f"data: {json.dumps({'type': 'chunk', 'text': crisis_response})}\n\n"
+                    yield f"data: {json.dumps({'type': 'done', 'technique': 'crisis_intervention', 'crisis_detected': True})}\n\n"
+                return StreamingResponse(crisis_stream(), media_type="text/event-stream")
+
+            emotion_result = detect_emotion(last_user_message)
+            emotion_analysis = {
+                'primary_emotion': emotion_result.primary_emotion,
+                'confidence': emotion_result.confidence,
+                'valence': emotion_result.valence,
+                'arousal': emotion_result.arousal,
+                'therapeutic_indicators': emotion_result.therapeutic_indicators
+            }
+            user_state['detected_emotion'] = emotion_result.primary_emotion
+            user_state['emotional_arousal'] = emotion_result.arousal
+            user_state['emotional_valence'] = emotion_result.valence
+            suggested_phase = emotion_result.therapeutic_indicators.get('phase_suggested')
+            if suggested_phase and emotion_result.confidence > 0.7:
+                user_state['emotion_suggested_phase'] = suggested_phase
+    except ImportError:
+        pass
+    except Exception as e:
+        logging.getLogger(__name__).error(f"Error in crisis/emotion detection: {e}")
+
+    req.policy['conversation_context'] = {
+        'messages': messages_for_context,
+        'session_count': req.profile.get('session_count', 1),
+        'previous_methods': req.profile.get('previous_methods', []),
+        'emotion_analysis': emotion_analysis
+    }
+
+    # Alert prefix for high distress
+    alert_prefix = None
+    if int(user_state.get('detresse', 50)) >= 80:
+        alert_prefix = "Si tu te sens en danger, tu peux appeler le 3114."
+
+    def event_stream():
+        if alert_prefix:
+            yield f"data: {json.dumps({'type': 'chunk', 'text': alert_prefix + chr(10) + chr(10)})}\n\n"
+
+        for chunk in engine.run_pipeline_stream(user_state, req.policy, extended_profile):
+            yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+
+        yield f"data: {json.dumps({'type': 'done', 'technique': 'conversational_therapy'})}\n\n"
+
+    return StreamingResponse(event_stream(), media_type="text/event-stream")
+
 
 @app.post('/detect')
 async def detect_therapeutic_method(req: Dict[str, Any]):

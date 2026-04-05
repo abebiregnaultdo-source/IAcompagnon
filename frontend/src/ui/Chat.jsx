@@ -5,6 +5,7 @@ import Button from "./components/Button";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
+import { saveConversation, getConversations } from "../lib/supabase";
 
 // ============================================================================
 // SYNTHÈSE VOCALE - Text-to-Speech natif du navigateur
@@ -97,6 +98,7 @@ export default function Chat({
   const [showAvatarFullscreen, setShowAvatarFullscreen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [savedConversations, setSavedConversations] = useState([]);
+  const [conversationMemory, setConversationMemory] = useState(null);
 
   // Synthèse vocale
   const { speak, stop, isSpeaking, voiceEnabled, toggleVoice } = useSpeechSynthesis();
@@ -163,6 +165,51 @@ export default function Chat({
     const loadChatData = async () => {
       if (welcomeLoaded) return;
 
+      // Charger la mémoire des sessions précédentes
+      try {
+        const prevConversations = await getConversations(user.id, 5);
+        if (prevConversations && prevConversations.length > 0) {
+          const memory = prevConversations
+            .filter(c => c.messages && c.messages.length > 2)
+            .map(c => {
+              const userMsgs = c.messages.filter(m => m.role === 'user').map(m => m.content);
+              const lastMsg = userMsgs[userMsgs.length - 1] || '';
+              const firstMsg = userMsgs[0] || '';
+              return {
+                date: c.updated_at || c.created_at,
+                themes: firstMsg.slice(0, 100),
+                last_topic: lastMsg.slice(0, 100),
+                message_count: c.messages.length,
+              };
+            })
+            .slice(0, 3);
+          setConversationMemory(memory);
+        }
+      } catch (e) {
+        // Fallback localStorage
+        try {
+          const localConvs = localStorage.getItem(`helo_conversations_${user.id}`);
+          if (localConvs) {
+            const parsed = JSON.parse(localConvs);
+            const memory = parsed
+              .filter(c => c.messages && c.messages.length > 2)
+              .slice(0, 3)
+              .map(c => {
+                const userMsgs = c.messages.filter(m => m.role === 'user').map(m => m.content);
+                return {
+                  date: c.date,
+                  themes: (userMsgs[0] || '').slice(0, 100),
+                  last_topic: (userMsgs[userMsgs.length - 1] || '').slice(0, 100),
+                  message_count: c.messages.length,
+                };
+              });
+            setConversationMemory(memory);
+          }
+        } catch (e2) {
+          // Pas de mémoire, ce n'est pas grave
+        }
+      }
+
       // Charger l'historique des conversations sauvegardées
       try {
         const savedHistory = localStorage.getItem(`helo_conversations_${user.id}`);
@@ -203,7 +250,8 @@ export default function Chat({
               first_name: user.first_name,
               user_id_hash: user.id,
               is_first_message: true,
-              extended_profile: user.extended_profile || null
+              extended_profile: user.extended_profile || null,
+              conversation_memory: conversationMemory
             },
             policy: {
               tone: user.tone || "neutre",
@@ -282,6 +330,14 @@ export default function Chat({
       } catch (e) {
         // Silencieux
       }
+      // Sauvegarder dans Supabase en background (fire-and-forget)
+      (async () => {
+        try {
+          await saveConversation(user.id, conversation);
+        } catch (e) {
+          console.error("[HELO] Failed to save conversation to Supabase:", e);
+        }
+      })();
     }
     // Effacer la session en cours
     localStorage.removeItem(`helo_chat_history_${user.id}`);
@@ -317,44 +373,87 @@ export default function Chat({
     setMessages(newMsgs);
     setInput("");
     setIsSending(true);
-    setIsTyping(true);
+    setIsTyping(true); // Affiche "Helō réfléchit..." pendant l'attente du premier chunk
     messageCountRef.current += 1;
 
     const sendStartTime = Date.now();
+    const requestBody = {
+      messages: newMsgs.map((m) => ({ role: m.role, content: m.content })),
+      profile: {
+        first_name: user.first_name,
+        user_id_hash: user.id,
+        extended_profile: user.extended_profile || null,
+        conversation_memory: conversationMemory
+      },
+      policy: { tone: user.tone || "neutre", phase: scores.phase, scores },
+    };
 
     try {
-      const cr = await fetch(api.base + "/generate", {
+      // Tenter le streaming SSE d'abord
+      const response = await fetch(api.base + "/generate/stream", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          messages: newMsgs.map((m) => ({ role: m.role, content: m.content })),
-          profile: {
-            first_name: user.first_name,
-            user_id_hash: user.id,
-            extended_profile: user.extended_profile || null
-          },
-          policy: { tone: user.tone || "neutre", phase: scores.phase, scores },
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      if (!cr.ok) throw new Error("Backend non disponible");
+      if (!response.ok || !response.body) throw new Error("Streaming non disponible");
 
-      const data = await cr.json();
-      const aiResponse = data.text;
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = "";
+      let technique = "unknown";
+      let buffer = "";
+      let firstChunkReceived = false;
 
-      setIsTyping(false);
-      setMessages((m) => [...m, { role: "assistant", content: aiResponse }]);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      // Lire la réponse si voix activée
-      if (voiceEnabled) {
-        speak(aiResponse);
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const event = JSON.parse(line.slice(6));
+            if (event.type === "chunk") {
+              // Premier chunk : masquer l'indicateur de frappe, ajouter le message
+              if (!firstChunkReceived) {
+                firstChunkReceived = true;
+                setIsTyping(false);
+                setMessages((m) => [...m, { role: "assistant", content: "" }]);
+              }
+              accumulatedText += event.text;
+              setMessages((m) => {
+                const updated = [...m];
+                updated[updated.length - 1] = {
+                  role: "assistant",
+                  content: accumulatedText,
+                };
+                return updated;
+              });
+            } else if (event.type === "done") {
+              technique = event.technique || "unknown";
+            }
+          } catch (e) {
+            // Ligne SSE mal formée, ignorer
+          }
+        }
+      }
+
+      // Si aucun chunk n'a été reçu, fallback
+      if (!firstChunkReceived) throw new Error("Streaming vide");
+
+      if (voiceEnabled && accumulatedText) {
+        speak(accumulatedText);
       }
 
       lastResponseTimeRef.current = Date.now();
-      lastTechniqueRef.current = data.technique || "unknown";
+      lastTechniqueRef.current = technique;
 
       trackSession("message_exchange", {
-        technique: data.technique,
+        technique,
         response_time_ms: Date.now() - sendStartTime,
         phase: scores.phase,
       });
@@ -362,18 +461,46 @@ export default function Chat({
       if (onEmotionalStateChange) {
         onEmotionalStateChange("calm");
       }
-    } catch (error) {
-      setIsTyping(false);
-      const fallbackResponses = [
-        `Je t'entends, ${user.first_name}. Prends le temps qu'il te faut. Je suis là.`,
-        `Merci de partager cela avec moi. Qu'est-ce qui te pèse le plus ?`,
-        `Je comprends. Mettre des mots sur ce qu'on ressent est déjà important.`,
-        `Ce que tu vis semble difficile. Je suis là, sans jugement.`,
-      ];
-      const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
-      setMessages((m) => [...m, { role: "assistant", content: randomResponse }]);
-      if (voiceEnabled) speak(randomResponse);
-      trackSession("fallback_used", { reason: "backend_error" });
+    } catch (streamError) {
+      // Fallback : endpoint non-streaming classique
+      try {
+        const cr = await fetch(api.base + "/generate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (!cr.ok) throw new Error("Backend non disponible");
+
+        const data = await cr.json();
+        setIsTyping(false);
+        setMessages((m) => [...m, { role: "assistant", content: data.text }]);
+
+        if (voiceEnabled) speak(data.text);
+
+        lastResponseTimeRef.current = Date.now();
+        lastTechniqueRef.current = data.technique || "unknown";
+
+        trackSession("message_exchange", {
+          technique: data.technique || "fallback",
+          response_time_ms: Date.now() - sendStartTime,
+          phase: scores.phase,
+        });
+
+        if (onEmotionalStateChange) onEmotionalStateChange("calm");
+      } catch (finalError) {
+        setIsTyping(false);
+        const fallbackResponses = [
+          `Je t'entends, ${user.first_name}. Prends le temps qu'il te faut. Je suis là.`,
+          `Merci de partager cela avec moi. Qu'est-ce qui te pèse le plus ?`,
+          `Je comprends. Mettre des mots sur ce qu'on ressent est déjà important.`,
+          `Ce que tu vis semble difficile. Je suis là, sans jugement.`,
+        ];
+        const randomResponse = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+        setMessages((m) => [...m, { role: "assistant", content: randomResponse }]);
+        if (voiceEnabled) speak(randomResponse);
+        trackSession("fallback_used", { reason: "backend_error" });
+      }
     } finally {
       setIsSending(false);
     }

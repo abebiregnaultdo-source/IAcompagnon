@@ -445,9 +445,26 @@ export default function App() {
     );
   }
 
-  // Afficher le chat si demandé
+  // Afficher le chat vocal
+  if (showChat && user && conversationMode === "voice") {
+    return (
+      <EmotionalFeedback state={emotionalState}>
+        <VoiceChat
+          user={user}
+          api={api}
+          onEmotionalStateChange={setEmotionalState}
+          onBackToHome={() => {
+            setShowChat(false);
+            setShowHome(true);
+            setConversationMode("chat");
+          }}
+        />
+      </EmotionalFeedback>
+    );
+  }
+
+  // Afficher le chat écrit
   if (showChat && user) {
-    const ChatComponent = conversationMode === "voice" ? VoiceChat : Chat;
     return (
       <EmotionalFeedback state={emotionalState}>
         <div className="container">
@@ -455,7 +472,7 @@ export default function App() {
             onClick={() => {
               setShowChat(false);
               setShowHome(true);
-              setConversationMode("chat"); // Reset to chat mode
+              setConversationMode("chat");
             }}
             style={{
               marginBottom: "var(--space-lg)",
@@ -472,7 +489,7 @@ export default function App() {
           >
             ← Retour à l'accueil
           </button>
-          <ChatComponent
+          <Chat
             user={user}
             api={api}
             onEmotionalStateChange={setEmotionalState}

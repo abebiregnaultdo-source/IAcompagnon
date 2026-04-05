@@ -207,6 +207,65 @@ export default function Home({
           </div>
         </button>
 
+        {/* Action secondaire : Appel vocal */}
+        <button
+          onClick={onStartCall}
+          onMouseEnter={() => setHoveredCard("voice")}
+          onMouseLeave={() => setHoveredCard(null)}
+          style={{
+            width: "100%",
+            padding: device.isMobile ? "14px 20px" : "16px 24px",
+            background: hoveredCard === "voice"
+              ? "linear-gradient(135deg, rgba(138, 186, 168, 0.12), rgba(123, 168, 192, 0.08))"
+              : "rgba(242, 246, 247, 0.7)",
+            border: hoveredCard === "voice"
+              ? "1px solid rgba(138, 186, 168, 0.35)"
+              : "1px solid rgba(123, 168, 192, 0.15)",
+            borderRadius: "14px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            marginBottom: device.isMobile ? "28px" : "36px",
+            transition: "all 0.35s ease",
+            transform: hoveredCard === "voice" ? "translateY(-1px)" : "none",
+            boxShadow: hoveredCard === "voice"
+              ? "0 4px 16px rgba(138, 186, 168, 0.15)"
+              : "0 1px 4px rgba(0, 0, 0, 0.03)",
+          }}
+        >
+          <div style={{
+            width: device.isMobile ? "38px" : "42px",
+            height: device.isMobile ? "38px" : "42px",
+            borderRadius: "12px",
+            background: "rgba(138, 186, 168, 0.12)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: device.isMobile ? "18px" : "20px",
+            flexShrink: 0,
+          }}>
+            🎙️
+          </div>
+          <div style={{ textAlign: "left" }}>
+            <div style={{
+              fontSize: device.isMobile ? "15px" : "16px",
+              fontWeight: 450,
+              color: "#3a4048",
+              marginBottom: "1px",
+            }}>
+              Appel vocal
+            </div>
+            <div style={{
+              fontSize: device.isMobile ? "12px" : "13px",
+              color: "#7a8490",
+              fontWeight: 400,
+            }}>
+              Parlez directement avec Helō
+            </div>
+          </div>
+        </button>
+
         {/* Grille de fonctionnalités */}
         <div
           style={{

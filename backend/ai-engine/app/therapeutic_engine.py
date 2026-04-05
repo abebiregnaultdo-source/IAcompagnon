@@ -217,6 +217,31 @@ class LLMClient:
             return response.content[0].text.strip()
         return ""
 
+    def _call_claude_stream(
+        self,
+        system_prompt: str,
+        messages: List[Dict[str, str]],
+        temperature: float,
+        max_tokens: int
+    ):
+        """Appelle Claude en streaming — yield chaque chunk de texte."""
+        anthropic_messages = []
+        for msg in messages:
+            role = msg.get('role', 'user')
+            content = msg.get('content', '')
+            if role in ['user', 'assistant'] and content:
+                anthropic_messages.append({'role': role, 'content': content})
+
+        with self.anthropic_client.messages.stream(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=max_tokens,
+            temperature=temperature,
+            system=system_prompt,
+            messages=anthropic_messages,
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
     def _call_openai(
         self,
         system_prompt: str,
@@ -245,6 +270,26 @@ class LLMClient:
     def _fallback_response(self, messages: List[Dict[str, str]]) -> str:
         """Réponse de secours si aucun LLM n'est disponible."""
         return "Je suis là pour t'écouter. Peux-tu m'en dire plus sur ce que tu ressens ?"
+
+    def generate_stream(
+        self,
+        system_prompt: str,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7,
+        max_tokens: int = 400
+    ):
+        """Génère une réponse en streaming. Yield chaque chunk de texte."""
+        try:
+            yield from self._call_claude_stream(system_prompt, messages, temperature, max_tokens)
+        except Exception as e:
+            logger.error(f"Claude stream error: {e}")
+            # Fallback: generate complete and yield at once
+            try:
+                full = self._call_openai(system_prompt, messages, temperature, max_tokens)
+                yield full
+            except Exception as e2:
+                logger.error(f"OpenAI fallback error: {e2}")
+                yield self._fallback_response(messages)
 
 
 # ============================================================================
@@ -313,7 +358,7 @@ class TherapeuticEngine:
             system_prompt=system_prompt,
             messages=messages,
             temperature=0.7,
-            max_tokens=400
+            max_tokens=800
         )
 
         # 5. Log pour analytics (anonymisé)
@@ -325,6 +370,37 @@ class TherapeuticEngine:
             'technique_used': 'conversational_therapy',
             'model_used': 'claude-3-5-sonnet'
         }
+
+    def generate_response_stream(
+        self,
+        user_message: str,
+        conversation_history: List[Dict[str, str]],
+        user_name: str = "ami",
+        user_state: Optional[Dict[str, Any]] = None,
+        extended_profile: Optional[Dict[str, Any]] = None
+    ):
+        """Génère une réponse thérapeutique en streaming. Yield chaque chunk."""
+        # Crisis check first (not streamed)
+        if detect_crisis(user_message):
+            logger.warning(f"CRISIS DETECTED for user message")
+            self._log_crisis(user_message)
+            yield CRISIS_RESPONSE.format(user_name=user_name)
+            return
+
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile)
+        messages = list(conversation_history)
+        if user_message:
+            if not messages or messages[-1].get('content') != user_message:
+                messages.append({'role': 'user', 'content': user_message})
+
+        yield from self.llm.generate_stream(
+            system_prompt=system_prompt,
+            messages=messages,
+            temperature=0.7,
+            max_tokens=800
+        )
+
+        self._log_interaction(user_state)
 
     def _build_system_prompt(
         self,
@@ -354,6 +430,23 @@ class TherapeuticEngine:
                 context_lines.append("\n⚠️ Détresse élevée - Sois particulièrement doux et validant. Priorité à la sécurité.")
             elif energie < 30:
                 context_lines.append("\n💤 Énergie basse - Réponses courtes, pas de demandes d'efforts.")
+
+        # Mémoire des sessions précédentes
+        conversation_memory = None
+        if user_state:
+            conversation_memory = user_state.get('conversation_memory')
+        if conversation_memory and isinstance(conversation_memory, list) and len(conversation_memory) > 0:
+            context_lines.append("\n## MÉMOIRE DES SESSIONS PRÉCÉDENTES")
+            context_lines.append("Tu te souviens de ces échanges passés avec l'utilisateur :")
+            for i, mem in enumerate(conversation_memory[:3]):
+                date = mem.get('date', 'récemment')
+                # Assainir les thèmes : tronquer et ne garder que l'essence
+                themes = str(mem.get('themes', ''))[:80].strip()
+                last_topic = str(mem.get('last_topic', ''))[:80].strip()
+                msg_count = mem.get('message_count', 0)
+                if themes or last_topic:
+                    context_lines.append(f"- Session {i+1} ({date}): Thèmes abordés: \"{themes}\". Dernier sujet: \"{last_topic}\" ({msg_count} messages)")
+            context_lines.append("Utilise ces souvenirs naturellement — comme un thérapeute qui se rappelle les séances précédentes. Ne force JAMAIS les références. Si tu mentionnes un souvenir, fais-le avec délicatesse : \"La dernière fois, tu évoquais...\" Respecte la règle anti-hallucination : ne suppose PAS ce que l'utilisateur a ressenti, réfère-toi uniquement à ce qu'il a DIT.")
 
         # Intégrer le profil étendu (spirituel/transgénérationnel) si disponible
         if extended_profile:
@@ -541,3 +634,23 @@ class TherapeuticEngine:
             'rag_info': None,
             'crisis_detected': result.get('crisis_detected', False)
         }
+
+    def run_pipeline_stream(self, user_state, policy, extended_profile=None):
+        """Version streaming de run_pipeline. Yield chaque chunk de texte."""
+        user_name = user_state.get('user_name', 'ami')
+        conversation_context = policy.get('conversation_context', {})
+        messages = conversation_context.get('messages', [])
+
+        last_user_message = ""
+        for msg in reversed(messages):
+            if msg.get('role') == 'user':
+                last_user_message = msg.get('content', '')
+                break
+
+        yield from self.generate_response_stream(
+            user_message=last_user_message,
+            conversation_history=messages,
+            user_name=user_name,
+            user_state=user_state,
+            extended_profile=extended_profile
+        )
