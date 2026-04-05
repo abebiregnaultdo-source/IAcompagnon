@@ -70,14 +70,24 @@
 }
 
 /* Wrapper positioning — translateX for centering lives here,
-   breathing animation uses only scale so they don't conflict */
-.avatar-figure {
+   breathing animation uses only scale so they don't conflict.
+   Only apply absolute positioning inside .avatar-canvas context.
+   When used standalone (e.g. small chat bubbles), keep default static positioning. */
+.avatar-canvas .avatar-figure {
   position: absolute;
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   transform-origin: center bottom;
   animation: gentle-breath 6s ease-in-out infinite;
+}
+
+/* Standalone avatar (in chat message bubbles, header, etc.) —
+   fill its container without breaking out */
+.avatar-figure {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* Gentle breathing animation — uses translate + scale together
@@ -169,12 +179,14 @@
   );
 }
 
-/* Controls (compact) */
+/* Controls (compact) — z-index ensures they sit above .avatar-canvas.overlay */
 .avatar-controls {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .avatar-controls select,

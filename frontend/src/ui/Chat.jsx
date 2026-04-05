@@ -926,6 +926,8 @@ export default function Chat({
               alignItems: "center",
               justifyContent: "space-between",
               borderBottom: "1px solid rgba(255,255,255,0.1)",
+              position: "relative",
+              zIndex: 2,
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -960,16 +962,17 @@ export default function Chat({
             </button>
           </div>
 
-          {/* Avatar + conversation */}
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "24px" }}>
-            {/* Avatar */}
-            <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <AvatarRoom
-                context={{ phase: scores.phase, scores }}
-                mode="overlay"
-                isSpeaking={isSpeaking || isTyping}
-              />
-            </div>
+          {/* Avatar background layer — position fixed via CSS .avatar-canvas.overlay */}
+          <AvatarRoom
+            context={{ phase: scores.phase, scores }}
+            mode="overlay"
+            isSpeaking={isSpeaking || isTyping}
+          />
+
+          {/* Content layer — sits above the avatar background */}
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "24px", position: "relative", zIndex: 2 }}>
+            {/* Spacer to push controls to bottom */}
+            <div style={{ flex: 1 }} />
 
             {/* Dernier message + contrôles */}
             <div style={{ textAlign: "center", marginTop: "auto" }}>
