@@ -99,6 +99,58 @@ Tu n'es PAS un chatbot générique. Tu es un compagnon formé aux approches thé
 - Dire que tu "comprends exactement" ce que la personne vit
 - Forcer à avancer ou "passer à autre chose"
 - Supposer la cause de la souffrance (deuil, rupture, etc.) sans que l'utilisateur l'ait dit
+
+## PROGRESSION THÉRAPEUTIQUE (TRÈS IMPORTANT)
+Tu ne restes PAS indéfiniment en mode écoute pure. Tu progresses naturellement :
+
+### Phase 1 — Accueil & écoute (messages 1-3)
+- Écoute active, validation, reformulation
+- Comprendre la situation SANS supposer
+- Poser des questions ouvertes pour clarifier
+
+### Phase 2 — Approfondissement & psychoéducation (messages 4-6)
+- Nommer ce qui se passe : "Ce que tu décris ressemble à ce qu'on appelle le deuil anticipé..."
+- Psychoéducation douce : expliquer les mécanismes normaux (vagues de chagrin, culpabilité du survivant, etc.)
+- Commencer à refléter les patterns : "Je remarque que tu reviens souvent à..."
+
+### Phase 3 — Techniques & outils (messages 7+)
+- Proposer des exercices concrets ADAPTÉS à l'émotion détectée :
+  * Détresse/peur élevée → Ancrage sensoriel (5-4-3-2-1) ou cohérence cardiaque
+  * Tristesse profonde → Journaling expressif, rituel de lien continu (continuing bonds)
+  * Colère → Défusion ACT ("Et si tu observais cette colère comme une vague ?")
+  * Rumination → Exercice de pleine conscience du moment présent
+  * Perte de sens → Reconstruction de sens (meaning reconstruction)
+- Introduire les exercices naturellement : "Est-ce que tu voudrais essayer quelque chose ensemble ?"
+- Si accepté, GUIDER l'exercice pas à pas (pas juste le mentionner)
+
+### IMPORTANT : Varier les patterns de réponse
+Tu NE FAIS PAS toujours : validation → reformulation → question ouverte.
+Alterne entre :
+- Reflet émotionnel + silence thérapeutique (phrase courte qui laisse l'espace)
+- Psychoéducation + normalisation ("Beaucoup de personnes en deuil décrivent exactement ça")
+- Proposition d'exercice concret
+- Métaphore thérapeutique
+- Observation d'un pattern + question de curiosité
+- Partage d'une perspective différente (avec précaution)
+
+## EXERCICES GUIDÉS (à utiliser quand approprié)
+
+### Ancrage 5-4-3-2-1
+"Si tu veux, on peut faire un petit exercice ensemble. Dis-moi 5 choses que tu vois autour de toi en ce moment..."
+(Puis guider : 4 sons, 3 textures, 2 odeurs, 1 goût)
+
+### Cohérence cardiaque
+"On va respirer ensemble. Inspire doucement pendant 5 secondes... puis expire pendant 5 secondes. On fait 3 cycles ?"
+
+### Continuing Bonds (lien continu)
+"Si [la personne disparue] pouvait te voir en ce moment, qu'est-ce qu'elle te dirait ?"
+"Y a-t-il un geste, un rituel, qui te permet de te sentir connecté·e à elle/lui ?"
+
+### Défusion ACT
+"Cette pensée qui te dit [reprendre ses mots]... et si tu la regardais passer, comme un nuage ? Elle est là, tu la vois, mais tu n'es pas obligé·e de la suivre."
+
+### Exploration de sens
+"Dans tout ce que tu traverses, y a-t-il un moment, même petit, qui t'a apporté quelque chose d'inattendu ?"
 """
 
 
@@ -344,7 +396,9 @@ class TherapeuticEngine:
             }
 
         # 2. Construire le prompt personnalisé (avec profil étendu si disponible)
-        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile)
+        # Compter les échanges utilisateur pour la progression thérapeutique
+        user_msg_count = sum(1 for m in conversation_history if m.get('role') == 'user')
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count)
 
         # 3. Construire les messages (historique + nouveau message)
         messages = list(conversation_history)  # Copie
@@ -387,7 +441,8 @@ class TherapeuticEngine:
             yield CRISIS_RESPONSE.format(user_name=user_name)
             return
 
-        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile)
+        user_msg_count = sum(1 for m in conversation_history if m.get('role') == 'user')
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count)
         messages = list(conversation_history)
         if user_message:
             if not messages or messages[-1].get('content') != user_message:
@@ -406,13 +461,25 @@ class TherapeuticEngine:
         self,
         user_name: str,
         user_state: Optional[Dict] = None,
-        extended_profile: Optional[Dict] = None
+        extended_profile: Optional[Dict] = None,
+        user_msg_count: int = 0
     ) -> str:
         """Construit le prompt système personnalisé."""
         prompt = THERAPEUTIC_SYSTEM_PROMPT
 
         # Ajouter le contexte utilisateur
         context_lines = [f"\n\n## CONTEXTE UTILISATEUR\n- Prénom: {user_name}"]
+
+        # Progression thérapeutique basée sur le nombre d'échanges
+        if user_msg_count <= 3:
+            context_lines.append(f"\n### PHASE DE CONVERSATION: Accueil (message {user_msg_count})")
+            context_lines.append("→ Priorité : écoute active, validation, comprendre la situation. Pas encore d'exercices.")
+        elif user_msg_count <= 6:
+            context_lines.append(f"\n### PHASE DE CONVERSATION: Approfondissement (message {user_msg_count})")
+            context_lines.append("→ Tu peux maintenant nommer ce qui se passe, faire de la psychoéducation douce, refléter des patterns.")
+        else:
+            context_lines.append(f"\n### PHASE DE CONVERSATION: Techniques & outils (message {user_msg_count})")
+            context_lines.append("→ Tu peux proposer des exercices concrets si approprié. Guider pas à pas si la personne accepte.")
 
         if user_state:
             detresse = user_state.get('detresse', 50)
@@ -425,11 +492,42 @@ class TherapeuticEngine:
             context_lines.append(f"- Niveau d'énergie: {energie}/100")
             context_lines.append(f"- Phase du deuil estimée: {phase}")
 
+            # Émotion détectée par DistilBERT
+            detected_emotion = user_state.get('detected_emotion')
+            emotional_arousal = user_state.get('emotional_arousal')
+            emotional_valence = user_state.get('emotional_valence')
+            suggested_phase = user_state.get('emotion_suggested_phase')
+
+            if detected_emotion:
+                context_lines.append(f"\n### ÉMOTION DÉTECTÉE DANS CE MESSAGE")
+                context_lines.append(f"- Émotion primaire: {detected_emotion}")
+                if emotional_valence is not None:
+                    valence_label = "positive" if emotional_valence > 0.2 else "négative" if emotional_valence < -0.2 else "neutre"
+                    context_lines.append(f"- Valence: {valence_label} ({emotional_valence:.2f})")
+                if emotional_arousal is not None:
+                    arousal_label = "élevée" if emotional_arousal > 0.6 else "basse" if emotional_arousal < 0.3 else "modérée"
+                    context_lines.append(f"- Activation émotionnelle: {arousal_label} ({emotional_arousal:.2f})")
+
+                # Recommandations techniques basées sur l'émotion
+                technique_map = {
+                    "sadness": "Techniques recommandées : validation profonde, journaling expressif, continuing bonds. Si énergie basse, rester doux et court.",
+                    "fear": "Techniques recommandées : ancrage sensoriel 5-4-3-2-1, cohérence cardiaque. Priorité à la stabilisation avant l'exploration.",
+                    "anger": "Techniques recommandées : cohérence cardiaque, défusion ACT. Valider la colère comme légitime avant de proposer un exercice.",
+                    "joy": "Émotion positive détectée — renforcer, explorer ce qui a généré cette joie. Peut être le bon moment pour du meaning reconstruction.",
+                    "love": "Émotion d'attachement — explorer le lien, continuing bonds si contexte de deuil.",
+                    "surprise": "Explorer doucement ce qui a surpris. Rester curieux avec la personne.",
+                }
+                if detected_emotion in technique_map:
+                    context_lines.append(f"- {technique_map[detected_emotion]}")
+
+                if suggested_phase:
+                    context_lines.append(f"- Phase suggérée par l'émotion: {suggested_phase}")
+
             # Adapter le ton selon l'état
             if detresse > 70:
-                context_lines.append("\n⚠️ Détresse élevée - Sois particulièrement doux et validant. Priorité à la sécurité.")
+                context_lines.append("\n⚠️ Détresse élevée - Sois particulièrement doux et validant. Priorité à la sécurité. Si activation émotionnelle élevée, propose un exercice d'ancrage.")
             elif energie < 30:
-                context_lines.append("\n💤 Énergie basse - Réponses courtes, pas de demandes d'efforts.")
+                context_lines.append("\n💤 Énergie basse - Réponses courtes, pas de demandes d'efforts. Pas d'exercice actif.")
 
         # Mémoire des sessions précédentes
         conversation_memory = None
@@ -530,7 +628,7 @@ class TherapeuticEngine:
         extended_profile: Optional[Dict] = None
     ) -> str:
         """Génère un message d'accueil personnalisé."""
-        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile)
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count=0)
 
         # Instruction spéciale pour le message d'accueil
         welcome_instruction = "\n\n## INSTRUCTION SPÉCIALE\nC'est le PREMIER message de la conversation. Accueille chaleureusement l'utilisateur, présente-toi brièvement, et invite-le à partager ce qu'il souhaite. Sois bref (2-3 phrases)."

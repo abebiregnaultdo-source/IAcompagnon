@@ -55,34 +55,65 @@ export default function Auth({ onAuthenticated }) {
     }
 
     setIsLoading(true);
+
+    // Create timeout to prevent button from staying stuck
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      setError("La connexion a pris trop de temps. Veuillez réessayer.");
+      // Scroll error message into view
+      setTimeout(() => {
+        document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 0);
+    }, 15000); // 15 second timeout
+
     try {
       const { user, session } = await signIn(email, password);
+      clearTimeout(timeoutId);
+
       if (!user) {
         setError("Email ou mot de passe incorrect");
         setIsLoading(false);
+        // Scroll error message into view
+        setTimeout(() => {
+          document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 0);
         return;
       }
 
-      // Récupérer le profil depuis Supabase
-      const profile = await getProfile(user.id);
-      const userData = {
-        id: user.id,
-        email: user.email,
-        first_name: profile?.first_name || user.user_metadata?.first_name || '',
-        onboarding_completed: profile?.onboarding_completed === true
-          || localStorage.getItem(`helo_onboarding_${user.id}`) === "true",
-        preferences: profile?.preferences || {},
-        ...profile,
-      };
+      // Récupérer le profil depuis Supabase (wrapped in separate try/catch)
+      try {
+        const profile = await getProfile(user.id);
+        const userData = {
+          id: user.id,
+          email: user.email,
+          first_name: profile?.first_name || user.user_metadata?.first_name || '',
+          onboarding_completed: profile?.onboarding_completed === true
+            || localStorage.getItem(`helo_onboarding_${user.id}`) === "true",
+          preferences: profile?.preferences || {},
+          ...profile,
+        };
 
-      onAuthenticated(userData);
+        onAuthenticated(userData);
+      } catch (profileErr) {
+        console.error("Profile fetch error:", profileErr);
+        setIsLoading(false);
+        setError("Impossible de récupérer votre profil. Veuillez réessayer.");
+        // Scroll error message into view
+        setTimeout(() => {
+          document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 0);
+      }
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error("Login error:", err);
       setError(err.message === "Invalid login credentials"
         ? "Email ou mot de passe incorrect"
         : "Erreur lors de la connexion");
-    } finally {
       setIsLoading(false);
+      // Scroll error message into view
+      setTimeout(() => {
+        document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 0);
     }
   };
 
@@ -182,6 +213,7 @@ export default function Auth({ onAuthenticated }) {
 
             {error && (
               <div
+                role="alert"
                 style={{
                   padding: "var(--space-md)",
                   background: "var(--color-accent-warm)",
@@ -334,6 +366,7 @@ export default function Auth({ onAuthenticated }) {
 
             {error && (
               <div
+                role="alert"
                 style={{
                   padding: "var(--space-md)",
                   background: "var(--color-accent-warm)",
@@ -509,6 +542,7 @@ export default function Auth({ onAuthenticated }) {
 
             {error && (
               <div
+                role="alert"
                 style={{
                   padding: "var(--space-md)",
                   background: "var(--color-accent-warm)",

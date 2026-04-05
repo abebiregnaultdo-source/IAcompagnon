@@ -274,9 +274,47 @@ def _default_emotion_result() -> EmotionResult:
     )
 
 
+def _is_panic_attack_context(text_lower: str) -> bool:
+    """
+    Détecte si le contexte est une description de crise de panique/anxiété
+    plutôt qu'une idéation suicidaire réelle.
+
+    Exemples de faux positifs à filtrer :
+    - "j'ai l'impression que je vais mourir" + symptômes physiques
+    - "mon cœur s'emballe, j'ai du mal à respirer, je vais mourir"
+    """
+    panic_indicators = [
+        "crise d'angoisse", "crise de panique", "panique",
+        "cœur s'emballe", "coeur s'emballe", "cœur qui bat",
+        "mal à respirer", "du mal à respirer", "souffle coupé",
+        "j'étouffe", "je suffoque", "transpire", "je tremble",
+        "impression que", "l'impression que", "sensation de",
+        "vertige", "nausée", "oppression", "thorax",
+        "attaque de panique", "anxiété", "angoisse",
+        "peur de mourir",  # Symptôme classique de la crise de panique
+    ]
+    return sum(1 for indicator in panic_indicators if indicator in text_lower) >= 2
+
+
+def _is_existential_grief_context(text_lower: str) -> bool:
+    """
+    Détecte si 'à quoi bon' ou 'mourir' est dans un contexte de deuil/désespoir
+    existentiel qui mérite au minimum un medium-level check.
+    """
+    grief_despair_indicators = [
+        "à quoi bon continuer", "plus de sens", "plus aucun sens",
+        "envie de le rejoindre", "la rejoindre", "les rejoindre",
+        "plus la force de vivre", "plus envie de vivre",
+        "pourquoi continuer", "je veux partir",
+    ]
+    return any(indicator in text_lower for indicator in grief_despair_indicators)
+
+
 def detect_crisis(text: str) -> Dict[str, any]:
     """
     Détecte les indicateurs de crise dans le message.
+    Inclut une analyse contextuelle pour réduire les faux positifs
+    (ex: symptômes de panique vs. idéation suicidaire réelle).
 
     Returns:
         {
@@ -304,10 +342,40 @@ def detect_crisis(text: str) -> Dict[str, any]:
             "recommended_action": "continue_normal"
         }
 
-    # Prioriser par gravité
+    # === FILTRAGE CONTEXTUEL ===
+    # Si les mots-clés de suicide_ideation apparaissent dans un contexte
+    # de crise de panique (symptômes physiques), ne PAS déclencher le safety check
     has_suicide = any("suicide_ideation" in p for p in detected_patterns)
-    has_self_harm = any("self_harm" in p for p in detected_patterns)
+    is_panic = _is_panic_attack_context(text_lower)
+
+    if has_suicide and is_panic:
+        # Contexte de panique : "j'ai l'impression que je vais mourir" + symptômes
+        # → Rétrograder de "critical" à "low" (monitorer sans alarme)
+        only_suicide_patterns = [p for p in detected_patterns if "suicide_ideation" in p]
+        other_patterns = [p for p in detected_patterns if "suicide_ideation" not in p]
+
+        # S'il y a UNIQUEMENT des patterns suicide_ideation et que c'est un contexte panique
+        if not other_patterns or all("severe_distress" in p for p in other_patterns):
+            return {
+                "is_crisis": True,
+                "crisis_level": "low",
+                "detected_patterns": detected_patterns + ["context: panic_attack_symptoms"],
+                "recommended_action": "stabilization"
+            }
+
+    # Vérifier le désespoir existentiel dans le deuil (qui mérite attention)
     has_hopelessness = any("hopelessness" in p for p in detected_patterns)
+    if has_hopelessness and _is_existential_grief_context(text_lower):
+        # Monter le niveau à "medium" pour une attention accrue
+        return {
+            "is_crisis": True,
+            "crisis_level": "medium",
+            "detected_patterns": detected_patterns + ["context: existential_grief"],
+            "recommended_action": "enhanced_support"
+        }
+
+    # Prioriser par gravité (logique originale)
+    has_self_harm = any("self_harm" in p for p in detected_patterns)
     has_severe = any("severe_distress" in p for p in detected_patterns)
 
     if has_suicide:
