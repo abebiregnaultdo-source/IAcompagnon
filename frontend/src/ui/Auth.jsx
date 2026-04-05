@@ -2,7 +2,7 @@ import { useState } from "react";
 import Logo from "./components/Logo";
 import Button from "./components/Button";
 import Input from "./components/Input";
-import { resetPasswordForEmail } from "../lib/supabase";
+import { signIn, signUp, resetPasswordForEmail, getProfile } from "../lib/supabase";
 
 export default function Auth({ onAuthenticated }) {
   const [mode, setMode] = useState("login"); // 'login', 'register' ou 'forgot'
@@ -56,22 +56,31 @@ export default function Auth({ onAuthenticated }) {
 
     setIsLoading(true);
     try {
-      // Simuler appel API login
-      // En production : POST /api/auth/login { email, password }
-      const users = JSON.parse(localStorage.getItem("helo_users") || "{}");
-      const user = Object.values(users).find((u) => u.email === email);
-
-      if (!user || user.password !== password) {
+      const { user, session } = await signIn(email, password);
+      if (!user) {
         setError("Email ou mot de passe incorrect");
         setIsLoading(false);
         return;
       }
 
-      // Login réussi
-      localStorage.setItem("helo_current_user", JSON.stringify(user));
-      onAuthenticated(user);
+      // Récupérer le profil depuis Supabase
+      const profile = await getProfile(user.id);
+      const userData = {
+        id: user.id,
+        email: user.email,
+        first_name: profile?.first_name || user.user_metadata?.first_name || '',
+        onboarding_completed: profile?.onboarding_completed === true
+          || localStorage.getItem(`helo_onboarding_${user.id}`) === "true",
+        preferences: profile?.preferences || {},
+        ...profile,
+      };
+
+      onAuthenticated(userData);
     } catch (err) {
-      setError("Erreur lors de la connexion");
+      console.error("Login error:", err);
+      setError(err.message === "Invalid login credentials"
+        ? "Email ou mot de passe incorrect"
+        : "Erreur lors de la connexion");
     } finally {
       setIsLoading(false);
     }
@@ -98,35 +107,37 @@ export default function Auth({ onAuthenticated }) {
 
     setIsLoading(true);
     try {
-      // Vérifier si email existe déjà
-      const users = JSON.parse(localStorage.getItem("helo_users") || "{}");
-      if (Object.values(users).find((u) => u.email === email)) {
-        setError("Cet email est déjà utilisé");
+      const data = await signUp(email, password, firstName);
+      const user = data.user;
+
+      if (!user) {
+        setError("Erreur lors de la création du compte");
         setIsLoading(false);
         return;
       }
 
-      // Créer nouvel utilisateur (sans les préférences - à compléter dans l'onboarding)
-      const newUser = {
-        id: Math.random().toString(36).slice(2) + Date.now().toString(36),
-        email,
-        password, // ⚠️ En production : hasher le mot de passe!
-        first_name: firstName,
-        created_at: new Date().toISOString(),
-        onboarding_completed: false, // Force l'onboarding
-        // Les champs suivants seront définis pendant l'onboarding :
-        // tone: "neutre",
-        // rhythm: 2,
-        // active_module: "grief",
-      };
-
-      users[newUser.id] = newUser;
-      localStorage.setItem("helo_users", JSON.stringify(users));
-      localStorage.setItem("helo_current_user", JSON.stringify(newUser));
-
-      onAuthenticated(newUser);
+      // Si session disponible (autoconfirm activé), connecter directement
+      if (data.session) {
+        const profile = await getProfile(user.id);
+        const userData = {
+          id: user.id,
+          email: user.email,
+          first_name: profile?.first_name || user.user_metadata?.first_name || firstName,
+          onboarding_completed: false,
+          preferences: profile?.preferences || {},
+          ...profile,
+        };
+        onAuthenticated(userData);
+      } else {
+        // Email confirmation requis
+        setSuccess("Compte créé ! Vérifiez votre email pour confirmer votre inscription.");
+        setMode("login");
+      }
     } catch (err) {
-      setError("Erreur lors de l'inscription");
+      console.error("Register error:", err);
+      setError(err.message === "User already registered"
+        ? "Cet email est déjà utilisé"
+        : "Erreur lors de l'inscription");
     } finally {
       setIsLoading(false);
     }
