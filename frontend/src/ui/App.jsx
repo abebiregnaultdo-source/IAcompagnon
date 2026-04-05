@@ -658,8 +658,6 @@ export default function App() {
     );
   }
 
-  // If nothing matched, show landing/get-started
-
   // Si aucun état n'est actif, retour à la landing page
   return (
     <LandingPage
@@ -670,4 +668,3 @@ export default function App() {
     />
   );
 }
-// Trigger deploy ven. 30 janv. 2026 21:56:55
