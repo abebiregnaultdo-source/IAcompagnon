@@ -457,19 +457,34 @@ class TherapeuticEngine:
         context_lines = [f"\n\n## CONTEXTE UTILISATEUR\n- Prénom: {user_name}"]
 
         # Progression thérapeutique basée sur le nombre d'échanges
-        if user_msg_count <= 3:
+        # MAIS les techniques s'activent dès qu'un besoin est détecté, quelle que soit la phase
+        technique_lines = self._get_technique_protocol(user_state, user_msg_count)
+        has_technique_signal = len(technique_lines) > 0
+
+        if user_msg_count <= 2:
             context_lines.append(f"\n### PHASE DE CONVERSATION: Accueil (message {user_msg_count})")
-            context_lines.append("→ Priorité : écoute active, validation, comprendre la situation. Pas encore d'exercices.")
-        elif user_msg_count <= 6:
+            context_lines.append("→ Priorité : écoute active, validation, comprendre la situation.")
+            context_lines.append("→ Pas d'exercice structuré, MAIS si tu détectes une distorsion cognitive ou de la fusion, tu peux NOMMER le mécanisme (psychoéducation douce) sans proposer d'exercice formel.")
+            if has_technique_signal:
+                context_lines.append("→ Un signal thérapeutique est détecté (voir ci-dessous). En phase d'accueil, contente-toi de VALIDER et NOMMER le mécanisme. Tu pourras proposer l'exercice plus tard.")
+                context_lines.extend(technique_lines)
+        elif user_msg_count <= 5:
             context_lines.append(f"\n### PHASE DE CONVERSATION: Approfondissement (message {user_msg_count})")
-            context_lines.append("→ Tu peux maintenant nommer ce qui se passe, faire de la psychoéducation douce, refléter des patterns.")
-            context_lines.append("→ Si tu identifies de la fusion cognitive ('je suis nul', 'c'est impossible'), nomme-le : 'Je remarque que cette pensée revient souvent — c'est ce qu'on appelle la fusion cognitive en ACT.'")
-            context_lines.append("→ Si tu identifies de l'évitement ('ne pas penser', 'fuir'), fais de la psychoéducation douce sur l'acceptation : 'Parfois, essayer de ne pas penser à quelque chose le rend plus présent.'")
+            context_lines.append("→ Tu peux nommer les mécanismes, faire de la psychoéducation, refléter des patterns.")
+            context_lines.append("→ Tu peux commencer à PROPOSER des techniques douces (reformulation TCC, externalisation narrative) sans forcer.")
+            if has_technique_signal:
+                context_lines.append("→ Signal thérapeutique détecté. Tu peux proposer l'approche ci-dessous de manière douce ('est-ce que tu voudrais essayer quelque chose ?').")
+                context_lines.extend(technique_lines)
         else:
             context_lines.append(f"\n### PHASE DE CONVERSATION: Techniques & outils (message {user_msg_count})")
-            context_lines.append("→ Tu peux proposer des exercices concrets si approprié. Guider pas à pas si la personne accepte.")
-            # Injection des protocoles thérapeutiques concrets
-            context_lines.extend(self._get_technique_protocol(user_state, user_msg_count))
+            context_lines.append("→ Tu peux proposer des exercices concrets et GUIDER pas à pas si la personne accepte.")
+            context_lines.append("→ Ne reste PAS en mode écoute pure. Interviens activement avec les techniques ci-dessous.")
+            # Toujours injecter les protocoles en phase 3
+            if has_technique_signal:
+                context_lines.extend(technique_lines)
+            else:
+                # Même sans signal fort, encourager l'intervention active
+                context_lines.append("→ Même si aucune technique spécifique n'est détectée, utilise activement TCC (reformulation des distorsions), ACT (clarification de valeurs), ou thérapie narrative (externalisation) selon ce que la personne exprime.")
 
         if user_state:
             detresse = user_state.get('detresse', 50)
@@ -626,24 +641,26 @@ class TherapeuticEngine:
         detresse = user_state.get('detresse', 50)
 
         # Utiliser le moteur de détection si disponible
+        # Ordre de priorité : spécifique → générique
+        # Continuing Bonds et Journaling sont des techniques ciblées (besoin précis)
+        # ACT est un catch-all (fusion, évitement, valeurs — très fréquent)
         if _methods_engine:
             try:
-                if _methods_engine.should_activate_act(user_state, conversation_context):
-                    variation = _methods_engine.select_act_variation(user_state, conversation_context)
-                    protocol = _methods_engine.protocols.get('act', {}).get('variations', {}).get(variation.value, {})
+                # 1. Continuing Bonds — signal le plus spécifique (manque, connexion, rituel)
+                if _methods_engine.should_activate_continuing_bonds(user_state, conversation_context):
+                    variation = _methods_engine.select_bonds_variation(user_state, conversation_context)
+                    protocol = _methods_engine.protocols.get('continuing_bonds', {}).get('variations', {}).get(variation.value, {})
                     if protocol:
-                        lines.append(f"\n### TECHNIQUE RECOMMANDÉE: ACT — {protocol.get('name', variation.value)}")
+                        lines.append(f"\n### TECHNIQUE RECOMMANDÉE: Continuing Bonds — {protocol.get('name', variation.value)}")
                         lines.append(f"Indication: {protocol.get('indication', '')}")
-                        lines.append("Voici les étapes à proposer naturellement (pas de manière rigide) :")
+                        lines.append("Voici les étapes à proposer naturellement :")
                         for step in protocol.get('steps', []):
                             lines.append(f"  Étape {step['step']}: {step['name']}")
                             lines.append(f"    → Dire: \"{step['instruction']}\"")
                             lines.append(f"    → Ton rôle: {step.get('llm_role', '')}")
-                        # Réponses adaptatives
-                        for key, adaptive in protocol.get('adaptive_responses', {}).items():
-                            lines.append(f"  Si {adaptive.get('trigger', '')}: {adaptive.get('response', '')}")
                         return lines
 
+                # 2. Journaling — signal spécifique (non-dits, regrets, expression)
                 elif _methods_engine.should_activate_journaling(user_state, conversation_context):
                     variation = _methods_engine.select_journaling_variation(user_state, conversation_context)
                     protocol = _methods_engine.protocols.get('journaling_expressif', {}).get('variations', {}).get(variation.value, {})
@@ -657,25 +674,54 @@ class TherapeuticEngine:
                             lines.append(f"    → Ton rôle: {step.get('llm_role', '')}")
                         return lines
 
-                elif _methods_engine.should_activate_continuing_bonds(user_state, conversation_context):
-                    variation = _methods_engine.select_bonds_variation(user_state, conversation_context)
-                    protocol = _methods_engine.protocols.get('continuing_bonds', {}).get('variations', {}).get(variation.value, {})
+                # 3. ACT — catch-all (fusion, évitement, valeurs)
+                elif _methods_engine.should_activate_act(user_state, conversation_context):
+                    variation = _methods_engine.select_act_variation(user_state, conversation_context)
+                    protocol = _methods_engine.protocols.get('act', {}).get('variations', {}).get(variation.value, {})
                     if protocol:
-                        lines.append(f"\n### TECHNIQUE RECOMMANDÉE: Continuing Bonds — {protocol.get('name', variation.value)}")
+                        lines.append(f"\n### TECHNIQUE RECOMMANDÉE: ACT — {protocol.get('name', variation.value)}")
                         lines.append(f"Indication: {protocol.get('indication', '')}")
-                        lines.append("Voici les étapes à proposer naturellement :")
+                        lines.append("Voici les étapes à proposer naturellement (pas de manière rigide) :")
                         for step in protocol.get('steps', []):
                             lines.append(f"  Étape {step['step']}: {step['name']}")
                             lines.append(f"    → Dire: \"{step['instruction']}\"")
                             lines.append(f"    → Ton rôle: {step.get('llm_role', '')}")
+                        for key, adaptive in protocol.get('adaptive_responses', {}).items():
+                            lines.append(f"  Si {adaptive.get('trigger', '')}: {adaptive.get('response', '')}")
                         return lines
             except Exception as e:
                 logger.warning(f"Erreur détection méthode: {e}")
 
         # Fallback heuristique si le moteur n'est pas disponible
+        # Ordre : spécifique → générique (même logique que le moteur principal)
         msg_lower = last_message.lower() if last_message else ''
 
-        if any(w in msg_lower for w in ['je suis nul', "c'est impossible", 'toujours', 'jamais', 'je ne peux pas']):
+        # 1. Continuing Bonds — signal le plus spécifique (manque, connexion, rituel)
+        if any(w in msg_lower for w in ['me manque', 'son absence', 'sa présence', 'sentir proche', 'je lui parle', 'lui parler', 'je lui dis', 'entendre sa voix', 'rituel', 'anniversaire', 'commémor', 'près de moi', 'rêvé de', 'je le sens', 'je la sens']):
+            lines.append("\n### TECHNIQUE RECOMMANDÉE: Continuing Bonds (Klass & Silverman)")
+            lines.append("L'utilisateur exprime le manque de connexion avec la personne décédée.")
+            lines.append("1. Valider le lien : \"Le lien avec cette personne ne s'arrête pas. Il se transforme.\"")
+            lines.append("2. Explorer la connexion : \"Si tu pouvais avoir une conversation avec elle/lui en ce moment, que lui dirais-tu ?\"")
+            lines.append("3. Ritualiser : \"Y a-t-il un geste, un rituel, qui te permet de te sentir connecté(e) ?\"")
+
+        # 2. Journaling — non-dits, regrets, expression
+        elif any(w in msg_lower for w in ['aurais voulu dire', 'aurais dû', 'pas dit', 'regret', 'pardonn', 'si seulement', 'lettre']):
+            lines.append("\n### TECHNIQUE RECOMMANDÉE: Lettre non envoyée (Journaling expressif)")
+            lines.append("L'utilisateur exprime des non-dits ou des regrets.")
+            lines.append("1. Ouvrir l'espace : \"Il y a des mots que tu portes en toi, des choses que tu aurais voulu dire...\"")
+            lines.append("2. Proposer l'écriture : \"Et si tu prenais un moment pour écrire à cette personne ? Pas pour envoyer, mais pour libérer ces mots.\"")
+            lines.append("3. Si la personne accepte, guide-la vers le module Créativité (outil 'Lettre').")
+
+        # 3. Thérapie narrative — récit figé, identité fusionnée avec la perte
+        elif any(w in msg_lower for w in ['ma vie est finie', 'je ne suis plus', 'plus rien sans', 'rien sans', 'je ne sais plus qui je suis', 'invisible', 'je fais semblant']):
+            lines.append("\n### TECHNIQUE RECOMMANDÉE: Externalisation (Thérapie narrative)")
+            lines.append("L'utilisateur a un récit figé : son identité est fusionnée avec la perte.")
+            lines.append("1. Externaliser : \"Le deuil te raconte que ta vie est finie. Mais TOI, qu'est-ce que tu en dis ?\"")
+            lines.append("2. Chercher les exceptions : \"Y a-t-il eu un moment, même infime, où tu as senti que tu étais encore toi, malgré tout ?\"")
+            lines.append("3. Re-authoring : \"Si tu devais écrire le prochain chapitre — pas celui que le deuil écrirait, mais le tien — ça ressemblerait à quoi ?\"")
+
+        # 4. ACT Défusion — fusion cognitive (pensées = réalité)
+        elif any(w in msg_lower for w in ['je suis nul', 'je suis incapable', "c'est impossible", 'je ne vaux', 'je ne peux pas', 'détruit', 'brisé', 'cassé', 'plus jamais', 'je suis mort', 'au bout du rouleau', 'ça me bouffe', 'ça me ronge', 'ça me détruit']):
             lines.append("\n### TECHNIQUE RECOMMANDÉE: Défusion cognitive (ACT)")
             lines.append("L'utilisateur montre des signes de fusion cognitive (pensées = réalité).")
             lines.append("1. Identifie la pensée dominante : \"Quelle pensée revient souvent et te pèse ?\"")
@@ -683,34 +729,40 @@ class TherapeuticEngine:
             lines.append("3. Relie aux valeurs : \"Si cette pensée avait moins de pouvoir, qu'est-ce qui deviendrait possible pour toi ?\"")
             lines.append("Si résistance ('mais c'est vrai') : \"La question n'est pas si c'est vrai, mais si cette pensée t'aide à avancer vers ce qui compte pour toi.\"")
 
-        elif any(w in msg_lower for w in ['éviter', 'fuir', 'oublier', 'ne pas penser', 'distraire']):
+        # 5. ACT Acceptation — évitement expérientiel
+        elif any(w in msg_lower for w in ['éviter', 'évite', 'fuir', 'fuis', 'fuit', 'oublier', 'oublie', 'ne pas penser', 'ne plus penser', 'distraire', 'bloquer', 'bloque']):
             lines.append("\n### TECHNIQUE RECOMMANDÉE: Acceptation expérientielle (ACT)")
             lines.append("L'utilisateur montre de l'évitement expérientiel.")
             lines.append("1. Reconnaître le pattern : \"Tu cherches à ne plus ressentir ça — c'est très humain.\"")
             lines.append("2. Faire de la place : \"Et si au lieu d'essayer de repousser cette émotion, tu lui faisais juste un peu de place ? Comme une vague qui passe.\"")
             lines.append("3. Découpler acceptation et abandon : \"Accepter ne veut pas dire abandonner ou oublier. C'est reconnaître ce qui est là.\"")
 
-        elif any(w in msg_lower for w in ['sens', 'pourquoi', 'direction', 'vide', 'à quoi bon']):
+        # 6. ACT Valeurs — quête de sens
+        elif any(w in msg_lower for w in ['à quoi bon', 'quel sens', 'pourquoi continuer', 'pourquoi je', 'plus de sens', 'vide']):
             lines.append("\n### TECHNIQUE RECOMMANDÉE: Clarification des valeurs (ACT)")
             lines.append("L'utilisateur cherche du sens ou de la direction.")
             lines.append("1. Explorer les valeurs : \"Dans ta relation avec cette personne, qu'est-ce qui comptait vraiment pour toi ?\"")
             lines.append("2. Honorer aujourd'hui : \"Comment pourrais-tu honorer ces valeurs aujourd'hui, même de manière toute petite ?\"")
             lines.append("3. Micro-engagement : Proposer une action concrète, petite, alignée avec la valeur identifiée.")
 
-        elif any(w in msg_lower for w in ['dire', 'dit', 'aurais voulu', 'regret', 'pardonn']):
-            lines.append("\n### TECHNIQUE RECOMMANDÉE: Lettre non envoyée (Journaling expressif)")
-            lines.append("L'utilisateur exprime des non-dits ou des regrets.")
-            lines.append("1. Ouvrir l'espace : \"Il y a des mots que tu portes en toi, des choses que tu aurais voulu dire...\"")
-            lines.append("2. Proposer l'écriture : \"Et si tu prenais un moment pour écrire à cette personne ? Pas pour envoyer, mais pour libérer ces mots.\"")
-            lines.append("3. Si la personne accepte, guide-la vers le module Créativité (outil 'Lettre').")
+        # 7. Somatique — ancrage polyvagal (NE DÉPEND PAS de DistilBERT)
+        elif any(w in msg_lower for w in ['boule au ventre', 'ventre noué', 'nœud', 'tremble', 'trembler', 'cœur qui s\'emballe', 'cœur bat', 'suffoque', 'respire plus', 'peux plus respirer', 'souffle coupé', 'oppression', 'corps', 'tension', 'tendu', 'contracté', 'mal au ventre', 'mal à la tête', 'vertige', 'panique']):
+            lines.append("\n### TECHNIQUE RECOMMANDÉE: Ancrage sensoriel 5-4-3-2-1 (Polyvagal)")
+            lines.append("Activation somatique détectée (signaux corporels de détresse). Priorité à la stabilisation.")
+            lines.append("1. Si respiration difficile : \"Respire avec moi. Inspire pendant 5 secondes... expire pendant 5 secondes. On fait 3 cycles ensemble.\"")
+            lines.append("2. Ancrage : \"On va prendre un moment ensemble. Sens tes pieds sur le sol. Nomme 5 choses que tu vois, 4 que tu entends, 3 que tu touches, 2 que tu sens, 1 que tu goûtes.\"")
+            lines.append("3. Reste présent, valide chaque réponse, avance lentement. Ne passe PAS à l'exploration tant que le corps n'est pas stabilisé.")
 
-        elif any(w in msg_lower for w in ['manque', 'présence', 'signe', 'parler', 'entendre', 'voir']):
-            lines.append("\n### TECHNIQUE RECOMMANDÉE: Continuing Bonds (Klass & Silverman)")
-            lines.append("L'utilisateur exprime le manque de connexion avec la personne décédée.")
-            lines.append("1. Valider le lien : \"Le lien avec cette personne ne s'arrête pas. Il se transforme.\"")
-            lines.append("2. Explorer la connexion : \"Si tu pouvais avoir une conversation avec elle/lui en ce moment, que lui dirais-tu ?\"")
-            lines.append("3. Ritualiser : \"Y a-t-il un geste, un rituel, qui te permet de te sentir connecté(e) ?\"")
+        # 8. Colère — validation + régulation (NE DÉPEND PAS de DistilBERT)
+        elif any(w in msg_lower for w in ['colère', 'en colère', 'rage', 'furieux', 'furieuse', 'injuste', 'injustice', 'révolte', 'révolté', 'pas juste', "c'est dégueulasse", 'scandaleux', 'haine', 'déteste']):
+            lines.append("\n### TECHNIQUE RECOMMANDÉE: Validation de la colère + Régulation")
+            lines.append("Colère détectée. La colère dans le deuil est légitime et souvent sous-exprimée.")
+            lines.append("1. Valider SANS minimiser : \"Cette colère est légitime. Tu as le droit d'être en colère.\"")
+            lines.append("2. Nommer la source : \"Contre qui ou quoi est dirigée cette colère ? Contre la maladie, contre l'injustice, contre toi-même ?\"")
+            lines.append("3. Si très intense, proposer cohérence cardiaque AVANT d'explorer : \"Avant d'aller plus loin, on respire ensemble. Inspire 5s, expire 5s.\"")
+            lines.append("4. Puis relier aux valeurs (ACT) : \"Derrière cette colère, qu'est-ce qui compte vraiment pour toi ?\"")
 
+        # 9. Fallback DistilBERT — peur/anxiété détectée par le modèle
         elif detected_emotion == 'fear' and detresse > 50:
             lines.append("\n### TECHNIQUE RECOMMANDÉE: Ancrage sensoriel 5-4-3-2-1")
             lines.append("Anxiété/peur détectée avec détresse élevée. Priorité à la stabilisation.")
@@ -804,6 +856,10 @@ class TherapeuticEngine:
                 last_user_message = msg.get('content', '')
                 break
 
+        # S'assurer que last_user_message est dans user_state pour la détection de techniques
+        if last_user_message and not user_state.get('last_user_message'):
+            user_state['last_user_message'] = last_user_message
+
         # Générer la réponse (avec profil étendu si disponible)
         result = self.generate_response(
             user_message=last_user_message,
@@ -842,6 +898,9 @@ class TherapeuticEngine:
             if msg.get('role') == 'user':
                 last_user_message = msg.get('content', '')
                 break
+
+        if last_user_message and not user_state.get('last_user_message'):
+            user_state['last_user_message'] = last_user_message
 
         yield from self.generate_response_stream(
             user_message=last_user_message,

@@ -90,10 +90,35 @@ class PrimaryMethodsEngine:
         
         user_message = conversation_context.get("last_message", "").lower()
         
-        # Mots-clés ACT (avec variantes conjuguées)
-        fusion_words = ["je suis", "je ne peux pas", "c'est impossible", "toujours", "jamais", "je suis nul", "je suis incapable", "je ne vaux"]
-        avoidance_words = ["éviter", "évite", "fuir", "fuis", "fuit", "oublier", "oublie", "ne pas penser", "ne plus penser", "ne plus y penser", "distraire", "distrai", "ne pas ressentir", "bloquer", "bloque"]
-        values_words = ["important", "compte", "sens", "direction", "vouloir", "à quoi bon", "quel sens", "pourquoi je"]
+        # Mots-clés ACT (avec variantes conjuguées, récits figés, métaphores, expressions indirectes)
+        fusion_words = [
+            "je suis nul", "je suis incapable", "je ne vaux", "je ne peux pas",
+            "c'est impossible", "toujours", "jamais",
+            "plus rien", "je ne suis plus", "ma vie est finie", "fini sans",
+            "plus personne", "rien sans", "détruit", "brisé", "cassé",
+            "plus jamais", "vide", "je suis mort",
+            # Métaphores et expressions indirectes
+            "au bout du rouleau", "ça me bouffe", "ça me ronge", "ça me détruit",
+            "je ne sais plus qui je suis", "je me reconnais plus",
+            "je fais semblant", "faire semblant", "porter un masque",
+            "c'est comme si j'étais invisible", "invisible",
+            "je survis", "survivre", "je fonctionne", "mode automatique",
+            "un trou", "un gouffre", "le néant",
+        ]
+        avoidance_words = [
+            "éviter", "évite", "fuir", "fuis", "fuit",
+            "oublier", "oublie", "ne pas penser", "ne plus penser",
+            "ne plus y penser", "distraire", "distrai",
+            "ne pas ressentir", "bloquer", "bloque",
+            # Expressions indirectes d'évitement (avec conjugaisons)
+            "faire comme si", "fais comme si", "fait comme si",
+            "occuper l'esprit", "occupe l'esprit", "m'occupe pour",
+            "ne rien ressentir", "anesthésié", "engourdi",
+        ]
+        values_words = [
+            "important", "compte", "sens", "direction", "vouloir",
+            "à quoi bon", "quel sens", "pourquoi je", "pourquoi continuer",
+        ]
         
         has_fusion = any(word in user_message for word in fusion_words)
         has_avoidance = any(word in user_message for word in avoidance_words)
@@ -121,13 +146,30 @@ class PrimaryMethodsEngine:
         
         user_message = conversation_context.get("last_message", "").lower()
         
-        # Détection de fusion cognitive
-        fusion_words = ["je suis", "toujours", "jamais", "je ne peux pas"]
+        # Détection de fusion cognitive / récit figé / métaphores
+        fusion_words = [
+            "je suis nul", "je suis incapable", "je ne vaux", "je ne peux pas",
+            "c'est impossible", "toujours", "jamais",
+            "plus rien", "je ne suis plus", "ma vie est finie", "fini sans",
+            "plus personne", "rien sans", "détruit", "brisé", "cassé",
+            "plus jamais", "vide", "je suis mort",
+            "au bout du rouleau", "ça me bouffe", "ça me ronge", "ça me détruit",
+            "je ne sais plus qui je suis", "je me reconnais plus",
+            "je fais semblant", "faire semblant", "porter un masque",
+            "invisible", "je survis", "survivre", "mode automatique",
+            "un trou", "un gouffre", "le néant",
+        ]
         if any(word in user_message for word in fusion_words):
             return ACTVariation.DEFUSION
-        
+
         # Détection d'évitement
-        avoidance_words = ["éviter", "fuir", "ne pas penser"]
+        avoidance_words = [
+            "éviter", "évite", "fuir", "fuis", "fuit",
+            "oublier", "oublie", "ne pas penser", "ne plus penser",
+            "ne plus y penser", "distraire", "distrai", "bloquer", "bloque",
+            "faire comme si", "fais comme si", "fait comme si",
+            "occuper l'esprit", "occupe l'esprit", "anesthésié", "engourdi",
+        ]
         if any(word in user_message for word in avoidance_words):
             return ACTVariation.ACCEPTATION
         
@@ -203,9 +245,9 @@ class PrimaryMethodsEngine:
         user_message = conversation_context.get("last_message", "").lower()
 
         # Mots-clés continuing bonds (avec variantes conjuguées)
-        connection_words = ["lien", "connexion", "présence", "avec moi", "près de moi", "manque", "me manque", "son absence", "sa présence", "sentir proche", "connecté"]
+        connection_words = ["lien", "connexion", "présence", "avec moi", "près de moi", "manque", "me manque", "son absence", "sa présence", "sentir proche", "connecté", "il est là", "elle est là", "je le sens", "je la sens", "signe", "rêvé de"]
         ritual_words = ["rituel", "geste", "habitude", "faire ensemble", "cérémonie", "commémor", "anniversaire"]
-        conversation_words = ["parler", "parle", "dire", "dit", "conversation", "répondre", "je lui parle", "lui dire", "entendr"]
+        conversation_words = ["je lui parle", "lui parler", "je lui dis", "lui dit", "conversation avec", "répondre", "entendre sa voix", "entendr"]
 
         has_connection_need = any(word in user_message for word in connection_words)
         has_ritual_interest = any(word in user_message for word in ritual_words)
@@ -230,8 +272,8 @@ class PrimaryMethodsEngine:
 
         user_message = conversation_context.get("last_message", "").lower()
 
-        # Détection de besoin de conversation
-        conversation_words = ["parler", "dire", "répondre", "demander"]
+        # Détection de besoin de conversation (conjugaisons incluses)
+        conversation_words = ["parler", "parle", "dire", "dis", "répondre", "répond", "demander", "demande"]
         if any(word in user_message for word in conversation_words):
             return BondsVariation.CONVERSATION
 
