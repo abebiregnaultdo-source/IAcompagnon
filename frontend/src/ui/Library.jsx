@@ -944,7 +944,7 @@ export default function Library({ onBackToHome }) {
               key={resource.id}
               style={{
                 background: resource.featured
-                  ? "linear-gradient(135deg, #faf8f3 0%, #f5f0e8 100%)"
+                  ? "linear-gradient(135deg, #f5f0e8 0%, #ede5d8 100%)"
                   : "var(--color-surface-1)",
                 border: resource.featured
                   ? "2px solid rgba(180, 140, 80, 0.4)"

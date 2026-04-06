@@ -1,9 +1,9 @@
 :root {
   /* Colors (therapeutic palette) */
   --color-background: #f6fbfc;
-  --color-bg-light: #ffffff;
-  --color-surface-1: #ffffff;
-  --color-surface-2: #fbfcfe;
+  --color-bg-light: #f9fbfc;
+  --color-surface-1: #f2f6f7;
+  --color-surface-2: #f7f9fb;
   --color-border: #e6eef2;
   --color-primary: #4b9ab3;
   --color-primary-light: #7ba8c0;

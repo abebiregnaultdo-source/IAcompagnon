@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Logo from "./components/Logo";
 import Button from "./components/Button";
 import Text from "./components/Text";
@@ -141,19 +141,23 @@ export default function Creativity({ user, api, onBackToHome }) {
     }
   };
 
+  // Ref pour éviter les mises à jour d'état après démontage ou changement de contenu
+  const analysisAbortRef = useRef(null);
+
   /**
    * Analyse le contexte du message en temps réel
    * Appelle /api/analyze-context pour obtenir les prompts personnalisés
+   * Accepte un AbortSignal pour annuler les requêtes obsolètes
    */
-  const getPersonalizedPrompt = async (message) => {
+  const getPersonalizedPrompt = async (message, signal) => {
     if (!message || message.length < 30) {
-      // Pas assez de contenu pour analyser
       return null;
     }
 
     setAnalysisLoading(true);
     try {
       const recentEntries = await getRecentJournalEntries();
+      if (signal?.aborted) return null;
 
       const response = await fetch(`${api.base}/api/analyze-context`, {
         method: "POST",
@@ -164,7 +168,10 @@ export default function Creativity({ user, api, onBackToHome }) {
           tool: activeTab,
           conversation_history: recentEntries,
         }),
+        signal,
       });
+
+      if (signal?.aborted) return null;
 
       if (response.ok) {
         const data = await response.json();
@@ -177,9 +184,12 @@ export default function Creativity({ user, api, onBackToHome }) {
         };
       }
     } catch (error) {
+      if (error.name === "AbortError") return null;
       console.error("Erreur analyse contextuelle:", error);
     } finally {
-      setAnalysisLoading(false);
+      if (!signal?.aborted) {
+        setAnalysisLoading(false);
+      }
     }
 
     return null;
@@ -187,22 +197,36 @@ export default function Creativity({ user, api, onBackToHome }) {
 
   /**
    * Analyse et guide en temps réel quand l'utilisateur tape
-   * Debounced pour ne pas surcharger l'API
+   * Debounced 2s pour ne pas surcharger l'API
+   * Utilise AbortController pour annuler les requêtes obsolètes
    */
   useEffect(() => {
     const timer = setTimeout(async () => {
       if (showEditor && currentContent) {
-        const guidance = await getPersonalizedPrompt(currentContent);
-        if (guidance) {
+        // Annuler toute requête précédente en cours
+        if (analysisAbortRef.current) {
+          analysisAbortRef.current.abort();
+        }
+        const controller = new AbortController();
+        analysisAbortRef.current = controller;
+
+        const guidance = await getPersonalizedPrompt(currentContent, controller.signal);
+        if (guidance && !controller.signal.aborted) {
           setGuidedPrompts(guidance.recommended_prompts || []);
           setPersonalizedContext(guidance.personalization_context || "");
           setDetectedMethod(guidance.detected_method);
           setDetectionConfidence(guidance.confidence || 0);
         }
       }
-    }, 1000); // Attendre 1s après la dernière saisie
+    }, 2000); // Attendre 2s après la dernière saisie (augmenté de 1s)
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      // Annuler la requête en cours si le contenu change
+      if (analysisAbortRef.current) {
+        analysisAbortRef.current.abort();
+      }
+    };
   }, [showEditor, currentContent, activeTab]);
 
   const saveCreation = async () => {

@@ -301,12 +301,39 @@ export default function Chat({
 
   // Sauvegarder l'historique des conversations dans localStorage
   // Pour que la section Créativité puisse proposer des thèmes personnalisés
+  // + Auto-sauvegarder dans l'historique des conversations après chaque échange
   useEffect(() => {
     if (messages.length > 0) {
       try {
         localStorage.setItem(`helo_chat_history_${user.id}`, JSON.stringify(messages));
       } catch (e) {
         // localStorage peut échouer en mode privé
+      }
+
+      // Auto-sauvegarder dans l'historique si au moins 3 messages (accueil + 1 échange)
+      const userMessages = messages.filter(m => m.role === "user");
+      if (userMessages.length >= 1) {
+        try {
+          const savedHistory = localStorage.getItem(`helo_conversations_${user.id}`);
+          const existingConversations = savedHistory ? JSON.parse(savedHistory) : [];
+
+          // Chercher si une conversation "en cours" existe déjà (id = "current")
+          const withoutCurrent = existingConversations.filter(c => c.id !== "current");
+
+          const currentConversation = {
+            id: "current",
+            date: new Date().toISOString(),
+            preview: userMessages[0]?.content?.slice(0, 50) || "Conversation en cours",
+            messages: messages,
+            isActive: true,
+          };
+
+          const updatedConversations = [currentConversation, ...withoutCurrent].slice(0, 20);
+          setSavedConversations(updatedConversations);
+          localStorage.setItem(`helo_conversations_${user.id}`, JSON.stringify(updatedConversations));
+        } catch (e) {
+          // Silencieux
+        }
       }
     }
   }, [messages, user.id]);
@@ -327,7 +354,9 @@ export default function Chat({
         preview: messages.find(m => m.role === "user")?.content?.slice(0, 50) || "Conversation",
         messages: messages,
       };
-      const updatedConversations = [conversation, ...savedConversations].slice(0, 20); // Max 20 conversations
+      // Remplacer la conversation "current" par une finalisée avec un vrai ID
+      const withoutCurrent = savedConversations.filter(c => c.id !== "current");
+      const updatedConversations = [conversation, ...withoutCurrent].slice(0, 20);
       setSavedConversations(updatedConversations);
       try {
         localStorage.setItem(`helo_conversations_${user.id}`, JSON.stringify(updatedConversations));
@@ -1177,6 +1206,7 @@ export default function Chat({
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div style={{ flex: 1 }}>
                         <Text size="sm" style={{ color: "#718096", marginBottom: "4px" }}>
+                          {conv.isActive ? "En cours — " : ""}
                           {new Date(conv.date).toLocaleDateString("fr-FR", {
                             day: "numeric",
                             month: "long",
