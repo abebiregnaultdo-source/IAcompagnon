@@ -200,11 +200,13 @@ class PrimaryMethodsEngine:
         
         detresse = user_state.get("detresse", 50)
         message_length = len(user_message)
-        
+
         # Conditions
+        # Note: le seuil de longueur est élevé (300) pour éviter que le journaling
+        # ne capture des messages qui relèvent plutôt d'ACT ou du somatique
         appropriate_state = (
             detresse < 85 and  # Pas trop intense
-            (has_expression_need or has_regret or has_story_need or message_length > 100)
+            (has_expression_need or has_regret or has_story_need or message_length > 300)
         )
         
         return appropriate_state
