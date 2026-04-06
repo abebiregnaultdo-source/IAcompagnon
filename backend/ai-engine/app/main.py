@@ -360,6 +360,88 @@ async def openai_generate(messages: List[ChatMessage], profile: Dict[str, Any], 
     out = engine.run_pipeline(user_state, policy)
     return out.get('text', '')
 
+def _detect_module_suggestion(response_text: str) -> dict | None:
+    """
+    Détecte quel module suggérer en fonction du CONTENU de la réponse IA.
+    Basé sur le besoin exprimé, pas sur un compteur de messages.
+    Retourne None si aucune suggestion n'est pertinente.
+    """
+    if not response_text:
+        return None
+
+    text_lower = response_text.lower()
+
+    # --- Module Créativité (écriture, dessin, rituel) ---
+    creativity_signals = {
+        'journal': ['écrire', 'journal', 'mettre en mots', 'coucher sur papier', 'noter ce que'],
+        'poem': ['poème', 'poésie', 'vers ', 'strophe'],
+        'narrative': ['lettre', 'raconter', 'récit', 'narrer', 'histoire de vie'],
+        'coloring': ['coloriage', 'dessiner', 'dessin', 'couleur', 'peindre'],
+        'ritual': ['rituel', 'cérémonie', 'commémor', 'symboli'],
+    }
+    for tool, keywords in creativity_signals.items():
+        # On cherche des formulations suggestives, pas juste la mention du mot
+        suggestive_patterns = [
+            f"pourriez {kw}" for kw in keywords
+        ] + [
+            f"essayer de {kw}" for kw in keywords
+        ] + [
+            f"vous pourriez {kw}" for kw in keywords
+        ] + [
+            f"tu pourrais {kw}" for kw in keywords
+        ] + [
+            f"peut aider de {kw}" for kw in keywords
+        ] + [
+            f"bienfait de {kw}" for kw in keywords
+        ] + keywords  # fallback: mot-clé seul
+        if any(p in text_lower for p in suggestive_patterns):
+            return {
+                'module': 'creativity',
+                'tool': tool,
+                'title': "Envie d'explorer tes émotions autrement ?",
+                'message': "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens."
+            }
+
+    # --- Module Bibliothèque (lecture, ressources, livres) ---
+    library_signals = [
+        'livre', 'lire', 'lecture', 'ouvrage', 'ressource', 'article',
+        'podcast', 'vidéo', 'documentaire', 'témoignage', 'bibliothèque',
+        'recommand', 'découvrir un', 'explorer un',
+    ]
+    library_suggestive = [
+        'je vous recommande', 'tu pourrais lire', 'un livre qui',
+        'des ressources', 'approfondir par la lecture', 'témoignages d\'autres',
+        'il existe des ouvrages', 'vous pourriez lire', 'vidéo', 'podcast',
+    ]
+    if any(p in text_lower for p in library_suggestive):
+        return {
+            'module': 'library',
+            'tool': 'resources',
+            'title': "Des ressources qui pourraient t'aider",
+            'message': "Notre bibliothèque contient des livres, podcasts et articles sur ce sujet."
+        }
+
+    # --- Module Rêves (rêves, sommeil, inconscient) ---
+    dream_signals = [
+        'rêve ', 'rêves', 'rêver', 'cauchemar', 'sommeil', 'nuit',
+        'inconscient', 'onirique',
+    ]
+    dream_suggestive = [
+        'noter vos rêves', 'noter tes rêves', 'journal de rêves',
+        'explorer vos rêves', 'explorer tes rêves', 'rêves récurrents',
+        'sens de ce rêve', 'signification',
+    ]
+    if any(p in text_lower for p in dream_suggestive):
+        return {
+            'module': 'dreams',
+            'tool': 'dream_journal',
+            'title': "Explorer tes rêves ?",
+            'message': "Le journal de rêves peut t'aider à comprendre ce qui se passe en toi."
+        }
+
+    return None
+
+
 @app.post('/generate')
 async def generate(req: GenerateRequest):
     tone = req.policy.get('tone', 'neutre')
@@ -420,6 +502,9 @@ async def generate(req: GenerateRequest):
         if msg.role == "user":
             last_user_message = msg.content
             break
+
+    # Passer le dernier message dans user_state pour la détection de techniques
+    user_state['last_user_message'] = last_user_message
 
     # === DÉTECTION DE CRISE ACTIVE (État de l'art 2024) ===
     crisis_response = None
@@ -533,26 +618,9 @@ async def generate(req: GenerateRequest):
     if emotion_analysis:
         emotion_context['distilbert_analysis'] = emotion_analysis
 
-    # Détection de suggestion créative
-    suggest_creativity = None
-    response_text_lower = text.lower()
-    creativity_keywords = ['écrire', 'journal', 'lettre', 'poème', 'poésie', 'dessiner', 'coloriage', 'rituel', 'créati']
-    message_count = len(req.messages)
-    if message_count >= 6 and any(kw in response_text_lower for kw in creativity_keywords):
-        suggested_tool = 'journal'
-        if 'lettre' in response_text_lower:
-            suggested_tool = 'journal'
-        if 'poème' in response_text_lower or 'poésie' in response_text_lower:
-            suggested_tool = 'poem'
-        if 'coloriage' in response_text_lower or 'dessiner' in response_text_lower:
-            suggested_tool = 'coloring'
-        if 'rituel' in response_text_lower:
-            suggested_tool = 'ritual'
-        suggest_creativity = {
-            'tool': suggested_tool,
-            'title': "Envie d'explorer tes émotions autrement ?",
-            'message': "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens."
-        }
+    # Détection contextuelle de suggestion de module
+    # Basée sur le BESOIN détecté dans la réponse, pas sur le nombre de messages
+    suggest_module = _detect_module_suggestion(text)
 
     return {
         'text': text,
@@ -564,7 +632,9 @@ async def generate(req: GenerateRequest):
         'emotion_context': emotion_context,
         # RAG info for debugging
         'rag_info': out.get('rag_info'),
-        'suggest_creativity': suggest_creativity,
+        'suggest_module': suggest_module,
+        # Backward compatibility
+        'suggest_creativity': suggest_module if suggest_module and suggest_module.get('module') == 'creativity' else None,
     }
 
 
@@ -617,6 +687,9 @@ async def generate_stream(req: GenerateRequest):
         if msg.role == "user":
             last_user_message = msg.content
             break
+
+    # Passer le dernier message dans user_state pour la détection de techniques
+    user_state['last_user_message'] = last_user_message
 
     # Crisis detection (not streamed — immediate response)
     crisis_response = None
@@ -673,29 +746,14 @@ async def generate_stream(req: GenerateRequest):
             yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
             accumulated_text += chunk
 
-        # Détection de suggestion créative
-        suggest_creativity = None
-        response_text_lower = accumulated_text.lower()
-        creativity_keywords = ['écrire', 'journal', 'lettre', 'poème', 'poésie', 'dessiner', 'coloriage', 'rituel', 'créati']
-        message_count = len(req.messages)
-        if message_count >= 6 and any(kw in response_text_lower for kw in creativity_keywords):
-            suggested_tool = 'journal'
-            if 'lettre' in response_text_lower:
-                suggested_tool = 'journal'
-            if 'poème' in response_text_lower or 'poésie' in response_text_lower:
-                suggested_tool = 'poem'
-            if 'coloriage' in response_text_lower or 'dessiner' in response_text_lower:
-                suggested_tool = 'coloring'
-            if 'rituel' in response_text_lower:
-                suggested_tool = 'ritual'
-            suggest_creativity = {
-                'tool': suggested_tool,
-                'title': "Envie d'explorer tes émotions autrement ?",
-                'message': "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens."
-            }
+        # Détection contextuelle de suggestion de module
+        suggest_module = _detect_module_suggestion(accumulated_text)
 
-        if suggest_creativity:
-            yield f"data: {json.dumps({'type': 'suggest_creativity', **suggest_creativity})}\n\n"
+        if suggest_module:
+            yield f"data: {json.dumps({'type': 'suggest_module', **suggest_module})}\n\n"
+            # Backward compatibility
+            if suggest_module.get('module') == 'creativity':
+                yield f"data: {json.dumps({'type': 'suggest_creativity', **suggest_module})}\n\n"
 
         yield f"data: {json.dumps({'type': 'done', 'technique': 'conversational_therapy'})}\n\n"
 

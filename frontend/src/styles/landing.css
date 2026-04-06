@@ -294,8 +294,7 @@
   padding: 32px;
   background: var(--landing-bg-blue-light);
   border-radius: 14px;
-  border: 1px solid rgba(123, 168, 192, 0.2);
-  border-left: 4px solid var(--landing-primary-blue);
+  border: 1px solid rgba(123, 168, 192, 0.15);
 }
 
 .landing-why-item h3 {

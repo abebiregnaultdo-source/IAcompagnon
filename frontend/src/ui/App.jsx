@@ -505,6 +505,14 @@ export default function App() {
               setShowChat(false);
               setShowCreativity(true);
             }}
+            onOpenLibrary={() => {
+              setShowChat(false);
+              setShowLibrary(true);
+            }}
+            onOpenDreams={() => {
+              setShowChat(false);
+              setShowDreams(true);
+            }}
           />
         </div>
       </EmotionalFeedback>

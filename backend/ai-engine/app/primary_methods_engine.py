@@ -90,10 +90,10 @@ class PrimaryMethodsEngine:
         
         user_message = conversation_context.get("last_message", "").lower()
         
-        # Mots-clés ACT
-        fusion_words = ["je suis", "je ne peux pas", "c'est impossible", "toujours", "jamais"]
-        avoidance_words = ["éviter", "fuir", "oublier", "ne pas penser", "distraire"]
-        values_words = ["important", "compte", "sens", "direction", "vouloir"]
+        # Mots-clés ACT (avec variantes conjuguées)
+        fusion_words = ["je suis", "je ne peux pas", "c'est impossible", "toujours", "jamais", "je suis nul", "je suis incapable", "je ne vaux"]
+        avoidance_words = ["éviter", "évite", "fuir", "fuis", "fuit", "oublier", "oublie", "ne pas penser", "ne plus penser", "ne plus y penser", "distraire", "distrai", "ne pas ressentir", "bloquer", "bloque"]
+        values_words = ["important", "compte", "sens", "direction", "vouloir", "à quoi bon", "quel sens", "pourquoi je"]
         
         has_fusion = any(word in user_message for word in fusion_words)
         has_avoidance = any(word in user_message for word in avoidance_words)
@@ -202,10 +202,10 @@ class PrimaryMethodsEngine:
 
         user_message = conversation_context.get("last_message", "").lower()
 
-        # Mots-clés continuing bonds
-        connection_words = ["lien", "connexion", "présence", "avec moi", "près de moi"]
-        ritual_words = ["rituel", "geste", "habitude", "faire ensemble"]
-        conversation_words = ["parler", "dire", "conversation", "répondre"]
+        # Mots-clés continuing bonds (avec variantes conjuguées)
+        connection_words = ["lien", "connexion", "présence", "avec moi", "près de moi", "manque", "me manque", "son absence", "sa présence", "sentir proche", "connecté"]
+        ritual_words = ["rituel", "geste", "habitude", "faire ensemble", "cérémonie", "commémor", "anniversaire"]
+        conversation_words = ["parler", "parle", "dire", "dit", "conversation", "répondre", "je lui parle", "lui dire", "entendr"]
 
         has_connection_need = any(word in user_message for word in connection_words)
         has_ritual_interest = any(word in user_message for word in ritual_words)

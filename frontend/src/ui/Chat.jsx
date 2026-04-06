@@ -84,6 +84,8 @@ export default function Chat({
   onBackToHome,
   onSwitchToVoice,
   onOpenCreativity,
+  onOpenLibrary,
+  onOpenDreams,
 }) {
   const device = useDeviceDetection();
   const [messages, setMessages] = useState([]);
@@ -468,12 +470,23 @@ export default function Chat({
               });
             } else if (event.type === "done") {
               technique = event.technique || "unknown";
-            } else if (event.type === "suggest_creativity") {
+            } else if (event.type === "suggest_module") {
               setCreativitySuggestion({
-                title: event.title || "Envie d'exprimer ce que tu ressens ?",
-                message: event.message || "Tu pourrais essayer un outil créatif pour explorer tes émotions.",
+                module: event.module || "creativity",
+                title: event.title || "Une suggestion pour toi",
+                message: event.message || "Un outil pourrait t'aider à explorer ce que tu ressens.",
                 tool: event.tool || "journal"
               });
+            } else if (event.type === "suggest_creativity") {
+              // Backward compatibility
+              if (!creativitySuggestion) {
+                setCreativitySuggestion({
+                  module: "creativity",
+                  title: event.title || "Envie d'exprimer ce que tu ressens ?",
+                  message: event.message || "Tu pourrais essayer un outil créatif pour explorer tes émotions.",
+                  tool: event.tool || "journal"
+                });
+              }
             }
           } catch (e) {
             // Ligne SSE mal formée, ignorer
@@ -484,24 +497,48 @@ export default function Chat({
       // Si aucun chunk n'a été reçu, fallback
       if (!firstChunkReceived) throw new Error("Streaming vide");
 
-      // Détection côté client de suggestion de créativité
-      const creativityKeywords = ['écrire', 'journal', 'lettre', 'poème', 'poésie', 'dessiner', 'coloriage', 'rituel', 'créati'];
-      const lowerText = accumulatedText.toLowerCase();
-      const suggestsCreativity = creativityKeywords.some(kw => lowerText.includes(kw));
-      const messageCount = messages.length + 1; // Current messages + new one
-      if (suggestsCreativity && messageCount >= 6) {
-        // Determine which tool based on keywords
-        let suggestedTool = 'journal';
-        if (lowerText.includes('lettre')) suggestedTool = 'journal';
-        if (lowerText.includes('poème') || lowerText.includes('poésie')) suggestedTool = 'poem';
-        if (lowerText.includes('coloriage') || lowerText.includes('dessiner')) suggestedTool = 'coloring';
-        if (lowerText.includes('rituel')) suggestedTool = 'ritual';
+      // Détection côté client de suggestion de module (fallback si le backend n'a pas envoyé)
+      // Basé sur le contenu de la réponse, pas sur un compteur de messages
+      if (!creativitySuggestion) {
+        const lowerText = accumulatedText.toLowerCase();
 
-        setCreativitySuggestion({
-          title: "Envie d'explorer tes émotions autrement ?",
-          message: "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens.",
-          tool: suggestedTool
-        });
+        // Signaux de besoin de lecture/ressources
+        const libraryPatterns = ['je vous recommande', 'tu pourrais lire', 'un livre qui', 'des ressources', 'podcast', 'vidéo', 'témoignages'];
+        if (libraryPatterns.some(p => lowerText.includes(p))) {
+          setCreativitySuggestion({
+            module: 'library',
+            title: "Des ressources qui pourraient t'aider",
+            message: "Notre bibliothèque contient des livres, podcasts et articles sur ce sujet.",
+            tool: 'resources'
+          });
+        }
+
+        // Signaux de besoin d'écriture/créativité
+        const creativityPatterns = ['tu pourrais écrire', 'essayer de mettre en mots', 'journal', 'lettre', 'poème', 'dessin', 'rituel'];
+        if (!creativitySuggestion && creativityPatterns.some(p => lowerText.includes(p))) {
+          let suggestedTool = 'journal';
+          if (lowerText.includes('lettre')) suggestedTool = 'narrative';
+          if (lowerText.includes('poème') || lowerText.includes('poésie')) suggestedTool = 'poem';
+          if (lowerText.includes('coloriage') || lowerText.includes('dessiner')) suggestedTool = 'coloring';
+          if (lowerText.includes('rituel')) suggestedTool = 'ritual';
+          setCreativitySuggestion({
+            module: 'creativity',
+            title: "Envie d'explorer tes émotions autrement ?",
+            message: "Tu pourrais essayer un outil créatif pour exprimer ce que tu ressens.",
+            tool: suggestedTool
+          });
+        }
+
+        // Signaux de besoin d'exploration des rêves
+        const dreamPatterns = ['noter tes rêves', 'noter vos rêves', 'journal de rêves', 'explorer tes rêves', 'rêves récurrents'];
+        if (!creativitySuggestion && dreamPatterns.some(p => lowerText.includes(p))) {
+          setCreativitySuggestion({
+            module: 'dreams',
+            title: "Explorer tes rêves ?",
+            message: "Le journal de rêves peut t'aider à comprendre ce qui se passe en toi.",
+            tool: 'dream_journal'
+          });
+        }
       }
 
       if (voiceEnabled && accumulatedText) {
@@ -892,8 +929,11 @@ export default function Chat({
                 suggestion={creativitySuggestion}
                 onClose={() => setCreativitySuggestion(null)}
                 onAction={() => {
+                  const mod = creativitySuggestion?.module || 'creativity';
                   setCreativitySuggestion(null);
-                  if (onOpenCreativity) onOpenCreativity();
+                  if (mod === 'library' && onOpenLibrary) onOpenLibrary();
+                  else if (mod === 'dreams' && onOpenDreams) onOpenDreams();
+                  else if (onOpenCreativity) onOpenCreativity();
                 }}
               />
             </div>

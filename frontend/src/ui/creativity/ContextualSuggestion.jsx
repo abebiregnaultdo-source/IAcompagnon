@@ -1,9 +1,26 @@
+const MODULE_ICONS = {
+  creativity: "✨",
+  library: "📚",
+  dreams: "🌙",
+};
+
+const MODULE_LABELS = {
+  creativity: "Ouvrir",
+  library: "Découvrir",
+  dreams: "Explorer",
+};
+
 export default function ContextualSuggestion({
   suggestion,
   onClose,
   onAction,
 }) {
   if (!suggestion) return null;
+
+  const moduleType = suggestion.module || "creativity";
+  const icon = MODULE_ICONS[moduleType] || "💡";
+  const actionLabel = MODULE_LABELS[moduleType] || "Ouvrir";
+
   return (
     <div
       style={{
@@ -16,7 +33,7 @@ export default function ContextualSuggestion({
         alignItems: "center",
       }}
     >
-      <div style={{ fontSize: "var(--font-size-lg)" }}>💡</div>
+      <div style={{ fontSize: "var(--font-size-lg)" }}>{icon}</div>
       <div style={{ flex: 1 }}>
         <div
           style={{
@@ -44,9 +61,10 @@ export default function ContextualSuggestion({
             borderRadius: "var(--radius-md)",
             background: "var(--color-surface-2)",
             cursor: "pointer",
+            color: "var(--color-text-primary)",
           }}
         >
-          Ouvrir
+          {actionLabel}
         </button>
       )}
       <button
