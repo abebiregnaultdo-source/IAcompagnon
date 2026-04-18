@@ -38,18 +38,33 @@ const useSpeechSynthesis = () => {
     // Annuler toute lecture en cours
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.voice = getVoice();
-    utterance.rate = 0.9; // Légèrement plus lent pour la thérapie
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
+    const doSpeak = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voice = getVoice();
+      if (voice) utterance.voice = voice;
+      utterance.rate = 0.9; // Légèrement plus lent pour la thérapie
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      utterance.lang = 'fr-FR';
 
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = (e) => {
+        console.warn("[HELO] Chat TTS error:", e.error);
+        setIsSpeaking(false);
+      };
 
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    };
+
+    // Attendre le chargement des voix si nécessaire
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = () => doSpeak();
+      setTimeout(doSpeak, 300); // Fallback si onvoiceschanged ne se déclenche pas
+    } else {
+      doSpeak();
+    }
   }, [voiceEnabled, getVoice]);
 
   const stop = useCallback(() => {

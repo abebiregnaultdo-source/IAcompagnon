@@ -140,6 +140,17 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
 
   const voiceServiceUrl = import.meta.env.VITE_VOICE_SERVICE_URL;
   const audioContextRef = useRef(null);
+  const voicesLoadedRef = useRef(false);
+
+  // Précharger les voix au montage (nécessaire sur Chrome/Edge)
+  useEffect(() => {
+    const loadVoices = () => {
+      const v = window.speechSynthesis.getVoices();
+      if (v.length > 0) voicesLoadedRef.current = true;
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }, []);
 
   const getVoice = useCallback(() => {
     const voices = window.speechSynthesis.getVoices();
@@ -197,33 +208,59 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
     }
   }, [voiceServiceUrl, autoListen]);
 
-  // TTS fallback via navigateur
+  // TTS fallback via navigateur — robuste avec retry si voix pas encore chargées
   const speakViaBrowser = useCallback((text) => {
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.voice = getVoice();
-    utterance.rate = 0.92;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    utterance.lang = 'fr-FR';
 
-    utterance.onstart = () => {
-      if (isComponentMounted.current) { setIsSpeaking(true); setStatus("speaking"); }
-    };
-    utterance.onend = () => {
-      if (isComponentMounted.current) {
-        setIsSpeaking(false);
-        setStatus("ready");
-        if (autoListen) {
-          setTimeout(() => { if (isComponentMounted.current) startListening(); }, 500);
+    const doSpeak = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voice = getVoice();
+      if (voice) utterance.voice = voice;
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      utterance.lang = 'fr-FR';
+
+      utterance.onstart = () => {
+        if (isComponentMounted.current) { setIsSpeaking(true); setStatus("speaking"); }
+      };
+      utterance.onend = () => {
+        if (isComponentMounted.current) {
+          setIsSpeaking(false);
+          setStatus("ready");
+          if (autoListen) {
+            setTimeout(() => { if (isComponentMounted.current) startListening(); }, 500);
+          }
         }
-      }
+      };
+      utterance.onerror = (e) => {
+        console.warn("[HELO] Browser TTS error:", e.error);
+        if (isComponentMounted.current) {
+          setIsSpeaking(false);
+          setStatus("ready");
+          if (autoListen) {
+            setTimeout(() => { if (isComponentMounted.current) startListening(); }, 500);
+          }
+        }
+      };
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
     };
-    utterance.onerror = () => {
-      if (isComponentMounted.current) { setIsSpeaking(false); setStatus("ready"); }
-    };
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
+
+    // Si les voix ne sont pas encore chargées, attendre un court instant
+    if (!voicesLoadedRef.current && window.speechSynthesis.getVoices().length === 0) {
+      const waitForVoices = setTimeout(() => {
+        voicesLoadedRef.current = true;
+        doSpeak();
+      }, 300);
+      window.speechSynthesis.onvoiceschanged = () => {
+        clearTimeout(waitForVoices);
+        voicesLoadedRef.current = true;
+        doSpeak();
+      };
+    } else {
+      doSpeak();
+    }
   }, [getVoice, autoListen]);
 
   // Fonction principale TTS : Edge TTS si disponible, sinon navigateur
@@ -232,8 +269,16 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
     window.speechSynthesis.cancel();
 
     if (voiceServiceUrl) {
-      const success = await speakViaEdgeTTS(text);
-      if (success) return;
+      // Timeout de 3s — si Edge TTS ne répond pas, on bascule immédiatement
+      try {
+        const success = await Promise.race([
+          speakViaEdgeTTS(text),
+          new Promise(resolve => setTimeout(() => resolve(false), 3000))
+        ]);
+        if (success) return;
+      } catch (e) {
+        console.warn("[HELO] Edge TTS timeout/error, using browser TTS");
+      }
     }
     // Fallback navigateur
     speakViaBrowser(text);

@@ -58,6 +58,7 @@ Tu n'es PAS un chatbot empathique générique. Tu es un compagnon formé et tu A
 4. **Continuing Bonds (Klass, Silverman, Nickman 1996)** — Le lien avec la personne décédée ne se rompt pas, il se transforme. Favoriser la conversation intérieure, les rituels de connexion, les objets transitionnels.
 5. **Logothérapie (Viktor Frankl)** — Aider à trouver du sens dans la souffrance, explorer les valeurs transmises par la personne disparue, transformer la douleur en engagement.
 6. **Régulation polyvagale (Stephen Porges)** — Ancrage sensoriel 5-4-3-2-1, cohérence cardiaque, exercices de co-régulation par la voix et le rythme.
+7. **Thérapie systémique familiale (Bowen, Boszormenyi-Nagy)** — Explorer le rôle du défunt dans le système familial, les loyautés invisibles, les patterns transgénérationnels, la redistribution des rôles après le décès. Le deuil ne touche pas un individu seul — il réorganise tout le système.
 
 ## COMMENT APPLIQUER CES TECHNIQUES (CRITIQUE)
 
@@ -95,6 +96,13 @@ Tu ne te contentes PAS de valider les émotions. Tu INTERVIENS thérapeutiquemen
 ### Quand tu détectes une ACTIVATION SOMATIQUE (Polyvagal) :
 - "J'ai la boule au ventre / le cœur qui s'emballe / je tremble" → Ancrage immédiat : "On va prendre un moment. Sens tes pieds sur le sol. Maintenant, dis-moi 5 choses que tu vois autour de toi."
 - "Je ne peux plus respirer / je suffoque" → Cohérence cardiaque : "Respire avec moi. Inspire pendant 5 secondes... expire pendant 5 secondes. On fait 3 cycles ensemble."
+
+### Quand tu détectes une DYNAMIQUE SYSTÉMIQUE FAMILIALE :
+- "Ma famille s'est effondrée / plus rien n'est pareil entre nous / on ne se parle plus" → Explorer le système : "Quand cette personne était là, quel rôle jouait-elle dans la famille ? Qui tenait les liens, qui organisait, qui apaisait les conflits ?"
+- "C'est moi qui dois tout porter maintenant / je dois être fort pour les autres" → Nommer la redistribution des rôles : "Tu as hérité d'un rôle qui n'était pas le tien. C'est une charge énorme. Qu'est-ce que TU aurais besoin de recevoir, toi ?"
+- "Ma mère veut que je fasse comme si tout allait bien / on m'interdit de pleurer" → Nommer la loyauté invisible : "Dans ta famille, il y a une règle non-dite sur comment vivre le deuil. Quelle est cette règle ? Et est-ce qu'elle te convient ?"
+- "Mes frères et sœurs ne réagissent pas pareil / il y a des tensions" → Normaliser et cartographier : "Chacun vit le deuil différemment. Comment chaque personne de ta famille porte cette perte à sa manière ?"
+- Patterns transgénérationnels ("dans ma famille on ne pleure pas / ma grand-mère a perdu un enfant et n'en a jamais parlé") → "Il y a une histoire familiale autour de la perte. Comment le deuil se vivait dans les générations avant toi ?"
 
 ## RÈGLES ABSOLUES
 
@@ -135,6 +143,7 @@ Tu NE FAIS PAS toujours : validation → question ouverte. Tu alternes activemen
 - Exercice somatique (ancrage, respiration)
 - Silence thérapeutique (une phrase courte qui laisse l'espace)
 - Reflet d'un pattern ("Je remarque que tu reviens souvent à cette idée de...")
+- Exploration systémique (rôles familiaux, loyautés, redistribution après le deuil)
 
 Ne te contente JAMAIS de 3 validations empathiques d'affilée. Si tu as validé, AVANCE : nomme, propose, externalise, interviens.
 """
@@ -745,7 +754,17 @@ class TherapeuticEngine:
             lines.append("2. Honorer aujourd'hui : \"Comment pourrais-tu honorer ces valeurs aujourd'hui, même de manière toute petite ?\"")
             lines.append("3. Micro-engagement : Proposer une action concrète, petite, alignée avec la valeur identifiée.")
 
-        # 7. Somatique — ancrage polyvagal (NE DÉPEND PAS de DistilBERT)
+        # 7. Systémique familiale — rôles, loyautés, redistribution
+        # Note: "ma mère", "mon père" seuls sont trop courants en deuil → exiger un contexte de dynamique familiale
+        elif any(w in msg_lower for w in ['ma famille', 'entre nous', 'on ne se parle plus', 'tout porter', 'être fort pour', 'fort pour les autres', 'interdit de pleurer', 'pas le droit de', 'on ne pleure pas', 'dans ma famille', 'tensions dans', 'conflit famili', 'hérité du rôle', 'je dois être le', 'loyauté', 'parentifié', 'mes frères et sœurs', 'la famille s\'est', 'famille éclatée', 'chacun dans son coin']):
+            lines.append("\n### TECHNIQUE RECOMMANDÉE: Exploration systémique (Bowen / Boszormenyi-Nagy)")
+            lines.append("Dynamique familiale détectée. Le deuil réorganise le système familial.")
+            lines.append("1. Explorer le rôle du défunt : \"Quel rôle jouait cette personne dans la famille ? Qui tenait les liens, qui organisait ?\"")
+            lines.append("2. Nommer la redistribution : \"Depuis son départ, qui a repris ce rôle ? Est-ce que ce rôle t'est tombé dessus ?\"")
+            lines.append("3. Explorer les loyautés invisibles : \"Y a-t-il des règles non-dites dans ta famille sur comment vivre le deuil ?\"")
+            lines.append("4. Donner la permission : \"Tu as le droit de vivre ce deuil à ta manière, même si c'est différent des autres.\"")
+
+        # 8. Somatique — ancrage polyvagal (NE DÉPEND PAS de DistilBERT)
         elif any(w in msg_lower for w in ['boule au ventre', 'ventre noué', 'nœud', 'tremble', 'trembler', 'cœur qui s\'emballe', 'cœur bat', 'suffoque', 'respire plus', 'peux plus respirer', 'souffle coupé', 'oppression', 'corps', 'tension', 'tendu', 'contracté', 'mal au ventre', 'mal à la tête', 'vertige', 'panique']):
             lines.append("\n### TECHNIQUE RECOMMANDÉE: Ancrage sensoriel 5-4-3-2-1 (Polyvagal)")
             lines.append("Activation somatique détectée (signaux corporels de détresse). Priorité à la stabilisation.")

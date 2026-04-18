@@ -192,7 +192,7 @@ class PrimaryMethodsEngine:
         # Mots-clés journaling
         expression_words = ["dire", "écrire", "raconter", "exprimer", "lettre"]
         regret_words = ["regret", "pas dit", "aurais dû", "si seulement"]
-        story_words = ["histoire", "souvenir", "avant", "maintenant"]
+        story_words = ["histoire", "souvenir", "avant et maintenant", "raconter mon histoire"]
         
         has_expression_need = any(word in user_message for word in expression_words)
         has_regret = any(word in user_message for word in regret_words)
