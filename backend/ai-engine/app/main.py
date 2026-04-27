@@ -585,7 +585,21 @@ async def generate(req: GenerateRequest):
         'emotion_analysis': emotion_analysis
     }
 
-    out = engine.run_pipeline(user_state, req.policy, extended_profile)
+    try:
+        out = engine.run_pipeline(user_state, req.policy, extended_profile)
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.error(f"Pipeline error (content filter?): {e}")
+        out = {
+            'text': f"Je suis là avec toi, {user_name}. Peux-tu me dire ce que tu ressens en ce moment ?",
+            'intention_id': 'fallback',
+            'technique': 'fallback_content_filter',
+            'source': 'fallback',
+            'model_used': 'fallback',
+            'emotion_context': {},
+            'rag_info': None,
+            'crisis_detected': False,
+        }
 
     # Supervision clinique: alerte 3114 si détresse élevée (fallback passif)
     alert_prefix = None
@@ -739,9 +753,18 @@ async def generate_stream(req: GenerateRequest):
             yield f"data: {json.dumps({'type': 'chunk', 'text': alert_prefix + chr(10) + chr(10)})}\n\n"
             accumulated_text += alert_prefix + "\n\n"
 
-        for chunk in engine.run_pipeline_stream(user_state, req.policy, extended_profile):
-            yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
-            accumulated_text += chunk
+        try:
+            for chunk in engine.run_pipeline_stream(user_state, req.policy, extended_profile):
+                yield f"data: {json.dumps({'type': 'chunk', 'text': chunk})}\n\n"
+                accumulated_text += chunk
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Stream error: {error_msg}")
+            # Fallback doux si le modèle bloque (content filter, rate limit, etc.)
+            if not accumulated_text:
+                fallback = f"Je suis là avec toi, {user_name}. Peux-tu me dire ce que tu ressens en ce moment ?"
+                yield f"data: {json.dumps({'type': 'chunk', 'text': fallback})}\n\n"
+                accumulated_text = fallback
 
         # Détection contextuelle de suggestion de module
         suggest_module = _detect_module_suggestion(accumulated_text)

@@ -26,6 +26,9 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
   const [error, setError] = useState(null);
   const [conversationMemory, setConversationMemory] = useState(null);
   const [autoListen, setAutoListen] = useState(true);
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState(null);
+  const [showVoicePicker, setShowVoicePicker] = useState(false);
 
   const recognitionRef = useRef(null);
   const viewRef = useRef(null);
@@ -141,12 +144,50 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
   const voiceServiceUrl = import.meta.env.VITE_VOICE_SERVICE_URL;
   const audioContextRef = useRef(null);
   const voicesLoadedRef = useRef(false);
+  const ttsUnlockedRef = useRef(false);
 
-  // Précharger les voix au montage (nécessaire sur Chrome/Edge)
+  // iOS Safari bloque speechSynthesis.speak() si pas déclenché par un geste utilisateur.
+  // On "déverrouille" le TTS au premier tap avec un utterance silencieux.
+  const unlockTTS = useCallback(() => {
+    if (ttsUnlockedRef.current) return;
+    ttsUnlockedRef.current = true;
+    const silent = new SpeechSynthesisUtterance("");
+    silent.volume = 0;
+    silent.lang = "fr-FR";
+    window.speechSynthesis.speak(silent);
+    // Aussi déverrouiller AudioContext pour iOS
+    if (!audioContextRef.current) {
+      try { audioContextRef.current = new AudioContext(); } catch(e) {}
+    }
+    if (audioContextRef.current?.state === "suspended") {
+      audioContextRef.current.resume();
+    }
+  }, []);
+
+  // Charger et filtrer les voix françaises au montage
   useEffect(() => {
     const loadVoices = () => {
-      const v = window.speechSynthesis.getVoices();
-      if (v.length > 0) voicesLoadedRef.current = true;
+      const allVoices = window.speechSynthesis.getVoices();
+      if (allVoices.length === 0) return;
+      voicesLoadedRef.current = true;
+
+      const french = allVoices.filter(v => v.lang.startsWith('fr'));
+      if (french.length === 0) return;
+
+      // Trier : premium d'abord, puis par nom
+      const sorted = [...french].sort((a, b) => {
+        const isPremiumA = /Google|Microsoft|Natural|Neural|Siri|Samantha/i.test(a.name) ? 0 : 1;
+        const isPremiumB = /Google|Microsoft|Natural|Neural|Siri|Samantha/i.test(b.name) ? 0 : 1;
+        if (isPremiumA !== isPremiumB) return isPremiumA - isPremiumB;
+        return a.name.localeCompare(b.name);
+      });
+
+      setAvailableVoices(sorted);
+
+      // Sélection par défaut : la meilleure voix premium
+      if (!selectedVoiceURI) {
+        setSelectedVoiceURI(sorted[0].voiceURI);
+      }
     };
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -154,12 +195,31 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
 
   const getVoice = useCallback(() => {
     const voices = window.speechSynthesis.getVoices();
+    // Utiliser la voix sélectionnée par l'utilisateur
+    if (selectedVoiceURI) {
+      const selected = voices.find(v => v.voiceURI === selectedVoiceURI);
+      if (selected) return selected;
+    }
+    // Fallback : première voix française premium
     const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
     const premiumVoice = frenchVoices.find(v =>
       v.name.includes('Google') || v.name.includes('Microsoft') ||
       v.name.includes('Natural') || v.name.includes('Neural')
     );
     return premiumVoice || frenchVoices[0] || voices[0];
+  }, [selectedVoiceURI]);
+
+  // Prévisualiser une voix
+  const previewVoice = useCallback((voiceURI) => {
+    window.speechSynthesis.cancel();
+    const voices = window.speechSynthesis.getVoices();
+    const voice = voices.find(v => v.voiceURI === voiceURI);
+    if (!voice) return;
+    const utterance = new SpeechSynthesisUtterance("Bonjour, je suis Helō. Je suis là pour t'écouter.");
+    utterance.voice = voice;
+    utterance.rate = 0.92;
+    utterance.lang = 'fr-FR';
+    window.speechSynthesis.speak(utterance);
   }, []);
 
   // TTS via Edge TTS (voix neurale Microsoft — qualité quasi-humaine)
@@ -221,10 +281,27 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
       utterance.volume = 1.0;
       utterance.lang = 'fr-FR';
 
+      // iOS Safari workaround : le TTS se met en pause après ~15s.
+      // On relance périodiquement avec resume/pause.
+      let resumeTimer = null;
+      const startResumeLoop = () => {
+        resumeTimer = setInterval(() => {
+          if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+            window.speechSynthesis.pause();
+            window.speechSynthesis.resume();
+          }
+        }, 10000);
+      };
+      const stopResumeLoop = () => {
+        if (resumeTimer) clearInterval(resumeTimer);
+      };
+
       utterance.onstart = () => {
+        startResumeLoop();
         if (isComponentMounted.current) { setIsSpeaking(true); setStatus("speaking"); }
       };
       utterance.onend = () => {
+        stopResumeLoop();
         if (isComponentMounted.current) {
           setIsSpeaking(false);
           setStatus("ready");
@@ -234,6 +311,7 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
         }
       };
       utterance.onerror = (e) => {
+        stopResumeLoop();
         console.warn("[HELO] Browser TTS error:", e.error);
         if (isComponentMounted.current) {
           setIsSpeaking(false);
@@ -374,9 +452,14 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
     setMessages(newMsgs);
 
     try {
+      // Timeout de 30s — Render gratuit peut prendre jusqu'à 30s pour le cold start
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
       const response = await fetch(api.base + "/generate/stream", {
         method: "POST",
         headers: { "content-type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           messages: newMsgs.map(m => ({ role: m.role, content: m.content })),
           profile: {
@@ -388,6 +471,7 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
           policy: { tone: user.tone || "neutre", phase: "ancrage", scores: { detresse: 50, espoir: 50, energie: 50 } },
         }),
       });
+      clearTimeout(timeout);
 
       if (!response.ok) throw new Error("Backend non disponible");
 
@@ -435,7 +519,10 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
 
     } catch (error) {
       setIsProcessing(false);
-      const fallback = `Je t'entends, ${user.first_name}. Peux-tu m'en dire plus ?`;
+      const isTimeout = error.name === 'AbortError';
+      const fallback = isTimeout
+        ? `Pardon ${user.first_name}, le serveur met un peu de temps à répondre. Réessaie dans quelques secondes.`
+        : `Je t'entends, ${user.first_name}. Peux-tu m'en dire plus ?`;
       setMessages(m => [...m, { role: "assistant", content: fallback }]);
       speakText(fallback);
     }
@@ -446,6 +533,9 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
   // ========================================================================
 
   const toggleListening = () => {
+    // Déverrouiller TTS au premier geste utilisateur (obligatoire sur iOS Safari)
+    unlockTTS();
+
     if (isSpeaking) {
       // Interrompre l'IA qui parle
       window.speechSynthesis.cancel();
@@ -640,6 +730,98 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
             {currentStatus.label}
           </div>
         </div>
+
+        {/* Sélecteur de voix */}
+        {availableVoices.length > 1 && (
+          <div style={{
+            textAlign: "center",
+            marginBottom: "12px",
+          }}>
+            <button
+              onClick={() => setShowVoicePicker(prev => !prev)}
+              style={{
+                background: "transparent",
+                border: "1px solid rgba(123, 168, 192, 0.2)",
+                borderRadius: "8px",
+                padding: "6px 14px",
+                fontSize: "12px",
+                color: "#7BA8C0",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              🎤 {showVoicePicker ? "Masquer les voix" : "Changer la voix"}
+            </button>
+
+            {showVoicePicker && (
+              <div style={{
+                marginTop: "8px",
+                padding: "12px",
+                background: "rgba(242, 246, 247, 0.9)",
+                borderRadius: "12px",
+                border: "1px solid rgba(123, 168, 192, 0.15)",
+                maxHeight: "160px",
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: "4px",
+              }}>
+                {availableVoices.map((v) => {
+                  const isSelected = v.voiceURI === selectedVoiceURI;
+                  const isPremium = /Google|Microsoft|Natural|Neural|Siri/i.test(v.name);
+                  // Nom simplifié : retirer les préfixes techniques
+                  const displayName = v.name
+                    .replace(/Microsoft /gi, '')
+                    .replace(/Google /gi, '')
+                    .replace(/ Online \(Natural\)/gi, ' ✨')
+                    .replace(/ \(Natural\)/gi, ' ✨');
+                  return (
+                    <div
+                      key={v.voiceURI}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "6px 10px",
+                        borderRadius: "8px",
+                        background: isSelected ? "rgba(123, 168, 192, 0.15)" : "transparent",
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                      }}
+                      onClick={() => {
+                        setSelectedVoiceURI(v.voiceURI);
+                        previewVoice(v.voiceURI);
+                      }}
+                    >
+                      <span style={{
+                        width: "18px",
+                        height: "18px",
+                        borderRadius: "50%",
+                        border: isSelected ? "2px solid #7BA8C0" : "2px solid #ccd5dc",
+                        background: isSelected ? "#7BA8C0" : "transparent",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}>
+                        {isSelected && <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#fff" }} />}
+                      </span>
+                      <span style={{
+                        fontSize: "13px",
+                        color: isSelected ? "#3a4048" : "#7a8490",
+                        flex: 1,
+                        textAlign: "left",
+                      }}>
+                        {displayName}
+                      </span>
+                      {isPremium && <span style={{ fontSize: "10px", color: "#C0A87B" }}>HD</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Zone messages */}
         <div
