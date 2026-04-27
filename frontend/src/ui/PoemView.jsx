@@ -113,13 +113,19 @@ export default function PoemView({ poemId, onBack }) {
               textAlign: "center",
             }}
           >
-            {poem.stanzas.map((stanza, i) => (
-              <div key={i} style={{ marginBottom: "var(--space-lg)" }}>
-                {stanza.map((line, j) => (
-                  <p key={j} style={{ margin: 0 }}>{line}</p>
-                ))}
-              </div>
-            ))}
+            {poem.stanzas && poem.stanzas.length > 0 ? (
+              poem.stanzas.map((stanza, i) => (
+                <div key={i} style={{ marginBottom: "var(--space-lg)" }}>
+                  {stanza.map((line, j) => (
+                    <p key={j} style={{ margin: 0 }}>{line}</p>
+                  ))}
+                </div>
+              ))
+            ) : (
+              <p style={{ color: "var(--color-text-tertiary)", fontStyle: "italic" }}>
+                Le texte de ce poème n'est pas encore disponible.
+              </p>
+            )}
           </div>
 
           {poem.note && (

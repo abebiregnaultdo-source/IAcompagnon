@@ -156,4 +156,188 @@ export const POEMS = {
     ],
     note: "Domaine public — Les Fleurs du Mal, 1861.",
   },
+
+  "sensation-rimbaud": {
+    title: "Sensation",
+    author: "Arthur Rimbaud",
+    year: "1870",
+    intro:
+      "Écrit à 15 ans. Une promenade simple, une parenthèse de joie tranquille — quand le corps se laisse traverser par la beauté du monde.",
+    stanzas: [
+      [
+        "Par les soirs bleus d'été, j'irai dans les sentiers,",
+        "Picoté par les blés, fouler l'herbe menue :",
+        "Rêveur, j'en sentirai la fraîcheur à mes pieds.",
+        "Je laisserai le vent baigner ma tête nue.",
+      ],
+      [
+        "Je ne parlerai pas, je ne penserai rien :",
+        "Mais l'amour infini me montera dans l'âme,",
+        "Et j'irai loin, bien loin, comme un bohémien,",
+        "Par la Nature, — heureux comme avec une femme.",
+      ],
+    ],
+    note: "Domaine public — Cahiers de Douai, 1870.",
+  },
+
+  "rose-ronsard": {
+    title: "Mignonne, allons voir si la rose",
+    author: "Pierre de Ronsard",
+    year: "1545",
+    intro:
+      "Une ode à la beauté du présent et à la fragilité du temps. Cueillir la vie pendant qu'elle s'offre.",
+    stanzas: [
+      [
+        "Mignonne, allons voir si la rose",
+        "Qui ce matin avait déclose",
+        "Sa robe de pourpre au soleil,",
+        "A point perdu, cette vesprée,",
+        "Les plis de sa robe pourprée,",
+        "Et son teint au vôtre pareil.",
+      ],
+      [
+        "Las ! voyez comme en peu d'espace,",
+        "Mignonne, elle a dessus la place,",
+        "Las, las ses beautés laissé choir !",
+        "Ô vraiment marâtre Nature,",
+        "Puisqu'une telle fleur ne dure",
+        "Que du matin jusques au soir !",
+      ],
+      [
+        "Donc, si vous me croyez, mignonne,",
+        "Tandis que votre âge fleuronne",
+        "En sa plus verte nouveauté,",
+        "Cueillez, cueillez votre jeunesse :",
+        "Comme à cette fleur, la vieillesse",
+        "Fera ternir votre beauté.",
+      ],
+    ],
+    note: "Domaine public — Odes, 1545.",
+  },
+
+  "pont-mirabeau-apollinaire": {
+    title: "Le Pont Mirabeau",
+    author: "Guillaume Apollinaire",
+    year: "1913",
+    intro:
+      "Sous le pont Mirabeau coule la Seine — et avec elle, l'amour qui s'en va. Une méditation sur le temps qui passe et ce qui demeure malgré tout.",
+    stanzas: [
+      [
+        "Sous le pont Mirabeau coule la Seine",
+        "Et nos amours",
+        "Faut-il qu’il m’en souvienne",
+        "La joie venait toujours après la peine",
+      ],
+      [
+        "Vienne la nuit sonne l’heure",
+        "Les jours s’en vont je demeure",
+      ],
+      [
+        "Les mains dans les mains restons face à face",
+        "Tandis que sous",
+        "Le pont de nos bras passe",
+        "Des éternels regards l’onde si lasse",
+      ],
+      [
+        "Vienne la nuit sonne l’heure",
+        "Les jours s’en vont je demeure",
+      ],
+      [
+        "L’amour s’en va comme cette eau courante",
+        "L’amour s’en va",
+        "Comme la vie est lente",
+        "Et comme l’Espérance est violente",
+      ],
+      [
+        "Vienne la nuit sonne l’heure",
+        "Les jours s’en vont je demeure",
+      ],
+      [
+        "Passent les jours et passent les semaines",
+        "Ni temps passé",
+        "Ni les amours reviennent",
+        "Sous le pont Mirabeau coule la Seine",
+      ],
+      [
+        "Vienne la nuit sonne l’heure",
+        "Les jours s’en vont je demeure",
+      ],
+    ],
+    note: "Domaine public — Alcools, 1913.",
+  },
+
+  "vaisseau-or-nelligan": {
+    title: "Le Vaisseau d'or",
+    author: "Émile Nelligan",
+    year: "1899",
+    intro:
+      "Écrit par le poète québécois à 19 ans, peu avant son internement. L'image d'un navire splendide qui sombre — métaphore d'une âme qui s'effondre, mais aussi de la beauté qui survit dans les profondeurs.",
+    stanzas: [
+      [
+        "Ce fut un grand Vaisseau taillé dans l’or massif :",
+        "Ses mâts touchaient l’azur, sur des mers inconnues ;",
+        "La Cyprine d’amour, cheveux épars, chairs nues,",
+        "S’étalait à sa proue, au soleil excessif.",
+      ],
+      [
+        "Mais il vint une nuit frapper le grand écueil",
+        "Dans l’Océan trompeur où chantait la Sirène,",
+        "Et le naufrage horrible inclina sa carène",
+        "Aux profondeurs du Gouffre, immuable cercueil.",
+      ],
+      [
+        "Ce fut un Vaisseau d’or, dont les flancs diaphanes",
+        "Révélaient des trésors que les marins profanes,",
+        "Dégoût, Haine et Névrose, entre eux ont disputé.",
+      ],
+      [
+        "Que reste-t-il de lui dans la tempête brève ?",
+        "Qu’est devenu mon cœur, navire déserté ?",
+        "Hélas ! Il a sombré dans l’abîme du Rêve !…",
+      ],
+    ],
+    note: "Domaine public — Émile Nelligan et son œuvre, 1904.",
+  },
+
+  "desiderata-ehrmann": {
+    title: "Désidérata",
+    author: "Max Ehrmann",
+    year: "1927",
+    intro:
+      "Écrit en 1927 par un avocat et poète américain. Devenu un texte de sagesse universel : marcher tranquille au milieu du bruit, garder la paix au cœur du tumulte.",
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║ À REMPLIR — Désidérata (Ehrmann, 1927) — traduction française    ║
+    // ║                                                                  ║
+    // ║ Le texte original anglais commence par "Go placidly amid the     ║
+    // ║ noise and haste...". Pour une traduction française fiable :      ║
+    // ║   - chercher "Désidérata Ehrmann traduction" sur le web          ║
+    // ║   - ou copier depuis un site qui propose le texte en français    ║
+    // ║                                                                  ║
+    // ║ C'est un texte en prose poétique, pas en vers. On peut le        ║
+    // ║ découper en "strophes" thématiques (3-5 lignes chacune) pour     ║
+    // ║ qu'il s'affiche bien. Voir "demain-hugo" comme modèle de format. ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    stanzas: [],
+    note: "Domaine public — texte de 1927.",
+  },
+
+  "liberte-eluard": {
+    title: "Liberté",
+    author: "Paul Éluard",
+    year: "1942",
+    intro:
+      "Écrit pendant l'Occupation, parachuté par la RAF sur la France occupée. Vingt-et-un quatrains qui répètent un seul geste : écrire ton nom — jusqu'à ce que ce nom soit Liberté.",
+    // ╔══════════════════════════════════════════════════════════════════╗
+    // ║ À REMPLIR — Liberté (Éluard, 1942)                               ║
+    // ║ Source : https://fr.wikisource.org/wiki/Libert%C3%A9_(%C3%89luard)║
+    // ║                                                                  ║
+    // ║ Poème long : 21 quatrains. Le texte est entré dans le domaine    ║
+    // ║ public en France en 2023 (Éluard mort en 1952 + 70 ans).         ║
+    // ║                                                                  ║
+    // ║ Format : un tableau de 21 strophes, chaque strophe = un tableau  ║
+    // ║ de 4 lignes. Voir "si-kipling" plus haut comme modèle.           ║
+    // ╚══════════════════════════════════════════════════════════════════╝
+    stanzas: [],
+    note: "Domaine public — Poésie et Vérité, 1942.",
+  },
 };

@@ -438,6 +438,72 @@ export default function Library({ onBackToHome }) {
       tags: ["poésie", "exil", "beauté"],
     },
     {
+      id: 91,
+      category: "inspiration",
+      title: "Désidérata",
+      author: "Max Ehrmann",
+      description:
+        "Marcher tranquille au milieu du bruit et de la hâte. Un texte de sagesse universel, parfait quand on se sent submergé.",
+      type: "Poésie",
+      url: "poem:desiderata-ehrmann",
+      tags: ["poésie", "apaisement", "sagesse"],
+    },
+    {
+      id: 92,
+      category: "inspiration",
+      title: "Liberté",
+      author: "Paul Éluard",
+      description:
+        "Vingt-et-un quatrains, un seul geste : écrire ton nom. Pour se reconnecter à ce qui compte vraiment.",
+      type: "Poésie",
+      url: "poem:liberte-eluard",
+      tags: ["poésie", "liberté", "résistance"],
+    },
+    {
+      id: 93,
+      category: "inspiration",
+      title: "Le Pont Mirabeau",
+      author: "Guillaume Apollinaire",
+      description:
+        "\"Sous le pont Mirabeau coule la Seine et nos amours.\" Le temps qui passe, l'amour qui s'en va, et ce qui demeure.",
+      type: "Poésie",
+      url: "poem:pont-mirabeau-apollinaire",
+      tags: ["poésie", "temps", "mélancolie"],
+    },
+    {
+      id: 94,
+      category: "inspiration",
+      title: "Sensation",
+      author: "Arthur Rimbaud",
+      description:
+        "\"Par les soirs bleus d'été, j'irai dans les sentiers...\" Une parenthèse de joie tranquille, écrite à 15 ans.",
+      type: "Poésie",
+      url: "poem:sensation-rimbaud",
+      tags: ["poésie", "nature", "légèreté"],
+    },
+    {
+      id: 95,
+      category: "inspiration",
+      title: "Mignonne, allons voir si la rose",
+      author: "Pierre de Ronsard",
+      description:
+        "Une ode à la beauté du présent et à la fragilité du temps. Cueillir la vie pendant qu'elle s'offre.",
+      type: "Poésie",
+      url: "poem:rose-ronsard",
+      tags: ["poésie", "présent", "beauté"],
+    },
+    {
+      id: 96,
+      category: "inspiration",
+      title: "Le Vaisseau d'or",
+      author: "Émile Nelligan",
+      description:
+        "Un sonnet sur le naufrage et ce qui survit dans les profondeurs. Pour les moments où tout semble s'effondrer.",
+      type: "Poésie",
+      url: "poem:vaisseau-or-nelligan",
+      tags: ["poésie", "résilience", "naufrage"],
+    },
+    {
       id: 63,
       category: "inspiration",
       title: "Musique classique apaisante",
