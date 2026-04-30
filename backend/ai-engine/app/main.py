@@ -17,6 +17,21 @@ from .aggregate_memory import aggregate as agg_compute
 
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env'))
 
+# Supabase client (for persistent storage of feedback, analytics, etc.)
+_supabase_client = None
+def get_supabase():
+    global _supabase_client
+    if _supabase_client is None:
+        sb_url = os.getenv('SUPABASE_URL')
+        sb_key = os.getenv('SUPABASE_SERVICE_KEY') or os.getenv('SUPABASE_ANON_KEY')
+        if sb_url and sb_key:
+            try:
+                from supabase import create_client
+                _supabase_client = create_client(sb_url, sb_key)
+            except Exception:
+                _supabase_client = None
+    return _supabase_client
+
 class ChatMessage(BaseModel):
     role: Literal['user','assistant','system']
     content: str
@@ -259,6 +274,23 @@ if ENC_KEY and Fernet is not None:
 
 
 def _persist_feedback(entry: dict):
+    # Try Supabase first (persistent), fall back to file
+    sb = get_supabase()
+    if sb:
+        try:
+            sb.table('feedback_logs').insert({
+                'user_id_hash': entry.get('user', ''),
+                'helped': entry.get('helped', 0),
+                'phase': entry.get('phase'),
+                'scores': entry.get('scores', {}),
+                'intention_id': entry.get('intention_id'),
+                'technique': entry.get('technique'),
+                'data': entry,
+            }).execute()
+            return
+        except Exception:
+            pass
+    # Fallback to file
     try:
         os.makedirs(os.path.dirname(FEEDBACK_PATH), exist_ok=True)
         if fernet:
@@ -976,19 +1008,32 @@ ANALYTICS_PATH = os.path.join(os.path.dirname(__file__), 'analytics_logs.jsonl')
 @app.post('/analytics/track')
 async def analytics_track(req: AnalyticsEvent):
     """Track analytics events (silent, non-blocking for frontend)"""
+    entry = {
+        'ts': time.time(),
+        'user_id_hash': req.user_id_hash,
+        'event_type': req.event_type,
+        'session_duration_ms': req.session_duration_ms,
+        'message_count': req.message_count,
+        'timestamp': req.timestamp,
+        'technique': req.technique,
+        'response_time_ms': req.response_time_ms,
+        'phase': req.phase,
+        'reason': req.reason,
+    }
+    # Try Supabase first, fall back to file
+    sb = get_supabase()
+    if sb:
+        try:
+            sb.table('analytics_events').insert({
+                'user_id_hash': req.user_id_hash,
+                'event_type': req.event_type,
+                'data': entry,
+            }).execute()
+            return { 'status': 'ok' }
+        except Exception:
+            pass
+    # Fallback to file
     try:
-        entry = {
-            'ts': time.time(),
-            'user_id_hash': req.user_id_hash,
-            'event_type': req.event_type,
-            'session_duration_ms': req.session_duration_ms,
-            'message_count': req.message_count,
-            'timestamp': req.timestamp,
-            'technique': req.technique,
-            'response_time_ms': req.response_time_ms,
-            'phase': req.phase,
-            'reason': req.reason,
-        }
         with open(ANALYTICS_PATH, 'a', encoding='utf-8') as f:
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except Exception:

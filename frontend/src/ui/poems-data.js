@@ -305,19 +305,77 @@ export const POEMS = {
     year: "1927",
     intro:
       "Écrit en 1927 par un avocat et poète américain. Devenu un texte de sagesse universel : marcher tranquille au milieu du bruit, garder la paix au cœur du tumulte.",
-    // ╔══════════════════════════════════════════════════════════════════╗
-    // ║ À REMPLIR — Désidérata (Ehrmann, 1927) — traduction française    ║
-    // ║                                                                  ║
-    // ║ Le texte original anglais commence par "Go placidly amid the     ║
-    // ║ noise and haste...". Pour une traduction française fiable :      ║
-    // ║   - chercher "Désidérata Ehrmann traduction" sur le web          ║
-    // ║   - ou copier depuis un site qui propose le texte en français    ║
-    // ║                                                                  ║
-    // ║ C'est un texte en prose poétique, pas en vers. On peut le        ║
-    // ║ découper en "strophes" thématiques (3-5 lignes chacune) pour     ║
-    // ║ qu'il s'affiche bien. Voir "demain-hugo" comme modèle de format. ║
-    // ╚══════════════════════════════════════════════════════════════════╝
-    stanzas: [],
+    stanzas: [
+      [
+        "Va paisiblement ton chemin à travers le bruit et la hâte,",
+        "et souviens-toi de la paix qui peut exister dans le silence.",
+      ],
+      [
+        "Autant que possible, sans te renier,",
+        "sois en bons termes avec tout le monde.",
+        "Dis doucement et clairement ta vérité ;",
+        "et écoute les autres, même le simple d'esprit et l'ignorant ;",
+        "eux aussi ont leur histoire.",
+      ],
+      [
+        "Évite les individus bruyants et agressifs,",
+        "ils sont une vexation pour l'esprit.",
+      ],
+      [
+        "Ne te compare pas aux autres :",
+        "tu risquerais de devenir vain ou aigri ;",
+        "car toujours tu trouveras meilleur ou pire que toi.",
+      ],
+      [
+        "Jouis de tes réalisations aussi bien que de tes projets.",
+        "Intéresse-toi à ta propre carrière, si modeste soit-elle ;",
+        "c'est une vraie possession dans les fortunes changeantes du temps.",
+      ],
+      [
+        "Sois prudent dans tes affaires ;",
+        "car le monde est plein de fourberie.",
+        "Mais que cela ne te rende pas aveugle à la vertu qui existe ;",
+        "bien des gens luttent pour un idéal élevé ;",
+        "et partout la vie est pleine d'héroïsme.",
+      ],
+      [
+        "Sois toi-même.",
+        "Surtout ne feins pas l'affection.",
+        "Non plus ne sois cynique en amour ;",
+        "car il est, en face de tout désenchantement et de toute aridité,",
+        "aussi éternel que l'herbe.",
+      ],
+      [
+        "Accepte avec bienveillance le conseil des années,",
+        "en renonçant avec grâce à ta jeunesse.",
+        "Fortifie une puissance d'esprit",
+        "pour te protéger en cas de malheur soudain.",
+        "Mais ne te fais pas de mauvais sang avec tes chimères.",
+      ],
+      [
+        "Bien des peurs naissent de la fatigue et de la solitude.",
+        "Au-delà d'une saine discipline, sois doux avec toi-même.",
+      ],
+      [
+        "Tu es un enfant de l'univers,",
+        "pas moins que les arbres et les étoiles ;",
+        "tu as le droit d'être ici.",
+        "Et qu'il te soit clair ou non,",
+        "l'univers se déroule sans doute comme il le devrait.",
+      ],
+      [
+        "C'est pourquoi sois en paix avec Dieu,",
+        "quelle que soit ta conception de lui.",
+        "Et quels que soient tes travaux et tes rêves,",
+        "garde dans le désarroi bruyant de la vie,",
+        "la paix dans ton âme.",
+      ],
+      [
+        "Avec toutes ses perfidies, ses besognes fastidieuses",
+        "et ses rêves brisés, le monde est pourtant beau.",
+        "Prends attention. Tâche d'être heureux.",
+      ],
+    ],
     note: "Domaine public — texte de 1927.",
   },
 

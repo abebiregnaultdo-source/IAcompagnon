@@ -6,12 +6,15 @@ import Input from "./components/Input";
 /**
  * Journal des rêves avec interprétation
  */
+const API_BASE = import.meta.env.VITE_BACKEND_URL || "https://helo-backend.onrender.com";
+
 export default function DreamJournal({ user, onBack }) {
   const [dreams, setDreams] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [selectedDream, setSelectedDream] = useState(null);
   const [error, setError] = useState(null);
+  const [analyzingDreamId, setAnalyzingDreamId] = useState(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -123,6 +126,77 @@ export default function DreamJournal({ user, onBack }) {
         ? prev.themes.filter(t => t !== theme)
         : [...prev.themes, theme]
     }));
+  };
+
+  const requestAIAnalysis = async (dream) => {
+    if (analyzingDreamId) return;
+    setAnalyzingDreamId(dream.id);
+    try {
+      const dreamContext = [
+        `Contenu du rêve : ${dream.content}`,
+        dream.themes?.length ? `Thèmes identifiés : ${dream.themes.join(", ")}` : "",
+        dream.therapeutic_context ? `Contexte thérapeutique : ${dream.therapeutic_context}` : "",
+        dream.self_interpretation ? `Interprétation personnelle : ${dream.self_interpretation}` : "",
+        dream.is_recurring ? "Ce rêve est récurrent." : "",
+        `Intensité émotionnelle : ${dream.emotional_intensity}/10`,
+      ].filter(Boolean).join("\n");
+
+      const response = await fetch(`${API_BASE}/generate/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "user",
+              content: `Je voudrais ton éclairage sur ce rêve que j'ai fait :\n\n${dreamContext}`,
+            },
+          ],
+          profile: {
+            first_name: user?.user_metadata?.first_name || "ami",
+            user_id_hash: user?.id ? user.id.slice(0, 16) : "anon",
+            dream_analysis_mode: true,
+          },
+          policy: {
+            tone: "enveloppant",
+            phase: "exploration",
+            dream_analysis: true,
+          },
+        }),
+      });
+
+      let fullText = "";
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split("\n");
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const parsed = JSON.parse(line.slice(6));
+              if (parsed.type === "chunk" && parsed.text) {
+                fullText += parsed.text;
+              }
+            } catch {
+              // ignore parse errors on partial chunks
+            }
+          }
+        }
+      }
+
+      if (fullText.trim()) {
+        await updateDream(dream.id, { ai_interpretation: fullText.trim() });
+        await loadDreams();
+      }
+    } catch (e) {
+      console.error("Error requesting AI analysis:", e);
+      setError("Erreur lors de l'analyse. Le serveur met peut-être un moment à se réveiller — réessaie dans 30 secondes.");
+    } finally {
+      setAnalyzingDreamId(null);
+    }
   };
 
   const formatDate = (dateStr) => {
@@ -327,7 +401,44 @@ export default function DreamJournal({ user, onBack }) {
                 </div>
               )}
 
+              {analyzingDreamId === dream.id && (
+                <div style={styles.analyzingState}>
+                  <div style={styles.analyzingDots}>
+                    <span style={styles.dot} />
+                    <span style={{ ...styles.dot, animationDelay: "0.2s" }} />
+                    <span style={{ ...styles.dot, animationDelay: "0.4s" }} />
+                  </div>
+                  Helō analyse ton rêve...
+                </div>
+              )}
+
               <div style={styles.dreamActions}>
+                {!dream.ai_interpretation && (
+                  <button
+                    onClick={() => requestAIAnalysis(dream)}
+                    disabled={!!analyzingDreamId}
+                    style={{
+                      ...styles.actionButton,
+                      color: analyzingDreamId ? "var(--color-text-tertiary)" : "var(--color-accent-calm)",
+                      fontWeight: "var(--font-weight-medium)",
+                    }}
+                  >
+                    Demander l'éclairage de Helō
+                  </button>
+                )}
+                {dream.ai_interpretation && (
+                  <button
+                    onClick={() => requestAIAnalysis(dream)}
+                    disabled={!!analyzingDreamId}
+                    style={{
+                      ...styles.actionButton,
+                      color: "var(--color-text-tertiary)",
+                      fontSize: "var(--font-size-xs)",
+                    }}
+                  >
+                    Renouveler l'analyse
+                  </button>
+                )}
                 <button onClick={() => editDream(dream)} style={styles.actionButton}>
                   Modifier
                 </button>
@@ -598,5 +709,28 @@ const styles = {
     cursor: "pointer",
     fontSize: "var(--font-size-sm)",
     padding: 0,
+  },
+  analyzingState: {
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-sm)",
+    padding: "var(--space-md)",
+    background: "rgba(123, 168, 192, 0.08)",
+    borderRadius: "var(--radius-md)",
+    fontSize: "var(--font-size-sm)",
+    color: "var(--color-primary)",
+    fontStyle: "italic",
+    marginBottom: "var(--space-sm)",
+  },
+  analyzingDots: {
+    display: "flex",
+    gap: "4px",
+  },
+  dot: {
+    width: "6px",
+    height: "6px",
+    borderRadius: "50%",
+    background: "var(--color-primary)",
+    animation: "pulse 1s ease-in-out infinite",
   },
 };

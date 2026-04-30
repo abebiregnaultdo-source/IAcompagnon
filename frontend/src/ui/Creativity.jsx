@@ -7,6 +7,7 @@ import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import CreativeSpaceIntro from "./creativity/CreativeSpaceIntro";
 import DrawingCanvas from "./creativity/DrawingCanvas";
 import Portfolio from "./creativity/Portfolio";
+import { getCreations as getCreationsFromSupabase, saveCreation as saveCreationToSupabase } from "../lib/supabase";
 
 /**
  * Page Créativité - Outils d'expression thérapeutique
@@ -115,9 +116,8 @@ export default function Creativity({ user, api, onBackToHome }) {
 
   const loadCreations = async () => {
     try {
-      const response = await fetch(`${api.base}/api/creations/${user.id}`);
-      const data = await response.json();
-      setCreations(data.creations || []);
+      const data = await getCreationsFromSupabase(user.id);
+      setCreations(data || []);
       setLoading(false);
     } catch (error) {
       console.error("Erreur chargement créations:", error);
@@ -233,50 +233,17 @@ export default function Creativity({ user, api, onBackToHome }) {
     if (!currentContent.trim()) return;
 
     try {
-      let endpoint = "";
-      let body = {};
-
-      switch (activeTab) {
-        case "journal":
-          endpoint = "/api/creations/journal";
-          body = {
-            user_id: user.id,
-            content: currentContent,
-            prompt: currentTitle || "Entrée libre",
-          };
-          break;
-        case "narrative":
-          endpoint = "/api/creations/narrative";
-          body = {
-            user_id: user.id,
-            title: currentTitle || "Sans titre",
-            content: currentContent,
-            narrative_type: "reconstruction_temporelle",
-          };
-          break;
-        case "creative":
-          // Création artistique (poème par défaut)
-          endpoint = "/api/creations/poem";
-          body = {
-            user_id: user.id,
-            title: currentTitle || "Sans titre",
-            content: currentContent,
-          };
-          break;
-      }
-
-      const response = await fetch(api.base + endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+      const typeMap = { journal: "journal", narrative: "narrative", creative: "poem" };
+      await saveCreationToSupabase(user.id, {
+        type: typeMap[activeTab] || activeTab,
+        title: currentTitle || (activeTab === "journal" ? "Entrée libre" : "Sans titre"),
+        content: currentContent,
+        data: activeTab === "narrative" ? { narrative_type: "reconstruction_temporelle" } : {},
       });
-
-      if (response.ok) {
-        setCurrentContent("");
-        setCurrentTitle("");
-        setShowEditor(false);
-        loadCreations();
-      }
+      setCurrentContent("");
+      setCurrentTitle("");
+      setShowEditor(false);
+      loadCreations();
     } catch (error) {
       console.error("Erreur sauvegarde:", error);
     }
