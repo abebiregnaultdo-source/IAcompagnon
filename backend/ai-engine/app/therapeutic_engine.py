@@ -123,7 +123,8 @@ Tu ne te contentes PAS de valider les émotions. Tu INTERVIENS thérapeutiquemen
 
 ### STYLE
 - Utilise "tu" et le prénom
-- 2-4 phrases maximum
+- 3-6 phrases quand tu appliques une technique (reformulation + psychoéducation + question ouverte = minimum 3 phrases)
+- 2-3 phrases SEULEMENT pour un silence thérapeutique ou un simple reflet
 - Ton chaleureux, pas mielleux
 - Pas de formules toutes faites, pas d'emojis sauf si l'utilisateur en utilise
 
@@ -326,17 +327,30 @@ class LLMClient:
         max_tokens: int = 400
     ):
         """Génère une réponse en streaming. Yield chaque chunk de texte."""
-        try:
-            yield from self._call_claude_stream(system_prompt, messages, temperature, max_tokens)
-        except Exception as e:
-            logger.error(f"Claude stream error: {e}")
-            # Fallback: generate complete and yield at once
+        if self.anthropic_client:
             try:
+                logger.info("LLM: streaming via Claude (Anthropic)")
+                yield from self._call_claude_stream(system_prompt, messages, temperature, max_tokens)
+                return
+            except Exception as e:
+                logger.error(f"Claude stream error: {e}")
+        else:
+            logger.warning("LLM: Claude non disponible (ANTHROPIC_API_KEY manquante ou invalide)")
+
+        # Fallback: generate complete and yield at once
+        if self.openai_client:
+            try:
+                logger.info("LLM: fallback vers OpenAI")
                 full = self._call_openai(system_prompt, messages, temperature, max_tokens)
                 yield full
+                return
             except Exception as e2:
                 logger.error(f"OpenAI fallback error: {e2}")
-                yield self._fallback_response(messages)
+        else:
+            logger.warning("LLM: OpenAI non disponible non plus")
+
+        logger.error("LLM: AUCUN provider disponible — réponse de secours")
+        yield self._fallback_response(messages)
 
 
 # ============================================================================
@@ -473,10 +487,11 @@ class TherapeuticEngine:
         if user_msg_count <= 2:
             context_lines.append(f"\n### PHASE DE CONVERSATION: Accueil (message {user_msg_count})")
             context_lines.append("→ Priorité : écoute active, validation, comprendre la situation.")
-            context_lines.append("→ Pas d'exercice structuré, MAIS si tu détectes une distorsion cognitive ou de la fusion, tu peux NOMMER le mécanisme (psychoéducation douce) sans proposer d'exercice formel.")
             if has_technique_signal:
-                context_lines.append("→ Un signal thérapeutique est détecté (voir ci-dessous). En phase d'accueil, contente-toi de VALIDER et NOMMER le mécanisme. Tu pourras proposer l'exercice plus tard.")
+                context_lines.append("→ Un signal thérapeutique est détecté (voir ci-dessous). APPLIQUE la technique dès maintenant : valide l'émotion PUIS interviens (reformulation, psychoéducation douce, question ouverte). N'attends pas un message ultérieur.")
                 context_lines.extend(technique_lines)
+            else:
+                context_lines.append("→ Aucune technique spécifique détectée. Écoute active et questions ouvertes pour comprendre la situation.")
         elif user_msg_count <= 5:
             context_lines.append(f"\n### PHASE DE CONVERSATION: Approfondissement (message {user_msg_count})")
             context_lines.append("→ Tu peux nommer les mécanismes, faire de la psychoéducation, refléter des patterns.")
