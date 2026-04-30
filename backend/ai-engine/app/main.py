@@ -989,9 +989,34 @@ async def learning_patterns():
 async def voice_input():
     return { 'status': 'stub', 'message': 'voice input not yet implemented' }
 
-@app.get('/api/voice_output')
-async def voice_output():
-    return { 'status': 'stub', 'message': 'voice output not yet implemented' }
+@app.post('/api/tts')
+async def tts(request: dict):
+    """OpenAI TTS — génère audio MP3 à partir de texte. Voix neuronale, qualité naturelle."""
+    from fastapi.responses import Response
+    text = (request.get('text') or '').strip()
+    if not text:
+        return Response(content=b'', status_code=400)
+    if len(text) > 4000:
+        text = text[:4000]
+    voice = request.get('voice', 'shimmer')  # alloy, echo, fable, onyx, nova, shimmer
+    if voice not in ('alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'):
+        voice = 'shimmer'
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        return Response(content=b'TTS unavailable', status_code=503)
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            r = await client.post(
+                'https://api.openai.com/v1/audio/speech',
+                headers={'Authorization': f'Bearer {api_key}', 'Content-Type': 'application/json'},
+                json={'model': 'tts-1', 'voice': voice, 'input': text, 'response_format': 'mp3'},
+            )
+            if r.status_code != 200:
+                return Response(content=r.content, status_code=r.status_code)
+            return Response(content=r.content, media_type='audio/mpeg')
+    except Exception as e:
+        return Response(content=str(e).encode(), status_code=500)
 
 # Health check endpoint for Railway
 @app.get('/')

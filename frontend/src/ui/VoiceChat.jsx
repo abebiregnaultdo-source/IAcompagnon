@@ -174,13 +174,38 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
       const french = allVoices.filter(v => v.lang.startsWith('fr'));
       if (french.length === 0) return;
 
-      // Trier : premium d'abord, puis par nom
-      const sorted = [...french].sort((a, b) => {
-        const isPremiumA = /Google|Microsoft|Natural|Neural|Siri|Samantha/i.test(a.name) ? 0 : 1;
-        const isPremiumB = /Google|Microsoft|Natural|Neural|Siri|Samantha/i.test(b.name) ? 0 : 1;
-        if (isPremiumA !== isPremiumB) return isPremiumA - isPremiumB;
-        return a.name.localeCompare(b.name);
+      // Préférer fr-FR sur fr-CA / fr-BE / fr-CH
+      const scored = french.map(v => {
+        const isPremium = /Google|Microsoft|Natural|Neural|Siri|Samantha/i.test(v.name);
+        const isFrFR = v.lang === 'fr-FR' || v.lang.toLowerCase() === 'fr_fr';
+        return { v, isPremium, isFrFR };
       });
+
+      // Dédupliquer par nom normalisé (retirer suffixes type "(France)", "Compact", etc.)
+      const seen = new Map();
+      for (const item of scored) {
+        const key = item.v.name
+          .replace(/\s*\((France|Canada|Belgium|Switzerland)\)/gi, '')
+          .replace(/\s*(Compact|Premium|Enhanced|Mobile)/gi, '')
+          .trim()
+          .toLowerCase();
+        const existing = seen.get(key);
+        // Garder la meilleure version : fr-FR > autres, et premium > basique
+        if (!existing
+            || (item.isFrFR && !existing.isFrFR)
+            || (item.isPremium && !existing.isPremium)) {
+          seen.set(key, item);
+        }
+      }
+
+      const deduped = [...seen.values()].sort((a, b) => {
+        if (a.isPremium !== b.isPremium) return a.isPremium ? -1 : 1;
+        if (a.isFrFR !== b.isFrFR) return a.isFrFR ? -1 : 1;
+        return a.v.name.localeCompare(b.v.name);
+      }).map(s => s.v);
+
+      // Limiter à 6 max pour ne pas noyer l'utilisateur
+      const sorted = deduped.slice(0, 6);
 
       setAvailableVoices(sorted);
 
@@ -223,6 +248,51 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
   }, []);
 
   // TTS via Edge TTS (voix neurale Microsoft — qualité quasi-humaine)
+  // OpenAI TTS via backend — voix neuronale haute qualité
+  const speakViaOpenAITTS = useCallback(async (text) => {
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://helo-backend.onrender.com';
+      const response = await fetch(backendUrl + "/api/tts", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text, voice: 'shimmer' }),
+      });
+      if (!response.ok) throw new Error("OpenAI TTS error " + response.status);
+
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      audio.volume = 1.0;
+
+      if (isComponentMounted.current) {
+        setIsSpeaking(true);
+        setStatus("speaking");
+      }
+
+      return await new Promise((resolve) => {
+        audio.onended = () => {
+          URL.revokeObjectURL(audioUrl);
+          if (isComponentMounted.current) {
+            setIsSpeaking(false);
+            setStatus("ready");
+            if (autoListen) {
+              setTimeout(() => { if (isComponentMounted.current) startListening(); }, 500);
+            }
+          }
+          resolve(true);
+        };
+        audio.onerror = () => {
+          URL.revokeObjectURL(audioUrl);
+          resolve(false);
+        };
+        audio.play().catch(() => resolve(false));
+      });
+    } catch (e) {
+      console.warn("[HELO] OpenAI TTS failed:", e.message);
+      return false;
+    }
+  }, [autoListen]);
+
   const speakViaEdgeTTS = useCallback(async (text) => {
     try {
       const response = await fetch(voiceServiceUrl + "/api/synthesize", {
@@ -341,13 +411,24 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
     }
   }, [getVoice, autoListen]);
 
-  // Fonction principale TTS : Edge TTS si disponible, sinon navigateur
+  // Fonction principale TTS : OpenAI TTS (qualité top) → Edge TTS → navigateur
   const speakText = useCallback(async (text) => {
     if (!text) return;
     window.speechSynthesis.cancel();
 
+    // Priorité 1 : OpenAI TTS (voix neuronale naturelle)
+    try {
+      const success = await Promise.race([
+        speakViaOpenAITTS(text),
+        new Promise(resolve => setTimeout(() => resolve(false), 8000))
+      ]);
+      if (success) return;
+    } catch (e) {
+      console.warn("[HELO] OpenAI TTS error, trying next fallback");
+    }
+
+    // Priorité 2 : Edge TTS si configuré
     if (voiceServiceUrl) {
-      // Timeout de 3s — si Edge TTS ne répond pas, on bascule immédiatement
       try {
         const success = await Promise.race([
           speakViaEdgeTTS(text),
@@ -355,12 +436,13 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
         ]);
         if (success) return;
       } catch (e) {
-        console.warn("[HELO] Edge TTS timeout/error, using browser TTS");
+        console.warn("[HELO] Edge TTS error, using browser TTS");
       }
     }
-    // Fallback navigateur
+
+    // Priorité 3 : navigateur
     speakViaBrowser(text);
-  }, [voiceServiceUrl, speakViaEdgeTTS, speakViaBrowser]);
+  }, [voiceServiceUrl, speakViaOpenAITTS, speakViaEdgeTTS, speakViaBrowser]);
 
   // ========================================================================
   // STT — Reconnaissance vocale
