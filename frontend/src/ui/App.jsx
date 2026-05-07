@@ -91,6 +91,7 @@ export default function App() {
   const [showLegalPage, setShowLegalPage] = useState(null); // 'cgv' | 'mentions' | 'confidentialite'
   const [showHome, setShowHome] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [resumeSessionId, setResumeSessionId] = useState(null);
   const [conversationMode, setConversationMode] = useState("chat"); // 'chat' | 'voice'
 
   // Restore user session on mount (Supabase)
@@ -492,11 +493,13 @@ export default function App() {
           <Chat
             user={user}
             api={api}
+            resumeSessionId={resumeSessionId}
             onEmotionalStateChange={setEmotionalState}
             onBackToHome={() => {
               setShowChat(false);
               setShowHome(true);
               setConversationMode("chat");
+              setResumeSessionId(null);
             }}
             onSwitchToVoice={() => {
               setConversationMode("voice");
@@ -599,9 +602,9 @@ export default function App() {
               setShowHome(true);
             }}
             onResumeSession={(sessionId) => {
+              setResumeSessionId(sessionId);
               setShowDashboard(false);
               setShowChat(true);
-              // sessionId available for future use (load specific session)
             }}
             onLogout={handleLogout}
           />

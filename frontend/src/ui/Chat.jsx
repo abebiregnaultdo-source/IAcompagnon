@@ -101,6 +101,7 @@ export default function Chat({
   onOpenCreativity,
   onOpenLibrary,
   onOpenDreams,
+  resumeSessionId,
 }) {
   const device = useDeviceDetection();
   const [messages, setMessages] = useState([]);
@@ -180,6 +181,23 @@ export default function Chat({
       stop(); // Arrêter la synthèse vocale
     };
   }, []);
+
+  // Si on reprend une session, charger ses messages
+  useEffect(() => {
+    if (!resumeSessionId || welcomeLoaded) return;
+    (async () => {
+      try {
+        const all = await getConversations(user.id, 50);
+        const session = all && all.find(c => c.id === resumeSessionId);
+        if (session && Array.isArray(session.messages) && session.messages.length > 0) {
+          setMessages(session.messages);
+          setWelcomeLoaded(true);
+        }
+      } catch (e) {
+        console.warn("[HELO] Failed to resume session:", e);
+      }
+    })();
+  }, [resumeSessionId, user.id, welcomeLoaded]);
 
   // Charger l'historique ou le message d'accueil
   useEffect(() => {
