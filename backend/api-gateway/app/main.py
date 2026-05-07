@@ -359,7 +359,7 @@ async def save_journal_entry(req: Request):
 
                 try:
                     response = client.messages.create(
-                        model="claude-3-5-sonnet-20241022",
+                        model="claude-sonnet-4-5",
                         max_tokens=600,
                         messages=[{
                             "role": "user",
@@ -404,7 +404,7 @@ async def save_narrative(req: Request):
                 try:
                     narrative_prompt = f"Titre: {title}\nType: {narrative_type}\n\nEcrivez un narratif thérapeutique qui explore cette thématique de manière profonde et authentic."
                     response = client.messages.create(
-                        model="claude-3-5-sonnet-20241022",
+                        model="claude-sonnet-4-5",
                         max_tokens=800,
                         messages=[{
                             "role": "user",
@@ -450,7 +450,7 @@ async def save_poem(req: Request):
                     style_description = poem_style or "libre et authentique"
                     poem_prompt = f"Écris un poème thérapeutique intitulé '{title}' dans un style {style_description}. Le poème doit être émotionnel, personnelle et cicatrisante."
                     response = client.messages.create(
-                        model="claude-3-5-sonnet-20241022",
+                        model="claude-sonnet-4-5",
                         max_tokens=600,
                         messages=[{
                             "role": "user",

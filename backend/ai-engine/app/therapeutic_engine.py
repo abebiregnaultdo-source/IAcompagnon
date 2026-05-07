@@ -254,7 +254,7 @@ class LLMClient:
                 anthropic_messages.append({'role': role, 'content': content})
 
         response = self.anthropic_client.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-5",
             max_tokens=max_tokens,
             temperature=temperature,
             system=system_prompt,
@@ -281,7 +281,7 @@ class LLMClient:
                 anthropic_messages.append({'role': role, 'content': content})
 
         with self.anthropic_client.messages.stream(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-5",
             max_tokens=max_tokens,
             temperature=temperature,
             system=system_prompt,
@@ -431,7 +431,7 @@ class TherapeuticEngine:
             'text': response_text,
             'crisis_detected': False,
             'technique_used': 'conversational_therapy',
-            'model_used': 'claude-3-5-sonnet'
+            'model_used': 'claude-sonnet-4-5'
         }
 
     def generate_response_stream(
@@ -910,7 +910,7 @@ class TherapeuticEngine:
             'technique': result.get('technique_used', 'conversational_therapy'),
             'source': 'claude_direct',
             'prompt_used': None,
-            'model_used': result.get('model_used', 'claude-3-5-sonnet'),
+            'model_used': result.get('model_used', 'claude-sonnet-4-5'),
             'emotion_context': {
                 'detresse': user_state.get('detresse', 50),
                 'espoir': user_state.get('espoir', 50),
