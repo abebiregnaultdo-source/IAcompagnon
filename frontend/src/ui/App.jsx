@@ -233,6 +233,19 @@ export default function App() {
       setIsTransitioning(false);
       setShowHome(true);
     }, 600);
+
+    // Timeout de sécurité : si la transition est encore active après 3s, forcer la sortie
+    setTimeout(() => {
+      setIsTransitioning((still) => {
+        if (still) {
+          console.warn("[HELO] Safety timeout: forcing transition end");
+          setUser(updatedUser);
+          setShowHome(true);
+          return false;
+        }
+        return still;
+      });
+    }, 3000);
   };
 
   const handleLogout = async () => {
@@ -358,29 +371,8 @@ export default function App() {
     );
   }
 
-  if (!user) {
-    return (
-      <EmotionalFeedback state="calm">
-        <div className="container">
-          <a href="#main-content" className="skip-link">
-            Aller au contenu principal
-          </a>
-          <main id="main-content" className="card">
-            <Onboarding
-              api={api}
-              user={user}
-              step={step}
-              setStep={setStep}
-              onReady={handleUserReady}
-            />
-          </main>
-        </div>
-      </EmotionalFeedback>
-    );
-  }
-
-  // If user exists but hasn't completed onboarding, show Onboarding
-  if (user && !user.onboarding_completed) {
+  // Show Onboarding if user not authenticated or hasn't completed onboarding
+  if (!user || !user.onboarding_completed) {
     return (
       <EmotionalFeedback state="calm">
         <div className="container">
