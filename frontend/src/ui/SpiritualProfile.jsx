@@ -1043,8 +1043,9 @@ const styles = {
     minWidth: "fit-content",
   },
   tabActive: {
-    background: "var(--color-primary)",
-    color: "white",
+    /* Fond assombri pour que le libellé clair reste lisible (primary seul trop clair) */
+    background: "#3E6478",
+    color: "#F2F6F7",
   },
   tabLabel: {
     display: "inline",

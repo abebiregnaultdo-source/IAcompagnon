@@ -151,11 +151,13 @@ const styles = {
     textAlign: "center",
   },
   centralMessage: {
-    background: "linear-gradient(135deg, var(--color-primary), var(--color-primary))",
+    // Gradient vers une teinte plus foncée pour que le texte clair reste lisible
+    // (avant : primary→primary trop clair pour du blanc → texte illisible).
+    background: "linear-gradient(135deg, #5A8299, #3E6478)",
     borderRadius: "var(--radius-md)",
     padding: "var(--space-lg)",
     marginBottom: "var(--space-lg)",
-    color: "white",
+    color: "#F2F6F7",
   },
   centralText: {
     fontSize: "var(--font-size-md)",
