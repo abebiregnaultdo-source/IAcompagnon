@@ -4,13 +4,20 @@ const TRIAL_DURATION_DAYS = 14;
 
 // Calcule l'état d'essai à partir de la date d'inscription (aucun backend requis).
 // Tant qu'il n'y a pas d'endpoint d'abonnement, c'est la source de vérité.
+//
+// IMPORTANT : il n'existe PAS encore de vrai système de paiement/blocage. Afficher
+// "essai terminé / compte en lecture seule" serait donc FAUX (rien n'est bloqué) et
+// anxiogène. Une fois l'essai écoulé, on n'affiche donc AUCUN bandeau alarmant —
+// on laisse simplement l'accès, comme aujourd'hui. Le statut "expired" est réservé
+// au jour où un vrai backend d'abonnement le renverra explicitement.
 function computeTrialFromCreatedAt(createdAt) {
   if (!createdAt) return { status: 'trial', days_remaining: TRIAL_DURATION_DAYS };
   const start = new Date(createdAt).getTime();
   if (isNaN(start)) return { status: 'trial', days_remaining: TRIAL_DURATION_DAYS };
   const elapsedDays = Math.floor((Date.now() - start) / (1000 * 60 * 60 * 24));
   const remaining = TRIAL_DURATION_DAYS - elapsedDays;
-  if (remaining <= 0) return { status: 'expired', days_remaining: 0 };
+  // Essai écoulé mais aucun blocage réel → pas de bandeau (null = rien affiché).
+  if (remaining <= 0) return null;
   return { status: 'trial', days_remaining: remaining };
 }
 

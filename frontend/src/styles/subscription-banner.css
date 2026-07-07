@@ -8,25 +8,28 @@
   margin-bottom: 20px;
   font-size: 14px;
 }
+/* Palette thérapeutique : tons désaturés, jamais de rouge/blanc purs,
+   conforme à ETAT_DE_LART.md (urgence douce, saturation faible). */
 .subscription-banner.trial {
-  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
-  color: #2E7D32;
+  background: linear-gradient(135deg, #E8F0EC 0%, #DCEAE2 100%);
+  color: #4A6656;
 }
 .subscription-banner.trial-ending {
-  background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
-  color: #E65100;
+  background: linear-gradient(135deg, #F5EFE6 0%, #EDE3D3 100%);
+  color: #7A6A52;
   flex-direction: column;
   align-items: stretch;
 }
 .subscription-banner.expired {
-  background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
-  color: #C62828;
+  /* Pas de rouge : ton chaud sable, message doux et non-anxiogène */
+  background: linear-gradient(135deg, #F2EDE6 0%, #E8DECF 100%);
+  color: #6A5E4E;
   flex-direction: column;
   align-items: stretch;
 }
 .subscription-banner.active {
-  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
-  color: #1565C0;
+  background: linear-gradient(135deg, #E8EFF2 0%, #DCE8ED 100%);
+  color: #4A6070;
 }
 .banner-content {
   display: flex;
@@ -42,12 +45,16 @@
 .banner-text p { margin: 0; font-size: 13px; opacity: 0.9; }
 .banner-button {
   padding: 10px 24px;
-  background: white;
-  color: #E65100;
-  border-radius: 8px;
+  background: #7BA8C0;
+  color: #F2F6F7;
+  border: none;
+  border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
   white-space: nowrap;
-  transition: all 0.3s;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: 8px;
+  transition: all 0.3s ease;
 }
-.banner-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.banner-button:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(123, 168, 192, 0.25); }
