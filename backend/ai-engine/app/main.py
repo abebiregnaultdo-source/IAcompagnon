@@ -86,6 +86,9 @@ class AnalyticsEvent(BaseModel):
     response_time_ms: int | None = None
     phase: str | None = None
     reason: str | None = None
+    # RGPD : consentement à l'amélioration anonyme. Défaut True pour rétro-compat,
+    # mais le frontend envoie explicitement le choix de l'utilisateur.
+    analytics_consent: bool = True
 
 app = FastAPI(title='AI Engine')
 
@@ -1045,6 +1048,10 @@ ANALYTICS_PATH = os.path.join(os.path.dirname(__file__), 'analytics_logs.jsonl')
 @app.post('/analytics/track')
 async def analytics_track(req: AnalyticsEvent):
     """Track analytics events (silent, non-blocking for frontend)"""
+    # RGPD : si l'utilisateur a retiré son consentement à l'amélioration anonyme,
+    # on ne journalise RIEN. Le toggle "Mes données" est donc réellement appliqué.
+    if not req.analytics_consent:
+        return { 'status': 'skipped', 'reason': 'analytics_consent_withdrawn' }
     entry = {
         'ts': time.time(),
         'user_id_hash': req.user_id_hash,
@@ -1106,6 +1113,68 @@ async def session_end(req: SessionEndRequest):
         logger.warning(f"session_end extraction failed: {e}")
         # On renvoie l'existant inchangé plutôt qu'une erreur.
         return {'status': 'ok', 'conversation_insights': req.conversation_insights}
+
+
+# Tables de données personnelles rattachées par user_id (miroir du frontend).
+# feedback_logs / analytics_events (user_id_hash) sont anonymisés → conservés.
+_USER_DATA_TABLES = [
+    'conversations', 'dreams', 'creations',
+    'journal_entries', 'emotional_logs', 'progress',
+]
+
+
+class AccountDeleteRequest(BaseModel):
+    user_id: str
+
+
+@app.post('/api/account/delete')
+async def account_delete(req: AccountDeleteRequest):
+    """
+    RGPD Art. 17 — Effacement complet du compte.
+
+    Défense en profondeur : efface toutes les données personnelles (au cas où le
+    client aurait échoué), puis supprime le compte AUTH lui-même (ce que le client
+    ne peut pas faire, faute de service_role). Les données anonymisées
+    (user_id_hash) sont conservées — non rattachables, conformes au considérant 26.
+    """
+    uid = req.user_id
+    if not uid:
+        return {'status': 'error', 'message': 'user_id manquant'}
+
+    sb = get_supabase()
+    if sb is None:
+        return {'status': 'error', 'message': 'stockage indisponible'}
+
+    deleted, failed = [], []
+    # 1. Effacer les tables de données (user_id)
+    for table in _USER_DATA_TABLES:
+        try:
+            sb.table(table).delete().eq('user_id', uid).execute()
+            deleted.append(table)
+        except Exception as e:
+            failed.append({'table': table, 'error': str(e)})
+    # 2. Effacer le profil (id)
+    try:
+        sb.table('profiles').delete().eq('id', uid).execute()
+        deleted.append('profiles')
+    except Exception as e:
+        failed.append({'table': 'profiles', 'error': str(e)})
+
+    # 3. Supprimer le compte AUTH (nécessite service_role — côté serveur uniquement)
+    auth_deleted = False
+    try:
+        sb.auth.admin.delete_user(uid)
+        auth_deleted = True
+    except Exception as e:
+        logger.warning(f"account_delete: suppression auth échouée: {e}")
+        failed.append({'table': 'auth.users', 'error': str(e)})
+
+    return {
+        'status': 'ok' if not failed else 'partial',
+        'deleted': deleted,
+        'auth_deleted': auth_deleted,
+        'failed': failed,
+    }
 
 
 class CreativePromptsRequest(BaseModel):

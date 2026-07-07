@@ -11,7 +11,7 @@ import Button from "./components/Button";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
-import { updatePassword } from "../lib/supabase";
+import { updatePassword, downloadUserData, deleteUserData, updateProfile } from "../lib/supabase";
 
 /**
  * Page Paramètres Utilisateur
@@ -55,6 +55,81 @@ export default function Settings({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMessage, setPasswordMessage] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+  // RGPD — export & suppression
+  const [isExporting, setIsExporting] = useState(false);
+  const [rgpdMessage, setRgpdMessage] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // RGPD — retrait/consentement de l'amélioration anonyme (par défaut activé)
+  const [improveConsent, setImproveConsent] = useState(
+    user?.consent?.analytics_improvement !== false
+  );
+
+  // Retrait/octroi du consentement à l'amélioration anonyme (révocable à tout moment)
+  const handleToggleImproveConsent = async (value) => {
+    setImproveConsent(value);
+    try {
+      await updateProfile(user.id, {
+        consent: { ...(user?.consent || {}), analytics_improvement: value },
+      });
+      if (user?.consent) user.consent.analytics_improvement = value;
+      setRgpdMessage(
+        value
+          ? "Merci — vous contribuez à améliorer HELŌ (données anonymes)."
+          : "C'est noté. Vos données ne serviront plus à l'amélioration du service."
+      );
+    } catch (e) {
+      setImproveConsent(!value); // rollback visuel
+      setRgpdMessage("La modification a échoué. Réessayez.");
+    }
+  };
+
+  // RGPD Art. 15/20 — télécharger toutes ses données
+  const handleExportData = async () => {
+    setIsExporting(true);
+    setRgpdMessage("");
+    try {
+      await downloadUserData(user.id, user?.first_name);
+      setRgpdMessage("Vos données ont été téléchargées.");
+    } catch (e) {
+      setRgpdMessage("Le téléchargement a échoué. Réessayez ou contactez-nous.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // RGPD Art. 17 — supprimer définitivement le compte
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    setRgpdMessage("");
+    try {
+      // 1. Effacer les données côté client (RLS-safe)
+      await deleteUserData(user.id);
+      // 2. Demander au backend d'effacer le compte auth (service_role)
+      try {
+        await fetch(api.base + "/api/account/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: user.id }),
+        });
+      } catch (e) {
+        // Les données sont déjà effacées ; on déconnecte quoi qu'il arrive.
+      }
+      // 3. Nettoyer le localStorage et déconnecter
+      try {
+        Object.keys(localStorage)
+          .filter((k) => k.includes(user.id) || k.startsWith("helo_"))
+          .forEach((k) => localStorage.removeItem(k));
+      } catch (e) {}
+      onLogout && onLogout();
+    } catch (e) {
+      setRgpdMessage("La suppression a échoué. Réessayez ou contactez-nous.");
+      setIsDeleting(false);
+    }
+  };
 
   // Charger le contact de confiance depuis localStorage
   useEffect(() => {
@@ -685,6 +760,188 @@ export default function Settings({
             {saveMessage}
           </div>
         )}
+
+        {/* Mes données (RGPD) */}
+        <Panel className="settings-section">
+          <Text as="h2" className="settings-section-title">
+            Mes données
+          </Text>
+          <p
+            style={{
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text-secondary)",
+              lineHeight: "var(--line-height-relaxed)",
+              marginBottom: "var(--space-lg)",
+            }}
+          >
+            Vos données vous appartiennent. Vous pouvez les récupérer à tout
+            moment, ou supprimer définitivement votre compte.
+          </p>
+
+          {rgpdMessage && (
+            <div
+              style={{
+                padding: "var(--space-md)",
+                background: "var(--color-surface-2)",
+                borderRadius: "var(--radius-md)",
+                fontSize: "var(--font-size-sm)",
+                color: "var(--color-text-secondary)",
+                marginBottom: "var(--space-md)",
+              }}
+            >
+              {rgpdMessage}
+            </div>
+          )}
+
+          {/* Retrait / consentement amélioration anonyme */}
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "var(--space-sm)",
+              padding: "var(--space-md)",
+              background: "var(--color-surface-2)",
+              borderRadius: "var(--radius-md)",
+              marginBottom: "var(--space-lg)",
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text-secondary)",
+              lineHeight: "var(--line-height-relaxed)",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={improveConsent}
+              onChange={(e) => handleToggleImproveConsent(e.target.checked)}
+              style={{ marginTop: "3px", flexShrink: 0 }}
+            />
+            <span>
+              Autoriser l'utilisation de <strong>statistiques anonymes</strong>{" "}
+              pour améliorer HELŌ. Le contenu de vos conversations n'est jamais
+              réutilisé, et vous n'êtes jamais identifié. Vous pouvez retirer cet
+              accord ici à tout moment, sans rien perdre de votre accompagnement.
+            </span>
+          </label>
+
+          {/* Export */}
+          <Button onClick={handleExportData} disabled={isExporting}>
+            {isExporting ? "Préparation…" : "Télécharger mes données"}
+          </Button>
+
+          {/* Suppression */}
+          <div
+            style={{
+              marginTop: "var(--space-xl)",
+              paddingTop: "var(--space-lg)",
+              borderTop: "1px solid var(--color-border)",
+            }}
+          >
+            {!showDeleteConfirm ? (
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(true);
+                  setDeleteConfirmText("");
+                  setRgpdMessage("");
+                }}
+                style={{
+                  padding: "var(--space-sm) var(--space-lg)",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-md)",
+                  background: "transparent",
+                  color: "var(--color-text-tertiary)",
+                  fontSize: "var(--font-size-sm)",
+                  cursor: "pointer",
+                  transition: "var(--transition-fast)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "#E76F51";
+                  e.currentTarget.style.color = "#E76F51";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--color-border)";
+                  e.currentTarget.style.color = "var(--color-text-tertiary)";
+                }}
+              >
+                Supprimer mon compte
+              </button>
+            ) : (
+              <div>
+                <p
+                  style={{
+                    fontSize: "var(--font-size-sm)",
+                    color: "var(--color-text-primary)",
+                    lineHeight: "var(--line-height-relaxed)",
+                    marginBottom: "var(--space-md)",
+                  }}
+                >
+                  Cette action est <strong>définitive</strong>. Toutes vos
+                  conversations, rêves, écrits et votre profil seront effacés,
+                  sans possibilité de récupération. Pour confirmer, écrivez{" "}
+                  <strong>SUPPRIMER</strong> ci-dessous.
+                </p>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="SUPPRIMER"
+                  disabled={isDeleting}
+                  style={{
+                    width: "100%",
+                    padding: "var(--space-md)",
+                    border: "1.5px solid var(--color-border)",
+                    borderRadius: "var(--radius-md)",
+                    background: "var(--color-surface-1)",
+                    color: "var(--color-text-primary)",
+                    fontSize: "var(--font-size-base)",
+                    marginBottom: "var(--space-md)",
+                  }}
+                />
+                <div style={{ display: "flex", gap: "var(--space-md)" }}>
+                  <button
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting || deleteConfirmText !== "SUPPRIMER"}
+                    style={{
+                      padding: "var(--space-sm) var(--space-lg)",
+                      border: "none",
+                      borderRadius: "var(--radius-md)",
+                      background:
+                        deleteConfirmText === "SUPPRIMER"
+                          ? "#E76F51"
+                          : "var(--color-surface-2)",
+                      color:
+                        deleteConfirmText === "SUPPRIMER"
+                          ? "#fff"
+                          : "var(--color-text-tertiary)",
+                      fontSize: "var(--font-size-sm)",
+                      cursor:
+                        deleteConfirmText === "SUPPRIMER" && !isDeleting
+                          ? "pointer"
+                          : "not-allowed",
+                      transition: "var(--transition-fast)",
+                    }}
+                  >
+                    {isDeleting ? "Suppression…" : "Confirmer la suppression"}
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={isDeleting}
+                    style={{
+                      padding: "var(--space-sm) var(--space-lg)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "var(--radius-md)",
+                      background: "transparent",
+                      color: "var(--color-text-secondary)",
+                      fontSize: "var(--font-size-sm)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Panel>
 
         {/* Bouton de déconnexion */}
         <div

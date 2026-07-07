@@ -12,6 +12,7 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
   const [firstName, setFirstName] = useState(user?.first_name || "");
   const [rhythm, setRhythm] = useState(2);
   const [reason, setReason] = useState("");
+  const [improveConsent, setImproveConsent] = useState(true); // opt-in amélioration anonyme (révocable)
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,9 +80,11 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
       },
       consent: {
         accepted: true,
-        version: "v1.0",
+        version: "v1.1",
         date: new Date().toISOString().slice(0, 10),
         scope: ["text", "emotion_scoring"],
+        // Consentement séparé et révocable pour l'amélioration anonyme du service.
+        analytics_improvement: improveConsent,
       },
       created_at: user?.created_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -169,8 +172,8 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
             }}
           >
             Pour vous accompagner au mieux, HELŌ analyse vos messages de manière
-            confidentielle. Vos données restent privées et ne sont jamais
-            partagées.
+            confidentielle. Vos données restent privées, chiffrées, et ne sont
+            jamais vendues.
           </p>
           <div
             style={{
@@ -194,8 +197,9 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
               <li>
                 Analyser vos messages pour comprendre votre état émotionnel
               </li>
-              <li>Adapter nos réponses à vos besoins</li>
-              <li>Garder vos données en sécurité</li>
+              <li>Adapter nos réponses à vos besoins, et nous souvenir de ce
+                que vous nous confiez pour mieux vous suivre</li>
+              <li>Garder vos données en sécurité, chiffrées</li>
             </ul>
             <p style={{ marginTop: "var(--space-md)" }}>
               <strong>Ce que nous ne faisons jamais :</strong>
@@ -206,11 +210,44 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
                 marginTop: "var(--space-sm)",
               }}
             >
-              <li>Partager vos informations</li>
+              <li>Vendre vos données ou les partager à des fins commerciales</li>
               <li>Vous juger</li>
               <li>Remplacer un professionnel de santé</li>
             </ul>
+            <p style={{ marginTop: "var(--space-md)" }}>
+              <strong>Amélioration du service :</strong>
+            </p>
+            <p style={{ marginTop: "var(--space-sm)" }}>
+              Pour rendre HELŌ plus utile, nous étudions des statistiques{" "}
+              <strong>anonymes</strong> (par exemple : quelles approches aident le
+              plus), sans jamais réutiliser le contenu de vos conversations ni
+              vous identifier. Vous pouvez refuser cet usage à tout moment dans{" "}
+              <em>Réglages → Mes données</em>, sans rien perdre de votre
+              accompagnement.
+            </p>
           </div>
+          <label
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "var(--space-sm)",
+              marginBottom: "var(--space-lg)",
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-text-secondary)",
+              cursor: "pointer",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={improveConsent}
+              onChange={(e) => setImproveConsent(e.target.checked)}
+              style={{ marginTop: "3px", flexShrink: 0 }}
+            />
+            <span>
+              J'accepte que des statistiques anonymes soient utilisées pour
+              améliorer HELŌ. (Facultatif — vous pouvez le retirer à tout moment.)
+            </span>
+          </label>
           <Button onClick={submitConsent} disabled={isLoading}>
             {isLoading ? "Chargement..." : "J'accepte et je continue"}
           </Button>

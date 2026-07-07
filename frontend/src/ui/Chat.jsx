@@ -150,6 +150,8 @@ export default function Chat({
           session_duration_ms: Date.now() - sessionStartRef.current,
           message_count: messageCountRef.current,
           timestamp: new Date().toISOString(),
+          // RGPD : respect du consentement retirable (défaut activé)
+          analytics_consent: user?.consent?.analytics_improvement !== false,
           ...extraData,
         }),
       });
@@ -159,6 +161,9 @@ export default function Chat({
   };
 
   const trackReadingTime = async () => {
+    // RGPD : le feedback implicite sert à l'amélioration anonyme. Si l'utilisateur
+    // a retiré son consentement, on ne l'envoie tout simplement pas.
+    if (user?.consent?.analytics_improvement === false) return;
     if (lastResponseTimeRef.current) {
       const readingTimeMs = Date.now() - lastResponseTimeRef.current;
       try {

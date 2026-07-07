@@ -99,6 +99,112 @@ export async function updateProfile(userId, updates) {
 }
 
 // =============================================
+// RGPD — EXPORT & SUPPRESSION DES DONNÉES
+// =============================================
+// Tables rattachées directement à l'utilisateur (données personnelles).
+// feedback_logs / analytics_events sont rattachés par user_id_hash (pseudonymisé,
+// anonyme) : ils servent à l'amélioration produit agrégée et NE sont PAS des
+// données personnelles directes → hors export, conservés à la suppression.
+const USER_DATA_TABLES = [
+  "conversations",
+  "dreams",
+  "creations",
+  "journal_entries",
+  "emotional_logs",
+  "progress",
+];
+
+/**
+ * RGPD Art. 15 & 20 — Droit d'accès et portabilité.
+ * Rassemble TOUTES les données personnelles de l'utilisateur dans un objet
+ * exportable (JSON). Ne lève pas sur une table vide/absente : best-effort complet.
+ */
+export async function exportUserData(userId) {
+  const bundle = {
+    exported_at: new Date().toISOString(),
+    user_id: userId,
+    profile: null,
+    data: {},
+  };
+
+  // Profil (rattaché par 'id')
+  try {
+    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
+    bundle.profile = data || null;
+  } catch (e) {
+    bundle.profile = { error: "non récupérable" };
+  }
+
+  // Toutes les tables rattachées par user_id
+  for (const table of USER_DATA_TABLES) {
+    try {
+      const { data, error } = await supabase.from(table).select("*").eq("user_id", userId);
+      bundle.data[table] = error ? [] : data || [];
+    } catch (e) {
+      bundle.data[table] = [];
+    }
+  }
+
+  return bundle;
+}
+
+/**
+ * Déclenche le téléchargement de l'export au format JSON dans le navigateur.
+ */
+export async function downloadUserData(userId, firstName = "mes-donnees") {
+  const bundle = await exportUserData(userId);
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const date = new Date().toISOString().slice(0, 10);
+  a.download = `helo-donnees-${firstName || "export"}-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  return bundle;
+}
+
+/**
+ * RGPD Art. 17 — Droit à l'effacement.
+ * Supprime TOUTES les données personnelles de l'utilisateur (profil + 6 tables).
+ * Les données anonymisées (feedback_logs/analytics_events, par user_id_hash) sont
+ * conservées : elles ne sont plus rattachables et l'anonymisation est une
+ * alternative reconnue à l'effacement (RGPD considérant 26).
+ *
+ * NOTE : la suppression du compte AUTH lui-même (supabase.auth) nécessite la clé
+ * service_role, indisponible côté client. Elle est déléguée au backend
+ * (/api/account/delete). Cette fonction efface toutes les DONNÉES ; le compte auth
+ * est ensuite supprimé par le backend, ou l'utilisateur est déconnecté.
+ */
+export async function deleteUserData(userId) {
+  const results = { deleted: [], failed: [] };
+
+  // 1. Effacer les 6 tables rattachées par user_id
+  for (const table of USER_DATA_TABLES) {
+    try {
+      const { error } = await supabase.from(table).delete().eq("user_id", userId);
+      if (error) results.failed.push({ table, error: error.message });
+      else results.deleted.push(table);
+    } catch (e) {
+      results.failed.push({ table, error: String(e?.message || e) });
+    }
+  }
+
+  // 2. Effacer le profil en dernier (rattaché par 'id')
+  try {
+    const { error } = await supabase.from("profiles").delete().eq("id", userId);
+    if (error) results.failed.push({ table: "profiles", error: error.message });
+    else results.deleted.push("profiles");
+  } catch (e) {
+    results.failed.push({ table: "profiles", error: String(e?.message || e) });
+  }
+
+  return results;
+}
+
+// =============================================
 // JOURNAL HELPERS
 // =============================================
 

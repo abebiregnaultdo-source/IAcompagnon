@@ -172,8 +172,10 @@ export default function Confidentialite({ onBack }) {
                 borderRadius: "var(--radius-sm)",
               }}
             >
-              🔒 Ces données sont <strong>chiffrées de bout en bout</strong> et
-              ne sont jamais partagées avec des tiers.
+              🔒 Ces données sont <strong>chiffrées au repos et en transit</strong>{" "}
+              (HTTPS et chiffrement du stockage), et leur accès est strictement
+              limité. Elles ne sont jamais vendues ni partagées avec des tiers à
+              des fins commerciales.
             </p>
 
             <h3
@@ -317,10 +319,10 @@ export default function Confidentialite({ onBack }) {
                 marginTop: "var(--space-sm)",
               }}
             >
-              <li>🔐 Chiffrement de bout en bout des données sensibles</li>
+              <li>🔐 Chiffrement des données au repos (stockage) et en transit</li>
               <li>🔒 Connexions HTTPS sécurisées</li>
               <li>🛡️ Authentification sécurisée (mots de passe hashés)</li>
-              <li>🏢 Hébergement en France (conformité RGPD)</li>
+              <li>🏢 Hébergement dans l'Union européenne (Irlande), conforme au RGPD</li>
               <li>
                 👥 Accès limité aux données (principe du moindre privilège)
               </li>
