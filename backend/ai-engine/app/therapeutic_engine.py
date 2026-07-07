@@ -668,6 +668,22 @@ class TherapeuticEngine:
             elif energie < 30:
                 context_lines.append("\n💤 Énergie basse - Réponses courtes, pas de demandes d'efforts. Pas d'exercice actif.")
 
+        # Contexte de vie sédimenté : ce que la personne a NOMMÉ elle-même
+        # (motif d'onboarding + faits durables extraits des sessions passées).
+        # C'est ce qui permet à Helō de "connaître" la personne d'une fois sur l'autre.
+        insights = user_state.get('conversation_insights') if user_state else None
+        if insights and isinstance(insights, dict):
+            reason = str(insights.get('initial_reason', '')).strip()
+            facts = insights.get('life_facts') or insights.get('faits') or []
+            if reason or facts:
+                context_lines.append("\n## CONTEXTE DE VIE (ce que la personne t'a confié)")
+                if reason:
+                    context_lines.append(f"- En arrivant, elle a écrit : « {reason[:300]} »")
+                if isinstance(facts, list):
+                    for f in facts[:8]:
+                        context_lines.append(f"- {str(f)[:200]}")
+                context_lines.append("Utilise ce contexte avec délicatesse, comme un thérapeute qui se souvient. RÈGLE ABSOLUE anti-hallucination : ne t'appuie QUE sur ces faits nommés par la personne, ne suppose RIEN au-delà, ne présume pas ce qu'elle ressent aujourd'hui. Si un fait semble ancien, vérifie avec tact plutôt que d'affirmer.")
+
         # Mémoire des sessions précédentes
         conversation_memory = None
         if user_state:
@@ -885,171 +901,4 @@ class TherapeuticEngine:
             lines.append("\n### TECHNIQUE RECOMMANDÉE: Exploration systémique (Bowen / Boszormenyi-Nagy)")
             lines.append("Dynamique familiale détectée. Le deuil réorganise le système familial.")
             lines.append("1. Explorer le rôle du défunt : \"Quel rôle jouait cette personne dans la famille ? Qui tenait les liens, qui organisait ?\"")
-            lines.append("2. Nommer la redistribution : \"Depuis son départ, qui a repris ce rôle ? Est-ce que ce rôle t'est tombé dessus ?\"")
-            lines.append("3. Explorer les loyautés invisibles : \"Y a-t-il des règles non-dites dans ta famille sur comment vivre le deuil ?\"")
-            lines.append("4. Donner la permission : \"Tu as le droit de vivre ce deuil à ta manière, même si c'est différent des autres.\"")
-
-        # 8. Somatique — ancrage polyvagal (NE DÉPEND PAS de DistilBERT)
-        elif any(w in msg_lower for w in ['boule au ventre', 'ventre noué', 'nœud', 'tremble', 'trembler', 'cœur qui s\'emballe', 'cœur bat', 'suffoque', 'respire plus', 'peux plus respirer', 'souffle coupé', 'oppression', 'corps', 'tension', 'tendu', 'contracté', 'mal au ventre', 'mal à la tête', 'vertige', 'panique']):
-            lines.append("\n### TECHNIQUE RECOMMANDÉE: Ancrage sensoriel 5-4-3-2-1 (Polyvagal)")
-            lines.append("Activation somatique détectée (signaux corporels de détresse). Priorité à la stabilisation.")
-            lines.append("1. Si respiration difficile : \"Respire avec moi. Inspire pendant 5 secondes... expire pendant 5 secondes. On fait 3 cycles ensemble.\"")
-            lines.append("2. Ancrage : \"On va prendre un moment ensemble. Sens tes pieds sur le sol. Nomme 5 choses que tu vois, 4 que tu entends, 3 que tu touches, 2 que tu sens, 1 que tu goûtes.\"")
-            lines.append("3. Reste présent, valide chaque réponse, avance lentement. Ne passe PAS à l'exploration tant que le corps n'est pas stabilisé.")
-
-        # 8. Colère — validation + régulation (NE DÉPEND PAS de DistilBERT)
-        elif any(w in msg_lower for w in ['colère', 'en colère', 'rage', 'furieux', 'furieuse', 'injuste', 'injustice', 'révolte', 'révolté', 'pas juste', "c'est dégueulasse", 'scandaleux', 'haine', 'déteste']):
-            lines.append("\n### TECHNIQUE RECOMMANDÉE: Validation de la colère + Régulation")
-            lines.append("Colère détectée. La colère dans le deuil est légitime et souvent sous-exprimée.")
-            lines.append("1. Valider SANS minimiser : \"Cette colère est légitime. Tu as le droit d'être en colère.\"")
-            lines.append("2. Nommer la source : \"Contre qui ou quoi est dirigée cette colère ? Contre la maladie, contre l'injustice, contre toi-même ?\"")
-            lines.append("3. Si très intense, proposer cohérence cardiaque AVANT d'explorer : \"Avant d'aller plus loin, on respire ensemble. Inspire 5s, expire 5s.\"")
-            lines.append("4. Puis relier aux valeurs (ACT) : \"Derrière cette colère, qu'est-ce qui compte vraiment pour toi ?\"")
-
-        # 9. Fallback DistilBERT — peur/anxiété détectée par le modèle
-        elif detected_emotion == 'fear' and detresse > 50:
-            lines.append("\n### TECHNIQUE RECOMMANDÉE: Ancrage sensoriel 5-4-3-2-1")
-            lines.append("Anxiété/peur détectée avec détresse élevée. Priorité à la stabilisation.")
-            lines.append("Guide l'exercice : \"On va prendre un moment ensemble. Nomme 5 choses que tu vois, 4 que tu entends, 3 que tu touches, 2 que tu sens, 1 que tu goûtes.\"")
-            lines.append("Reste présent, valide chaque réponse, avance lentement.")
-
-        return lines
-
-    def generate_welcome_message(
-        self,
-        user_name: str,
-        user_state: Optional[Dict] = None,
-        extended_profile: Optional[Dict] = None
-    ) -> str:
-        """Génère un message d'accueil personnalisé."""
-        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count=0)
-
-        # Instruction spéciale pour le message d'accueil
-        welcome_instruction = "\n\n## INSTRUCTION SPÉCIALE\nC'est le PREMIER message de la conversation. Accueille chaleureusement l'utilisateur, présente-toi brièvement, et invite-le à partager ce qu'il souhaite. Sois bref (2-3 phrases)."
-
-        # Si profil étendu disponible, personnaliser davantage
-        if extended_profile:
-            nom_trad = None
-            if 'identite' in extended_profile and 'prenoms_complets' in extended_profile['identite']:
-                nom_trad = extended_profile['identite']['prenoms_complets'].get('traditionnel')
-            if nom_trad:
-                welcome_instruction += f"\nTu peux utiliser son prénom usuel ({user_name}) ou son nom traditionnel ({nom_trad}) si tu le sens approprié."
-
-        system_prompt += welcome_instruction
-
-        welcome = self.llm.generate(
-            system_prompt=system_prompt,
-            messages=[{'role': 'user', 'content': '[Début de conversation]'}],
-            temperature=0.8,
-            max_tokens=200
-        )
-
-        return welcome
-
-    def _log_interaction(self, user_state: Optional[Dict] = None):
-        """Log anonymisé pour analytics."""
-        try:
-            import time
-            log_entry = {
-                'ts': time.time(),
-                'technique': 'conversational_therapy',
-                'scores': user_state if user_state else {},
-            }
-            with open(self.memory_path, 'a', encoding='utf-8') as f:
-                f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
-        except Exception as e:
-            logger.warning(f"Impossible de logger l'interaction: {e}")
-
-    def _log_crisis(self, message: str):
-        """Log les alertes de crise."""
-        try:
-            import time
-            alert_path = os.path.join(BASE_DIR, 'backend', 'ai-engine', 'alert_logs.jsonl')
-            with open(alert_path, 'a', encoding='utf-8') as f:
-                f.write(json.dumps({
-                    'ts': time.time(),
-                    'type': 'crisis_detection',
-                    'message_preview': message[:100]
-                }, ensure_ascii=False) + "\n")
-        except Exception as e:
-            logger.error(f"CRITIQUE: Impossible de logger l'alerte de crise: {e}")
-
-    # ========================================================================
-    # MÉTHODES DE COMPATIBILITÉ (pour main.py existant)
-    # ========================================================================
-
-    def run_pipeline(self, user_state: Dict[str, Any], policy: Dict[str, Any], extended_profile: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """
-        Point d'entrée compatible avec l'ancien code.
-
-        Args:
-            user_state: État émotionnel de l'utilisateur
-            policy: Politique de conversation (inclut l'historique)
-            extended_profile: Profil étendu (spirituel, transgénérationnel, numérologie, etc.)
-        """
-        user_name = user_state.get('user_name', 'ami')
-
-        # Récupérer l'historique de conversation
-        conversation_context = policy.get('conversation_context', {})
-        messages = conversation_context.get('messages', [])
-
-        # Extraire le dernier message utilisateur
-        last_user_message = ""
-        for msg in reversed(messages):
-            if msg.get('role') == 'user':
-                last_user_message = msg.get('content', '')
-                break
-
-        # S'assurer que last_user_message est dans user_state pour la détection de techniques
-        if last_user_message and not user_state.get('last_user_message'):
-            user_state['last_user_message'] = last_user_message
-
-        # Générer la réponse (avec profil étendu si disponible)
-        result = self.generate_response(
-            user_message=last_user_message,
-            conversation_history=messages,
-            user_name=user_name,
-            user_state=user_state,
-            extended_profile=extended_profile
-        )
-
-        # Format de retour compatible
-        return {
-            'text': result['text'],
-            'intention_id': 'conversational',
-            'technique': result.get('technique_used', 'conversational_therapy'),
-            'source': 'claude_direct',
-            'prompt_used': None,
-            'model_used': result.get('model_used', 'claude-sonnet-4-5'),
-            'emotion_context': {
-                'detresse': user_state.get('detresse', 50),
-                'espoir': user_state.get('espoir', 50),
-                'energie': user_state.get('energie', 50),
-                'phase': user_state.get('phase', 'exploration')
-            },
-            'rag_info': None,
-            'crisis_detected': result.get('crisis_detected', False)
-        }
-
-    def run_pipeline_stream(self, user_state, policy, extended_profile=None):
-        """Version streaming de run_pipeline. Yield chaque chunk de texte."""
-        user_name = user_state.get('user_name', 'ami')
-        conversation_context = policy.get('conversation_context', {})
-        messages = conversation_context.get('messages', [])
-
-        last_user_message = ""
-        for msg in reversed(messages):
-            if msg.get('role') == 'user':
-                last_user_message = msg.get('content', '')
-                break
-
-        if last_user_message and not user_state.get('last_user_message'):
-            user_state['last_user_message'] = last_user_message
-
-        yield from self.generate_response_stream(
-            user_message=last_user_message,
-            conversation_history=messages,
-            user_name=user_name,
-            user_state=user_state,
-            extended_profile=extended_profile
-        )
+            lines.append("2. Nommer la redistribution : \"Depuis son départ, qui a rep
