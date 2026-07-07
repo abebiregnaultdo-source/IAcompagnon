@@ -205,6 +205,35 @@ export async function deleteUserData(userId) {
 }
 
 // =============================================
+// SESSION COUNT HELPER
+// =============================================
+
+/**
+ * Incrémente session_count dans le profil utilisateur.
+ * Appelé au début de chaque nouvelle conversation.
+ * Retourne le nouveau compteur.
+ */
+export async function incrementSessionCount(userId) {
+  // Récupérer la valeur actuelle
+  const profile = await getProfile(userId);
+  const current = profile?.session_count || 0;
+  const next = current + 1;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ session_count: next, updated_at: new Date().toISOString() })
+    .eq('id', userId)
+    .select('session_count')
+    .single();
+
+  if (error) {
+    console.warn('[HELO] incrementSessionCount:', error.message);
+    return next; // Retourner quand même la valeur calculée
+  }
+  return data?.session_count || next;
+}
+
+// =============================================
 // JOURNAL HELPERS
 // =============================================
 

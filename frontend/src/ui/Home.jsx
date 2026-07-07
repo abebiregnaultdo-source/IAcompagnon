@@ -3,7 +3,6 @@ import Logo from "./components/Logo";
 import UserMenu from "./components/UserMenu";
 import SubscriptionBanner from "./components/SubscriptionBanner";
 import MantrasQuickAccess from "./components/MantrasQuickAccess";
-import AppFooter from "./components/AppFooter";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 
 /**
@@ -359,14 +358,74 @@ export default function Home({
           </div>
         )}
 
-        {/* Footer discret */}
+        {/* Footer avec liens légaux + Réglages */}
         <div
           style={{
             marginTop: "auto",
-            paddingTop: "24px",
+            paddingTop: "32px",
             textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "12px",
           }}
         >
+          {/* Réglages (accès rapide) */}
+          <button
+            onClick={onOpenSettings}
+            onMouseEnter={(e) => e.currentTarget.style.color = "#5a6068"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "#7a8490"}
+            style={{
+              padding: "8px 16px",
+              border: "none",
+              background: "transparent",
+              color: "#7a8490",
+              fontSize: "13px",
+              cursor: "pointer",
+              transition: "color 0.3s ease",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <span style={{ fontSize: "14px" }}>⚙️</span> Réglages
+          </button>
+
+          {/* Liens légaux */}
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              flexWrap: "wrap",
+              justifyContent: "center",
+            }}
+          >
+            {[
+              { label: "CGV", key: "cgv" },
+              { label: "Confidentialité", key: "confidentialite" },
+              { label: "Mentions légales", key: "mentions" },
+            ].map(({ label, key }) => (
+              <button
+                key={key}
+                onClick={() => onOpenLegal?.(key)}
+                onMouseEnter={(e) => e.currentTarget.style.color = "#5a6068"}
+                onMouseLeave={(e) => e.currentTarget.style.color = "#a0a8b4"}
+                style={{
+                  padding: "4px 8px",
+                  border: "none",
+                  background: "transparent",
+                  color: "#a0a8b4",
+                  fontSize: "12px",
+                  cursor: "pointer",
+                  transition: "color 0.3s ease",
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Déconnexion */}
           <button
             onClick={onLogout}
             onMouseEnter={(e) => e.currentTarget.style.color = "#5a6068"}
@@ -384,9 +443,6 @@ export default function Home({
             Se déconnecter
           </button>
         </div>
-
-        {/* Pied de page : accès permanent Réglages + pages légales */}
-        <AppFooter onOpenSettings={onOpenSettings} onOpenLegal={onOpenLegal} />
       </div>
 
       {/* Modal Mantras */}

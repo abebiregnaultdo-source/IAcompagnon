@@ -2,7 +2,7 @@
  * Feedback visuel subtil selon l'état émotionnel
  * Change subtilement l'ambiance visuelle sans être intrusif
  */
-export default function EmotionalFeedback({ state = "calm", children }) {
+export default function EmotionalFeedback({ state = "calm", children, footer = null }) {
   const getBackgroundGradient = () => {
     switch (state) {
       case "distress":
@@ -45,6 +45,7 @@ export default function EmotionalFeedback({ state = "calm", children }) {
       />
 
       {children}
+      {footer}
     </div>
   );
 }

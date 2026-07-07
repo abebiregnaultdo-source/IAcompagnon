@@ -7,7 +7,7 @@ import Text from "./components/Text";
 import Panel from "./components/Panel";
 import ContextualSuggestion from "./creativity/ContextualSuggestion";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
-import { saveConversation, getConversations, updateProfile } from "../lib/supabase";
+import { saveConversation, getConversations, updateProfile, incrementSessionCount } from "../lib/supabase";
 
 // ============================================================================
 // SYNTHÈSE VOCALE - Text-to-Speech natif du navigateur
@@ -183,9 +183,12 @@ export default function Chat({
     }
   };
 
-  // Track session start
+  // Track session start + incrémenter session_count (nouvelle conversation uniquement)
   useEffect(() => {
     trackSession("session_start");
+    if (!resumeSessionId && user?.id) {
+      incrementSessionCount(user.id).catch(() => {});
+    }
     return () => {
       trackSession("session_end");
       stop(); // Arrêter la synthèse vocale
@@ -516,6 +519,7 @@ export default function Chat({
       profile: {
         first_name: user.first_name,
         user_id_hash: user.id,
+        session_count: user.session_count || 1,
         extended_profile: user.extended_profile || null,
         conversation_memory: conversationMemory
       },

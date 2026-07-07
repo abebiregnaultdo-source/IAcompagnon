@@ -68,7 +68,7 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
       first_name: firstName || "Ami",
       tone: rhythm === 1 ? "lent" : rhythm === 3 ? "enveloppant" : "neutre",
       rhythm: rhythm,
-      active_module: "grief",
+      active_module: "general",
       onboarding_completed: true,
       // Motif d'entrée (facultatif) : premier ancrage du contexte de vie.
       // Réinjecté dès le message d'accueil pour personnaliser le 1er échange.

@@ -21,6 +21,7 @@ import AdminDashboard from "./AdminDashboard";
 import ResetPassword from "./ResetPassword";
 import Logo from "./components/Logo";
 import EmotionalFeedback from "./components/EmotionalFeedback";
+import AppFooter from "./components/AppFooter";
 import { useDeviceClass } from "../hooks/useDeviceDetection";
 import { supabase, getProfile, updateProfile, signOut } from "../lib/supabase";
 
@@ -287,6 +288,19 @@ export default function App() {
     // Sinon, l'onboarding s'affichera automatiquement
   };
 
+  // Footer commun aux vues internes (Réglages + pages légales, accessibles partout).
+  const appFooter = (
+    <div className="container">
+      <AppFooter
+        onOpenSettings={() => {
+          setShowHome(false);
+          setShowSettings(true);
+        }}
+        onOpenLegal={(page) => setShowLegalPage(page)}
+      />
+    </div>
+  );
+
   // Show landing page first
   if (showLanding) {
     return (
@@ -405,7 +419,7 @@ export default function App() {
   // Afficher la page d'accueil (Home)
   if (showHome && user) {
     return (
-      <EmotionalFeedback state="calm">
+      <EmotionalFeedback state="calm" footer={appFooter}>
         <Home
           user={user}
           onStartConversation={() => {
@@ -575,7 +589,7 @@ export default function App() {
   // Afficher le dashboard si demandé
   if (showDashboard && user) {
     return (
-      <EmotionalFeedback state="calm">
+      <EmotionalFeedback state="calm" footer={appFooter}>
         <div className="container">
           <button
             onClick={() => {
@@ -618,7 +632,7 @@ export default function App() {
   // Afficher la bibliothèque si demandé
   if (showLibrary) {
     return (
-      <EmotionalFeedback state="calm">
+      <EmotionalFeedback state="calm" footer={appFooter}>
         <Library
           onBackToHome={() => {
             setShowLibrary(false);
@@ -632,7 +646,7 @@ export default function App() {
   // Afficher la créativité si demandé
   if (showCreativity) {
     return (
-      <EmotionalFeedback state="calm">
+      <EmotionalFeedback state="calm" footer={appFooter}>
         <Creativity
           user={user}
           api={api}
@@ -648,7 +662,7 @@ export default function App() {
   // Afficher le journal des rêves si demandé
   if (showDreams) {
     return (
-      <EmotionalFeedback state="calm">
+      <EmotionalFeedback state="calm" footer={appFooter}>
         <DreamJournal
           user={user}
           onBack={() => {
@@ -663,7 +677,7 @@ export default function App() {
   // Afficher le profil spirituel si demandé
   if (showSpiritualProfile) {
     return (
-      <EmotionalFeedback state="calm">
+      <EmotionalFeedback state="calm" footer={appFooter}>
         <SpiritualProfile
           user={user}
           onBack={() => {
@@ -678,7 +692,7 @@ export default function App() {
   // Afficher les ressources si demandé
   if (showResources) {
     return (
-      <EmotionalFeedback state="calm">
+      <EmotionalFeedback state="calm" footer={appFooter}>
         <Resources
           onBack={() => {
             setShowResources(false);
