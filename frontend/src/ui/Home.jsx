@@ -20,6 +20,7 @@ export default function Home({
   onOpenDreams,
   onOpenSpiritualProfile,
   onOpenLegal,
+  onOpenPricing,
   onLogout,
 }) {
   const device = useDeviceDetection();
@@ -111,7 +112,7 @@ export default function Home({
       >
         {/* Subscription banner */}
         <div style={{ marginBottom: "24px" }}>
-          <SubscriptionBanner userId={user?.id} createdAt={user?.created_at} />
+          <SubscriptionBanner userId={user?.id} createdAt={user?.created_at} onOpenPricing={onOpenPricing} />
         </div>
 
         {/* Header */}
@@ -358,84 +359,59 @@ export default function Home({
           </div>
         )}
 
-        {/* Footer avec liens légaux + Réglages */}
+        {/* Footer discret — liens légaux + déconnexion */}
         <div
           style={{
             marginTop: "auto",
-            paddingTop: "32px",
+            paddingTop: "36px",
             textAlign: "center",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            gap: "12px",
+            gap: "8px",
           }}
         >
-          {/* Réglages (accès rapide) */}
-          <button
-            onClick={onOpenSettings}
-            onMouseEnter={(e) => e.currentTarget.style.color = "#5a6068"}
-            onMouseLeave={(e) => e.currentTarget.style.color = "#7a8490"}
-            style={{
-              padding: "8px 16px",
-              border: "none",
-              background: "transparent",
-              color: "#7a8490",
-              fontSize: "13px",
-              cursor: "pointer",
-              transition: "color 0.3s ease",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
-            <span style={{ fontSize: "14px" }}>⚙️</span> Réglages
-          </button>
-
-          {/* Liens légaux */}
-          <div
-            style={{
-              display: "flex",
-              gap: "16px",
-              flexWrap: "wrap",
-              justifyContent: "center",
-            }}
-          >
+          {/* Ligne légale : CGV · Confidentialité · Mentions */}
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             {[
               { label: "CGV", key: "cgv" },
               { label: "Confidentialité", key: "confidentialite" },
               { label: "Mentions légales", key: "mentions" },
-            ].map(({ label, key }) => (
-              <button
-                key={key}
-                onClick={() => onOpenLegal?.(key)}
-                onMouseEnter={(e) => e.currentTarget.style.color = "#5a6068"}
-                onMouseLeave={(e) => e.currentTarget.style.color = "#a0a8b4"}
-                style={{
-                  padding: "4px 8px",
-                  border: "none",
-                  background: "transparent",
-                  color: "#a0a8b4",
-                  fontSize: "12px",
-                  cursor: "pointer",
-                  transition: "color 0.3s ease",
-                }}
-              >
-                {label}
-              </button>
+            ].map(({ label, key }, i) => (
+              <span key={key} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                {i > 0 && <span style={{ color: "#c8cdd3", fontSize: "10px" }}>·</span>}
+                <button
+                  onClick={() => onOpenLegal?.(key)}
+                  onMouseEnter={(e) => e.currentTarget.style.color = "#7a8490"}
+                  onMouseLeave={(e) => e.currentTarget.style.color = "#b8bfc7"}
+                  style={{
+                    padding: 0,
+                    border: "none",
+                    background: "transparent",
+                    color: "#b8bfc7",
+                    fontSize: "11px",
+                    cursor: "pointer",
+                    transition: "color 0.3s ease",
+                    letterSpacing: "0.01em",
+                  }}
+                >
+                  {label}
+                </button>
+              </span>
             ))}
           </div>
 
           {/* Déconnexion */}
           <button
             onClick={onLogout}
-            onMouseEnter={(e) => e.currentTarget.style.color = "#5a6068"}
-            onMouseLeave={(e) => e.currentTarget.style.color = "#a0a8b4"}
+            onMouseEnter={(e) => e.currentTarget.style.color = "#7a8490"}
+            onMouseLeave={(e) => e.currentTarget.style.color = "#b8bfc7"}
             style={{
-              padding: "8px 16px",
+              padding: "6px 12px",
               border: "none",
               background: "transparent",
-              color: "#a0a8b4",
-              fontSize: "13px",
+              color: "#b8bfc7",
+              fontSize: "11px",
               cursor: "pointer",
               transition: "color 0.3s ease",
             }}

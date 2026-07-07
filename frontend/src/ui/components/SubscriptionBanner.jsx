@@ -14,7 +14,7 @@ function computeTrialFromCreatedAt(createdAt) {
   return { status: 'trial', days_remaining: remaining };
 }
 
-export default function SubscriptionBanner({ userId, createdAt }) {
+export default function SubscriptionBanner({ userId, createdAt, onOpenPricing }) {
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -55,7 +55,7 @@ export default function SubscriptionBanner({ userId, createdAt }) {
               <strong>Votre essai se termine dans {daysLeft} jour{daysLeft > 1 ? 's' : ''}</strong>
               <p>Choisissez votre formule pour continuer votre accompagnement</p>
             </div>
-            <a href="/pricing" className="banner-button">Choisir ma formule</a>
+            <button type="button" onClick={() => onOpenPricing && onOpenPricing()} className="banner-button">Choisir ma formule</button>
           </div>
         </div>
       );
@@ -77,7 +77,7 @@ export default function SubscriptionBanner({ userId, createdAt }) {
             <strong>Votre essai est terminé</strong>
             <p>Votre compte est en lecture seule. Choisissez une formule pour reprendre.</p>
           </div>
-          <a href="/pricing" className="banner-button">Voir les formules</a>
+          <button type="button" onClick={() => onOpenPricing && onOpenPricing()} className="banner-button">Voir les formules</button>
         </div>
       </div>
     );

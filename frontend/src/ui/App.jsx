@@ -419,7 +419,7 @@ export default function App() {
   // Afficher la page d'accueil (Home)
   if (showHome && user) {
     return (
-      <EmotionalFeedback state="calm" footer={appFooter}>
+      <EmotionalFeedback state="calm">
         <Home
           user={user}
           onStartConversation={() => {
@@ -456,6 +456,10 @@ export default function App() {
             setShowSpiritualProfile(true);
           }}
           onOpenLegal={(page) => setShowLegalPage(page)}
+          onOpenPricing={() => {
+            setShowHome(false);
+            setShowPricing(true);
+          }}
           onLogout={handleLogout}
         />
       </EmotionalFeedback>
