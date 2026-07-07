@@ -47,7 +47,7 @@ except ImportError:
 # PROMPT SYSTÈME THÉRAPEUTIQUE EXPERT
 # ============================================================================
 
-THERAPEUTIC_SYSTEM_PROMPT = """Tu es Helō, un compagnon thérapeutique spécialisé dans l'accompagnement du deuil.
+THERAPEUTIC_SYSTEM_PROMPT = """Tu es Helō, un compagnon thérapeutique dont le cœur de métier est l'accompagnement du deuil — mais tu suis la personne partout où sa souffrance la mène (anxiété, conflits familiaux, perte de sens, peurs).
 
 ## TON IDENTITÉ CLINIQUE
 Tu n'es PAS un chatbot empathique générique. Tu es un compagnon formé et tu APPLIQUES activement les approches suivantes :
@@ -118,13 +118,31 @@ Tu ne te contentes PAS de valider les émotions. Tu INTERVIENS thérapeutiquemen
 - Jamais de conseils directifs ("tu devrais"), de minimisation ("ça va aller"), de comparaison ("d'autres ont vécu pire")
 - Jamais "je comprends exactement" — tu accompagnes, tu ne prétends pas ressentir
 
+### LIRE LE MOMENT (le cœur de ton intelligence)
+Tu n'imposes JAMAIS un cadre de "séance". Tu es disponible à n'importe quel instant — c'est ta valeur : un accompagnant sous la main, à 3h du matin comme un dimanche après-midi. Tu ne dis jamais "commençons la séance" ni "faisons d'abord le tour". Tu réponds à ce que CE moment demande :
+- **Quelqu'un qui panique, une activation corporelle, une détresse aiguë** → tu stabilises TOUT DE SUITE (ancrage, respiration). Pas d'exploration, pas de synthèse.
+- **Quelqu'un qui dépose, raconte, explore** → tu accompagnes l'exploration. Tu ne sautes PAS sur une technique à chaque message. Tu laisses venir.
+- **Quelqu'un qui a fait le tour et revient sur les mêmes thèmes** → c'est le moment du REFLET STRUCTURANT (voir ci-dessous). Pas avant.
+Le contexte "MATURITÉ DE LA CONVERSATION" plus bas te donne les faits (thèmes déposés, si du neuf apparaît encore). À TOI de lire ce qu'ils signifient. Ce sont des repères, pas des ordres.
+
+### LE REFLET STRUCTURANT (ce que fait un bon thérapeute quand il a "fait le tour")
+Ce n'est PAS une étape obligatoire. C'est un geste qui émerge naturellement quand tu as accumulé assez de matière — plusieurs thèmes déposés, et la personne qui commence à y revenir sans apporter de neuf. Alors, comme un ami thérapeute qui sait quand il a assez compris, tu offres un miroir :
+> "De ce que tu me dis, j'entends deux choses : [thème A] et [thème B]. Qu'est-ce qui te pèse le plus, en ce moment ?"
+Puis tu LAISSES la personne choisir la direction. C'est elle qui décide de ce qu'on travaille, jamais le système. Ce reflet ouvre le travail ciblé — il ne le referme pas.
+
 ### SÉCURITÉ
 - Idées suicidaires ou automutilation → Prends au sérieux, demande s'il est en sécurité, mentionne le 3114 (24h/24)
 
+### CHAMP D'ACCOMPAGNEMENT
+Le deuil est ton cœur de métier, mais ce n'est pas une cloison. Le deuil se mêle presque toujours à autre chose : anxiété anticipatoire, conflits familiaux, perte de sens, peurs corporelles, décisions de vie difficiles. Suis la personne là où sa souffrance la mène, même si ça sort du deuil au sens strict. Ne ramène jamais de force au deuil ce qui n'en relève pas.
+
 ### STYLE
 - Utilise "tu" et le prénom
-- 3-6 phrases quand tu appliques une technique (reformulation + psychoéducation + question ouverte = minimum 3 phrases)
-- 2-3 phrases SEULEMENT pour un silence thérapeutique ou un simple reflet
+- La LONGUEUR suit le moment, pas une règle fixe :
+  - Un simple reflet ou un silence thérapeutique → une à deux phrases, parfois quelques mots
+  - Une psychoéducation qui déresponsabilise ("ce n'est pas toi qui échoues, le mental fonctionne comme ça") → déploie-toi autant qu'il le faut, un paragraphe si le moment le porte
+  - Un exercice guidé (ancrage, respiration) → étape par étape, au rythme de la personne
+  - MAIS jamais un mur de texte d'un coup sur quelqu'un en détresse : c'est anxiogène. Découpe, respire, laisse de l'espace.
 - Ton chaleureux, pas mielleux
 - Pas de formules toutes faites, pas d'emojis sauf si l'utilisateur en utilise
 
@@ -148,6 +166,90 @@ Tu NE FAIS PAS toujours : validation → question ouverte. Tu alternes activemen
 
 Ne te contente JAMAIS de 3 validations empathiques d'affilée. Si tu as validé, AVANCE : nomme, propose, externalise, interviens.
 """
+
+
+# ============================================================================
+# MATURITÉ CONVERSATIONNELLE
+# ============================================================================
+# Ces signaux ne PORTENT AUCUN JUGEMENT. Ils comptent et rapportent des faits
+# (thèmes déposés, nouveauté vs répétition) que Sonnet 4.5 interprète lui-même
+# dans le prompt principal. L'extraction est bête ; le discernement est au LLM.
+# On réutilise les mêmes keywords que _get_technique_protocol pour ne pas diverger.
+
+# Table centrale : thème thérapeutique → mots-clés déclencheurs.
+THEME_KEYWORDS: Dict[str, List[str]] = {
+    "continuing_bonds": ['me manque', 'son absence', 'sa présence', 'sentir proche', 'je lui parle', 'lui parler', 'je lui dis', 'entendre sa voix', 'rituel', 'anniversaire', 'commémor', 'près de moi', 'rêvé de', 'je le sens', 'je la sens'],
+    "journaling": ['aurais voulu dire', 'aurais dû', 'pas dit', 'regret', 'pardonn', 'si seulement', 'lettre'],
+    "narrative": ['ma vie est finie', 'je ne suis plus', 'plus rien sans', 'rien sans', 'je ne sais plus qui je suis', 'invisible', 'je fais semblant'],
+    "act_defusion": ['je suis nul', 'je suis incapable', "c'est impossible", 'je ne vaux', 'je ne peux pas', 'détruit', 'brisé', 'cassé', 'plus jamais', 'je suis mort', 'au bout du rouleau', 'ça me bouffe', 'ça me ronge', 'ça me détruit'],
+    "act_acceptation": ['éviter', 'évite', 'fuir', 'fuis', 'fuit', 'oublier', 'oublie', 'ne pas penser', 'ne plus penser', 'distraire', 'bloquer', 'bloque'],
+    "act_valeurs": ['à quoi bon', 'quel sens', 'pourquoi continuer', 'pourquoi je', 'plus de sens', 'vide'],
+    "systemic": ['ma famille', 'entre nous', 'on ne se parle plus', 'tout porter', 'être fort pour', 'fort pour les autres', 'interdit de pleurer', 'pas le droit de', 'on ne pleure pas', 'dans ma famille', 'tensions dans', 'conflit famili', 'hérité du rôle', 'je dois être le', 'loyauté', 'parentifié', 'mes frères et sœurs', "la famille s'est", 'famille éclatée', 'chacun dans son coin'],
+    "somatic": ['boule au ventre', 'ventre noué', 'nœud', 'tremble', 'trembler', "cœur qui s'emballe", 'cœur bat', 'suffoque', 'respire plus', 'peux plus respirer', 'souffle coupé', 'oppression', 'tendu dans', 'corps tendu', 'muscles', 'contracté', 'mal au ventre', 'mal à la tête', 'vertige', 'panique'],
+    "anger": ['colère', 'en colère', 'rage', 'furieux', 'furieuse', 'injuste', 'injustice', 'révolte', 'révolté', 'pas juste', "c'est dégueulasse", 'scandaleux', 'haine', 'déteste'],
+}
+
+# Étiquettes lisibles pour le prompt (ce que le LLM lit).
+THEME_LABELS: Dict[str, str] = {
+    "continuing_bonds": "lien avec la personne absente",
+    "journaling": "non-dits / regrets",
+    "narrative": "identité fusionnée avec la perte",
+    "act_defusion": "pensées douloureuses envahissantes",
+    "act_acceptation": "évitement de l'émotion",
+    "act_valeurs": "quête de sens",
+    "systemic": "dynamique familiale",
+    "somatic": "activation corporelle",
+    "anger": "colère",
+}
+
+
+def detect_themes(message: str) -> set:
+    """Extrait les thèmes thérapeutiques présents dans un message (aucun jugement)."""
+    if not message:
+        return set()
+    msg_lower = message.lower()
+    return {
+        theme for theme, keywords in THEME_KEYWORDS.items()
+        if any(kw in msg_lower for kw in keywords)
+    }
+
+
+def compute_conversation_maturity(
+    conversation_history: List[Dict[str, str]],
+    last_message: str,
+) -> Dict[str, Any]:
+    """
+    Calcule des signaux BRUTS de maturité conversationnelle.
+
+    Ne décide RIEN. Rapporte : quels thèmes ont été déposés sur la session,
+    combien sont distincts, si le dernier message apporte du neuf, et depuis
+    combien de tours rien de neuf n'émerge. Sonnet 4.5 interprète ces faits.
+    """
+    user_msgs = [m.get('content', '') for m in conversation_history if m.get('role') == 'user']
+    if last_message and (not user_msgs or user_msgs[-1] != last_message):
+        user_msgs = user_msgs + [last_message]
+
+    themes_cumules: set = set()
+    tours_sans_nouveaute = 0
+    nouveaux_ce_tour: set = set()  # thèmes jamais vus avant, apparus au DERNIER message
+    for i, msg in enumerate(user_msgs):
+        themes_avant = set(themes_cumules)
+        nouveaux = detect_themes(msg) - themes_cumules
+        if nouveaux:
+            themes_cumules |= nouveaux
+            tours_sans_nouveaute = 0
+        elif themes_cumules:
+            # On ne compte "sans nouveauté" qu'une fois qu'au moins un thème existe.
+            tours_sans_nouveaute += 1
+        if i == len(user_msgs) - 1:
+            nouveaux_ce_tour = detect_themes(msg) - themes_avant
+
+    return {
+        "themes_cumules": sorted(themes_cumules),
+        "nb_themes_distincts": len(themes_cumules),
+        "themes_nouveaux_ce_tour": sorted(nouveaux_ce_tour),
+        "tours_sans_nouveaute": tours_sans_nouveaute,
+    }
 
 
 # ============================================================================
@@ -407,7 +509,7 @@ class TherapeuticEngine:
         # 2. Construire le prompt personnalisé (avec profil étendu si disponible)
         # Compter les échanges utilisateur pour la progression thérapeutique
         user_msg_count = sum(1 for m in conversation_history if m.get('role') == 'user')
-        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count)
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count, conversation_history, user_message)
 
         # 3. Construire les messages (historique + nouveau message)
         messages = list(conversation_history)  # Copie
@@ -451,7 +553,7 @@ class TherapeuticEngine:
             return
 
         user_msg_count = sum(1 for m in conversation_history if m.get('role') == 'user')
-        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count)
+        system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count, conversation_history, user_message)
         messages = list(conversation_history)
         if user_message:
             if not messages or messages[-1].get('content') != user_message:
@@ -471,7 +573,9 @@ class TherapeuticEngine:
         user_name: str,
         user_state: Optional[Dict] = None,
         extended_profile: Optional[Dict] = None,
-        user_msg_count: int = 0
+        user_msg_count: int = 0,
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        last_message: str = ""
     ) -> str:
         """Construit le prompt système personnalisé."""
         prompt = THERAPEUTIC_SYSTEM_PROMPT
@@ -479,36 +583,42 @@ class TherapeuticEngine:
         # Ajouter le contexte utilisateur
         context_lines = [f"\n\n## CONTEXTE UTILISATEUR\n- Prénom: {user_name}"]
 
-        # Progression thérapeutique basée sur le nombre d'échanges
-        # MAIS les techniques s'activent dès qu'un besoin est détecté, quelle que soit la phase
-        technique_lines = self._get_technique_protocol(user_state, user_msg_count)
+        # Maturité conversationnelle : des FAITS pour que Claude lise le moment.
+        # (thèmes déposés, nouveauté vs répétition — aucun jugement ici)
+        if conversation_history is not None:
+            maturity = compute_conversation_maturity(conversation_history, last_message)
+            nb = maturity["nb_themes_distincts"]
+            if nb > 0:
+                labels = [THEME_LABELS.get(t, t) for t in maturity["themes_cumules"]]
+                context_lines.append("\n### MATURITÉ DE LA CONVERSATION")
+                context_lines.append(f"- Thèmes déposés jusqu'ici ({nb}) : {', '.join(labels)}")
+                nouveaux = maturity["themes_nouveaux_ce_tour"]
+                if nouveaux:
+                    context_lines.append(f"- Ce tour apporte du neuf : {', '.join(THEME_LABELS.get(t, t) for t in nouveaux)}. La personne explore encore — accompagne, ne précipite pas.")
+                else:
+                    context_lines.append(f"- Ce tour n'apporte pas de thème neuf (revient sur l'existant depuis {maturity['tours_sans_nouveaute']} tour(s)).")
+                # Seuil léger 2+2 : suggérer la synthèse, sans l'imposer. Claude décide.
+                if nb >= 2 and maturity["tours_sans_nouveaute"] >= 2:
+                    context_lines.append(f"→ La personne a déposé plusieurs thèmes et commence à y revenir. C'est peut-être le moment d'un REFLET STRUCTURANT : nomme ce que tu entends (\"De ce que tu me dis, il y a {labels[0]} et {labels[1] if len(labels) > 1 else '...'}\") et laisse-la CHOISIR ce qui pèse le plus. Ne l'impose pas si le fil appelle autre chose.")
+
+        # Ancienneté de l'échange : simple repère factuel, PAS une phase imposée.
+        # (La décision de quand intervenir revient à "LIRE LE MOMENT" dans le prompt.)
+        technique_lines = self._get_technique_protocol(user_state, user_msg_count) or []
         has_technique_signal = len(technique_lines) > 0
 
         if user_msg_count <= 2:
-            context_lines.append(f"\n### PHASE DE CONVERSATION: Accueil (message {user_msg_count})")
-            context_lines.append("→ Priorité : écoute active, validation, comprendre la situation.")
-            if has_technique_signal:
-                context_lines.append("→ Un signal thérapeutique est détecté (voir ci-dessous). APPLIQUE la technique dès maintenant : valide l'émotion PUIS interviens (reformulation, psychoéducation douce, question ouverte). N'attends pas un message ultérieur.")
-                context_lines.extend(technique_lines)
-            else:
-                context_lines.append("→ Aucune technique spécifique détectée. Écoute active et questions ouvertes pour comprendre la situation.")
+            context_lines.append("\n### OÙ EN EST L'ÉCHANGE\n- C'est le tout début de l'échange — tu découvres encore la situation.")
         elif user_msg_count <= 5:
-            context_lines.append(f"\n### PHASE DE CONVERSATION: Approfondissement (message {user_msg_count})")
-            context_lines.append("→ Tu peux nommer les mécanismes, faire de la psychoéducation, refléter des patterns.")
-            context_lines.append("→ Tu peux commencer à PROPOSER des techniques douces (reformulation TCC, externalisation narrative) sans forcer.")
-            if has_technique_signal:
-                context_lines.append("→ Signal thérapeutique détecté. Tu peux proposer l'approche ci-dessous de manière douce ('est-ce que tu voudrais essayer quelque chose ?').")
-                context_lines.extend(technique_lines)
+            context_lines.append("\n### OÙ EN EST L'ÉCHANGE\n- L'échange s'installe — tu commences à avoir de la matière.")
         else:
-            context_lines.append(f"\n### PHASE DE CONVERSATION: Techniques & outils (message {user_msg_count})")
-            context_lines.append("→ Tu peux proposer des exercices concrets et GUIDER pas à pas si la personne accepte.")
-            context_lines.append("→ Ne reste PAS en mode écoute pure. Interviens activement avec les techniques ci-dessous.")
-            # Toujours injecter les protocoles en phase 3
-            if has_technique_signal:
-                context_lines.extend(technique_lines)
-            else:
-                # Même sans signal fort, encourager l'intervention active
-                context_lines.append("→ Même si aucune technique spécifique n'est détectée, utilise activement TCC (reformulation des distorsions), ACT (clarification de valeurs), ou thérapie narrative (externalisation) selon ce que la personne exprime.")
+            context_lines.append("\n### OÙ EN EST L'ÉCHANGE\n- L'échange dure — tu as accumulé du contexte sur cette personne.")
+
+        # La technique détectée est une RESSOURCE, jamais un ordre. Claude décide
+        # si le moment s'y prête (voir "LIRE LE MOMENT"). On ne pousse rien.
+        if has_technique_signal:
+            context_lines.append("\n### RESSOURCE THÉRAPEUTIQUE DISPONIBLE")
+            context_lines.append("Le contenu du message évoque le thème ci-dessous. Utilise cette approche SI le moment s'y prête — après avoir validé, si la personne est prête, si le fil l'appelle. Ne la force pas, ne la plaque pas mécaniquement.")
+            context_lines.extend(technique_lines)
 
         if user_state:
             detresse = user_state.get('detresse', 50)
