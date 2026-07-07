@@ -704,6 +704,16 @@ class TherapeuticEngine:
         # Intégrer le profil étendu (spirituel/transgénérationnel) si disponible
         if extended_profile:
             context_lines.append("\n## PROFIL APPROFONDI DE L'UTILISATEUR")
+            context_lines.append(
+                "⚠️ RÈGLE ABSOLUE sur ce profil : ces éléments (spiritualité, astrologie, "
+                "numérologie, divination, lignées) sont des REPÈRES SYMBOLIQUES que la personne "
+                "a fournis, PAS des vérités factuelles. Tu peux t'y référer avec délicatesse SI "
+                "la personne aborde ces registres, mais tu ne les présentes JAMAIS comme des "
+                "faits établis, tu n'INVENTES JAMAIS de signification, et tu ne brodes JAMAIS "
+                "au-delà de ce qui est écrit ici (ex : ne complète pas un signe divinatoire par "
+                "une interprétation que tu ne connais pas). Dans le doute, tu n'utilises pas ces "
+                "éléments. L'anti-hallucination prime sur tout."
+            )
 
             # Identité et lignées
             if 'identite' in extended_profile:
