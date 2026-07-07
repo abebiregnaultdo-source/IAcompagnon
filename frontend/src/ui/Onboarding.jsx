@@ -6,11 +6,12 @@ import ProgressIndicator from "./components/ProgressIndicator";
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-const STEPS = ["intro", "consent", "first_name", "rhythm", "done"];
+const STEPS = ["intro", "consent", "first_name", "rhythm", "reason", "done"];
 
 export default function Onboarding({ api, user, step, setStep, onReady }) {
   const [firstName, setFirstName] = useState(user?.first_name || "");
   const [rhythm, setRhythm] = useState(2);
+  const [reason, setReason] = useState("");
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -68,6 +69,10 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
       rhythm: rhythm,
       active_module: "grief",
       onboarding_completed: true,
+      // Motif d'entrée (facultatif) : premier ancrage du contexte de vie.
+      // Réinjecté dès le message d'accueil pour personnaliser le 1er échange.
+      // Respecte l'anti-hallucination : on n'enregistre QUE ce que la personne a écrit.
+      initial_reason: reason.trim() || null,
       preferences: {
         rhythm: rhythm,
         tone: rhythm === 1 ? "lent" : rhythm === 3 ? "enveloppant" : "neutre",
@@ -366,6 +371,66 @@ export default function Onboarding({ api, user, step, setStep, onReady }) {
               >
                 Plus de présence, plus d'accompagnement, plus de chaleur
               </div>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "reason" && (
+        <div className="slide-in">
+          <h2>Qu'est-ce qui vous amène vers HELŌ ?</h2>
+          <p
+            style={{
+              lineHeight: "var(--line-height-relaxed)",
+              color: "var(--color-text-secondary)",
+              marginBottom: "var(--space-xl)",
+            }}
+          >
+            Si vous le souhaitez, vous pouvez dire quelques mots sur ce que vous
+            traversez en ce moment. C'est une invitation, pas une obligation —
+            vous pouvez aussi répondre plus tard, dans la conversation.
+          </p>
+
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Ce que vous vivez, ce qui vous pèse, ce qui vous amène… avec vos mots."
+            rows={4}
+            disabled={isLoading}
+            style={{
+              width: "100%",
+              padding: "var(--space-lg)",
+              border: "1.5px solid var(--color-accent-calm)",
+              borderRadius: "var(--radius-md)",
+              background: "var(--color-surface-1)",
+              color: "var(--color-text-primary)",
+              fontFamily: "inherit",
+              fontSize: "var(--font-size-base)",
+              lineHeight: "var(--line-height-relaxed)",
+              resize: "vertical",
+              transition: "border-color var(--transition-fast)",
+              marginBottom: "var(--space-lg)",
+            }}
+          />
+
+          <div style={{ display: "flex", gap: "var(--space-md)", alignItems: "center" }}>
+            <Button onClick={next} disabled={isLoading}>
+              {isLoading ? "..." : "Continuer"}
+            </Button>
+            <button
+              onClick={next}
+              disabled={isLoading}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--color-text-tertiary)",
+                cursor: "pointer",
+                fontSize: "var(--font-size-sm)",
+                textDecoration: "underline",
+                padding: "var(--space-sm)",
+              }}
+            >
+              Passer pour l'instant
             </button>
           </div>
         </div>

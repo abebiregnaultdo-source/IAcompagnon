@@ -3,12 +3,16 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from typing import List, Literal, Dict, Any
+from typing import List, Literal, Dict, Any, Optional
 import os
 from dotenv import load_dotenv
 from .therapeutic_engine import TherapeuticEngine
 import json, time, logging
 from hashlib import sha256
+
+# Logger module-level (certaines fonctions le redéfinissent localement, mais on en
+# a besoin au niveau module pour les endpoints qui n'ont pas leur propre logger).
+logger = logging.getLogger(__name__)
 try:
     from cryptography.fernet import Fernet
 except Exception:
@@ -495,6 +499,10 @@ async def generate(req: GenerateRequest):
     conversation_memory = req.profile.get('conversation_memory')
     if conversation_memory:
         user_state['conversation_memory'] = conversation_memory
+    # Contexte de vie sédimenté (motif d'onboarding + faits durables extraits des sessions)
+    conversation_insights = req.profile.get('conversation_insights')
+    if conversation_insights:
+        user_state['conversation_insights'] = conversation_insights
     if req.profile.get('user_id_hash'):
         req.policy['user_id_hash'] = req.profile.get('user_id_hash')
 
@@ -706,6 +714,10 @@ async def generate_stream(req: GenerateRequest):
     conversation_memory = req.profile.get('conversation_memory')
     if conversation_memory:
         user_state['conversation_memory'] = conversation_memory
+    # Contexte de vie sédimenté (motif d'onboarding + faits durables extraits des sessions)
+    conversation_insights = req.profile.get('conversation_insights')
+    if conversation_insights:
+        user_state['conversation_insights'] = conversation_insights
     if req.profile.get('user_id_hash'):
         req.policy['user_id_hash'] = req.profile.get('user_id_hash')
 
@@ -1064,6 +1076,37 @@ async def analytics_track(req: AnalyticsEvent):
     except Exception:
         pass
     return { 'status': 'ok' }
+
+
+class SessionEndRequest(BaseModel):
+    messages: List[ChatMessage]
+    conversation_insights: Optional[Dict[str, Any]] = None  # insights existants du profil
+
+
+@app.post('/api/session/end')
+async def session_end(req: SessionEndRequest):
+    """
+    Fin de session : sédimentation du contexte de vie.
+
+    Extrait (via Haiku, conservateur strict) les faits de vie durables de la
+    conversation, les FUSIONNE avec les insights existants, et renvoie le nouveau
+    conversation_insights. Le frontend le persiste ensuite dans profiles.
+    Best-effort : ne bloque jamais, ne lève jamais côté client.
+    """
+    try:
+        from .insight_extractor import extract_insights
+        history = [{'role': m.role, 'content': m.content} for m in req.messages]
+        updated = extract_insights(
+            engine.llm,
+            history,
+            existing_insights=req.conversation_insights,
+        )
+        return {'status': 'ok', 'conversation_insights': updated}
+    except Exception as e:
+        logger.warning(f"session_end extraction failed: {e}")
+        # On renvoie l'existant inchangé plutôt qu'une erreur.
+        return {'status': 'ok', 'conversation_insights': req.conversation_insights}
+
 
 class CreativePromptsRequest(BaseModel):
     user_id: str

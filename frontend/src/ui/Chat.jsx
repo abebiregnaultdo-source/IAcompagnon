@@ -7,7 +7,7 @@ import Text from "./components/Text";
 import Panel from "./components/Panel";
 import ContextualSuggestion from "./creativity/ContextualSuggestion";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
-import { saveConversation, getConversations } from "../lib/supabase";
+import { saveConversation, getConversations, updateProfile } from "../lib/supabase";
 
 // ============================================================================
 // SYNTHÈSE VOCALE - Text-to-Speech natif du navigateur
@@ -133,6 +133,11 @@ export default function Chat({
   const lastResponseTimeRef = useRef(null);
   const messageCountRef = useRef(0);
   const lastTechniqueRef = useRef(null);
+  // ID stable de la conversation en cours → permet d'upsert la même ligne Supabase
+  // à chaque échange (au lieu de ne persister qu'au clic "nouvelle conversation").
+  const conversationIdRef = useRef(
+    typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now())
+  );
 
   const trackSession = async (eventType, extraData = {}) => {
     try {
@@ -369,6 +374,26 @@ export default function Chat({
         } catch (e) {
           // Silencieux
         }
+
+        // Persister aussi dans Supabase (fire-and-forget), pas seulement en localStorage.
+        // On ne pousse qu'à échange complet (dernière réponse de l'assistant reçue),
+        // pour éviter de spammer la base à chaque frappe. Upsert sur un id stable.
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg && lastMsg.role === "assistant") {
+          (async () => {
+            try {
+              await saveConversation(user.id, {
+                id: conversationIdRef.current,
+                messages,
+                summary: userMessages[0]?.content?.slice(0, 200) || null,
+                emotional_state: scores || null,
+              });
+            } catch (e) {
+              // Échec réseau/RLS → localStorage reste le filet de sécurité
+              console.error("[HELO] auto-save Supabase échoué:", e?.message || e);
+            }
+          })();
+        }
       }
     }
   }, [messages, user.id]);
@@ -398,15 +423,51 @@ export default function Chat({
       } catch (e) {
         // Silencieux
       }
-      // Sauvegarder dans Supabase en background (fire-and-forget)
+      // Finaliser la ligne Supabase de la session en cours (même id que l'auto-save),
+      // puis repartir sur un nouvel id pour la prochaine conversation.
+      const finishedId = conversationIdRef.current;
+      const endedMessages = messages;
       (async () => {
         try {
-          await saveConversation(user.id, conversation);
+          await saveConversation(user.id, {
+            id: finishedId,
+            messages: endedMessages,
+            summary: conversation.preview,
+            emotional_state: scores || null,
+          });
         } catch (e) {
           console.error("[HELO] Failed to save conversation to Supabase:", e);
         }
       })();
+
+      // Sédimentation du contexte de vie : extraction des faits durables en fin
+      // de session (fire-and-forget, hors chemin critique). Le résultat est
+      // persisté dans le profil pour que Helō "se souvienne" à la session suivante.
+      (async () => {
+        try {
+          const res = await fetch(api.base + "/api/session/end", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              messages: endedMessages
+                .filter(m => m.role === "user" || m.role === "assistant")
+                .map(m => ({ role: m.role, content: m.content })),
+              conversation_insights: user.conversation_insights || null,
+            }),
+          });
+          const data = await res.json();
+          if (data?.conversation_insights) {
+            await updateProfile(user.id, { conversation_insights: data.conversation_insights });
+            user.conversation_insights = data.conversation_insights; // maj locale
+          }
+        } catch (e) {
+          console.error("[HELO] Extraction insights (fin de session) échouée:", e);
+        }
+      })();
     }
+    // Nouvel id de conversation pour la session suivante
+    conversationIdRef.current =
+      typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
     // Effacer la session en cours
     localStorage.removeItem(`helo_chat_history_${user.id}`);
     setMessages([]);

@@ -206,6 +206,15 @@ export default function App() {
       onboarding_completed: true,
     };
 
+    // Motif d'entrée (facultatif) → premier insight du contexte de vie.
+    // Point de départ de la sédimentation : ce que la personne a nommé elle-même.
+    if (profileData.initial_reason) {
+      saveData.conversation_insights = {
+        initial_reason: profileData.initial_reason,
+        captured_at: new Date().toISOString(),
+      };
+    }
+
     // Fire-and-forget: retry en background, ne bloque JAMAIS la transition
     (async () => {
       let saved = false;
