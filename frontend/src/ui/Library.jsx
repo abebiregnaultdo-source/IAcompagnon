@@ -111,13 +111,13 @@ export default function Library({ onBackToHome }) {
     {
       id: 10,
       category: "article",
-      title: "Guide du deuil - Psycom",
+      title: "Les lignes d'écoute - Psycom",
       author: "Psycom (organisme public)",
       description:
-        "Guide complet et gratuit sur le deuil par l'organisme public d'information en santé mentale. Fiable et accessible.",
+        "Annuaire officiel et gratuit des lignes d'écoute en santé mentale, par l'organisme public d'information. Fiable et à jour.",
       type: "Guide",
-      url: "https://www.psycom.org/comprendre/le-deuil/",
-      tags: ["deuil", "gratuit", "officiel"],
+      url: "https://www.psycom.org/sorienter/les-lignes-decoute/",
+      tags: ["santé mentale", "gratuit", "officiel"],
     },
     {
       id: 11,
@@ -280,9 +280,9 @@ export default function Library({ onBackToHome }) {
       title: "RespiRelax+ (App gratuite)",
       author: "Thermes d'Allevard",
       description:
-        "Application gratuite de cohérence cardiaque. Guide respiratoire visuel. iOS et Android.",
+        "Application gratuite de cohérence cardiaque (4M+ téléchargements). Guide respiratoire visuel, utilisable hors ligne. Android et iOS.",
       type: "Application",
-      url: "https://www.thermes-allevard.com/respir-relax/",
+      url: "https://play.google.com/store/apps/details?id=com.thermesallevard.respi_relax",
       tags: ["app", "respiration", "gratuit"],
     },
     {
@@ -299,13 +299,13 @@ export default function Library({ onBackToHome }) {
     {
       id: 42,
       category: "outil",
-      title: "Mon Sherpa (Soutien psy)",
-      author: "Mon Sherpa",
+      title: "Owlie (Soutien psy gratuit)",
+      author: "Owlie le Chatbot",
       description:
-        "Application française d'auto-thérapie TCC. Exercices validés pour anxiété et dépression.",
+        "Chatbot de soutien psychologique gratuit, 24h/24, créé par des cliniciens. Une centaine d'exercices : méditation, relaxation, ancrage.",
       type: "Application",
-      url: "https://www.monsherpa.eu/",
-      tags: ["TCC", "app", "français"],
+      url: "https://www.owlielechatbot.fr/",
+      tags: ["TCC", "gratuit", "français"],
     },
     {
       id: 43,
@@ -330,7 +330,7 @@ export default function Library({ onBackToHome }) {
       description:
         "Écoute 24h/24, 7j/7. Bénévoles formés pour détresse psychologique. Gratuit et anonyme.",
       type: "Ligne d'écoute",
-      url: "https://www.sos-amitie.com/",
+      url: "https://www.sos-amitie.com/telephone",
       tags: ["écoute", "24h/24", "gratuit"],
     },
     {
@@ -358,24 +358,24 @@ export default function Library({ onBackToHome }) {
     {
       id: 53,
       category: "aide",
-      title: "Association Jonathan Pierres Vivantes",
-      author: "JPV",
+      title: "Apprivoiser l'Absence",
+      author: "Apprivoiser l'Absence",
       description:
-        "Association de parents endeuillés. Groupes de parole et accompagnement pour deuil d'enfant.",
+        "Entraide pour le deuil d'un enfant, d'un frère ou d'une sœur. Écoute, partage et accompagnement entre parents et proches endeuillés.",
       type: "Association",
-      url: "https://www.jpv.asso.fr/",
-      tags: ["deuil enfant", "association", "groupe parole"],
+      url: "https://www.apprivoiserlabsence.com/",
+      tags: ["deuil enfant", "association", "entraide"],
     },
     {
       id: 54,
       category: "aide",
-      title: "FAVEC - Veuvage",
-      author: "FAVEC",
+      title: "Empreintes - Vivre son deuil",
+      author: "Empreintes (ex-Vivre son deuil)",
       description:
-        "Fédération d'accompagnement au veuvage. Groupes d'entraide, aide administrative et juridique.",
+        "Association nationale d'accompagnement du deuil (30 ans d'expérience). Groupes de parole pour adultes endeuillés, ressources par région, informations sur vos droits.",
       type: "Association",
-      url: "https://www.favec.fr/",
-      tags: ["veuvage", "association", "entraide"],
+      url: "https://www.empreintes-asso.com/accompagnement-du-deuil/",
+      tags: ["deuil", "association", "groupe de parole"],
     },
 
     // ============================================================
