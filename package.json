@@ -22,7 +22,8 @@
     "setup:frontend": "cd frontend && npm install",
     "build": "npm run build:frontend",
     "build:frontend": "cd frontend && npm run build",
-    "preview": "cd frontend && npm run preview"
+    "preview": "cd frontend && npm run preview",
+    "deploy": "bash deploy.sh"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.1.0",
