@@ -306,7 +306,7 @@ export default function SpiritualityModule({ user, onBack }) {
                 <p style={{
                   fontSize: '2rem',
                   fontWeight: 'bold',
-                  color: 'var(--color-accent)'
+                  color: 'var(--color-primary)'
                 }}>
                   {numerologyResults.anneePersonnelle?.nombre}
                 </p>
@@ -446,7 +446,7 @@ export default function SpiritualityModule({ user, onBack }) {
           title={`Année Personnelle ${numerologyResults.anneePersonnelle.annee}`}
           number={String(numerologyResults.anneePersonnelle.nombre)}
           interpretation={numerologyResults.anneePersonnelle.interpretation}
-          color="var(--color-accent)"
+          color="var(--color-primary)"
         />
 
         {/* Expression (si disponible) */}
@@ -619,7 +619,7 @@ export default function SpiritualityModule({ user, onBack }) {
                 <p style={{
                   fontSize: '2rem',
                   fontWeight: 'bold',
-                  color: 'var(--color-accent)'
+                  color: 'var(--color-primary)'
                 }}>
                   Chemin {compatibilityResult.partnerChemin}
                 </p>

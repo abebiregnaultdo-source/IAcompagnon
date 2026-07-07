@@ -627,7 +627,7 @@ function MeditationsTab({ profile, userId }) {
       <Section title="Mes Méditations Guidées">
         <p style={styles.meditationIntro}>
           Tes méditations et scripts d'hypnose personnalisés, stockés de façon sécurisée.
-          <span style={{ display: 'block', marginTop: '8px', fontSize: '0.85em', color: 'var(--color-accent)' }}>
+          <span style={{ display: 'block', marginTop: '8px', fontSize: '0.85em', color: 'var(--color-primary)' }}>
             🔒 Accès privé - uniquement visible par toi
           </span>
         </p>
@@ -1091,10 +1091,10 @@ const styles = {
 
   // Identity
   identityCard: {
-    background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))",
+    background: "linear-gradient(135deg, #4b9ab3, #3a7a94)",
     borderRadius: "var(--radius-lg)",
     padding: "var(--space-xl)",
-    color: "white",
+    color: "#ffffff",
     textAlign: "center",
   },
   traditionalName: {
@@ -1216,8 +1216,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))",
-    color: "white",
+    background: "linear-gradient(135deg, #4b9ab3, #3a7a94)",
+    color: "#ffffff",
     borderRadius: "50%",
     fontSize: "var(--font-size-lg)",
     fontWeight: "var(--font-weight-bold)",
@@ -1365,7 +1365,7 @@ const styles = {
   },
   lineageStatus: {
     fontSize: "var(--font-size-sm)",
-    color: "var(--color-accent)",
+    color: "var(--color-primary)",
     fontWeight: "var(--font-weight-medium)",
     marginTop: "var(--space-xs)",
   },
@@ -1514,8 +1514,8 @@ const styles = {
   },
   playButton: {
     padding: "var(--space-sm) var(--space-lg)",
-    background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))",
-    color: "white",
+    background: "linear-gradient(135deg, #4b9ab3, #3a7a94)",
+    color: "#ffffff",
     border: "none",
     borderRadius: "var(--radius-md)",
     cursor: "pointer",
@@ -1536,7 +1536,7 @@ const styles = {
   },
   progressFill: {
     height: "100%",
-    background: "linear-gradient(90deg, var(--color-primary), var(--color-accent))",
+    background: "linear-gradient(90deg, #4b9ab3, #3a7a94)",
     transition: "width 0.1s linear",
   },
   audioNotConfigured: {

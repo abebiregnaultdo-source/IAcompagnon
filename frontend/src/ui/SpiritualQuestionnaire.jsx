@@ -418,7 +418,7 @@ export default function SpiritualQuestionnaire({ user, onComplete, onCancel }) {
         borderRadius: 'var(--radius-md)',
         border: '1px solid var(--color-border)'
       }}>
-        <h3 style={{ color: 'var(--color-accent)', marginBottom: 'var(--space-md)' }}>
+        <h3 style={{ color: 'var(--color-primary)', marginBottom: 'var(--space-md)' }}>
           Lignée Maternelle
         </h3>
 
@@ -528,7 +528,7 @@ export default function SpiritualQuestionnaire({ user, onComplete, onCancel }) {
             style={{
               padding: 'var(--space-md)',
               border: formData.themesVie.includes(theme.id)
-                ? '2px solid var(--color-accent)'
+                ? '2px solid var(--color-primary)'
                 : '1px solid var(--color-border)',
               background: formData.themesVie.includes(theme.id)
                 ? 'rgba(138, 186, 168, 0.15)'
@@ -684,7 +684,7 @@ export default function SpiritualQuestionnaire({ user, onComplete, onCancel }) {
               disabled={loading}
               style={{
                 flex: 1,
-                background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))'
+                background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))'
               }}
             >
               {loading ? 'Enregistrement...' : 'Terminer ✓'}

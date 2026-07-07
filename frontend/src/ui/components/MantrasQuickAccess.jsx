@@ -151,7 +151,7 @@ const styles = {
     textAlign: "center",
   },
   centralMessage: {
-    background: "linear-gradient(135deg, var(--color-primary), var(--color-accent))",
+    background: "linear-gradient(135deg, var(--color-primary), var(--color-primary))",
     borderRadius: "var(--radius-md)",
     padding: "var(--space-lg)",
     marginBottom: "var(--space-lg)",
