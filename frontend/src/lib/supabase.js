@@ -249,7 +249,12 @@ export async function getConversations(userId, limit = 20) {
     .order('updated_at', { ascending: false })
     .limit(limit);
 
-  if (error) throw error;
+  // Un échec de lecture de l'historique ne doit JAMAIS casser l'app : on dégrade
+  // en douceur (l'appelant a un fallback localStorage). On journalise sans throw.
+  if (error) {
+    console.warn('[HELO] getConversations:', error.message);
+    return [];
+  }
   return data || [];
 }
 

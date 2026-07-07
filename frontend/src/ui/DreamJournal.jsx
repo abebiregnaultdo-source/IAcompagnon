@@ -8,6 +8,67 @@ import Input from "./components/Input";
  */
 const API_BASE = import.meta.env.VITE_BACKEND_URL || "https://helo-backend.onrender.com";
 
+/**
+ * Rend l'interprétation IA de manière lisible.
+ * Le champ ai_interpretation peut être :
+ *  - du texte simple → affiché tel quel
+ *  - du JSON { themes_principaux: [...], message_central } où les thèmes sont
+ *    soit des strings, soit des objets { theme, analyse }.
+ * On parse et on met en forme ; en cas d'échec, on retombe sur le texte brut.
+ */
+function AiInterpretation({ raw }) {
+  let data = null;
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        data = JSON.parse(trimmed);
+      } catch (e) {
+        data = null;
+      }
+    }
+  } else if (raw && typeof raw === "object") {
+    data = raw;
+  }
+
+  // Pas du JSON structuré → texte simple
+  if (!data || typeof data !== "object") {
+    return <span>{String(raw)}</span>;
+  }
+
+  const themes = data.themes_principaux || data.themes || [];
+  const message = data.message_central || data.message || "";
+
+  return (
+    <div style={{ marginTop: "var(--space-xs)" }}>
+      {Array.isArray(themes) && themes.length > 0 && (
+        <ul style={{ margin: "var(--space-xs) 0", paddingLeft: "1.1em" }}>
+          {themes.map((t, i) => {
+            if (t && typeof t === "object") {
+              return (
+                <li key={i} style={{ marginBottom: "var(--space-xs)" }}>
+                  <strong>{t.theme || t.titre || ""}</strong>
+                  {t.analyse || t.analyse ? ` — ${t.analyse || ""}` : ""}
+                </li>
+              );
+            }
+            return (
+              <li key={i} style={{ marginBottom: "2px" }}>
+                {String(t)}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {message && (
+        <p style={{ marginTop: "var(--space-xs)", fontStyle: "italic" }}>
+          {message}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function DreamJournal({ user, onBack }) {
   const [dreams, setDreams] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -397,7 +458,8 @@ export default function DreamJournal({ user, onBack }) {
 
               {dream.ai_interpretation && (
                 <div style={styles.aiInterpretation}>
-                  <strong>Interprétation Helō:</strong> {dream.ai_interpretation}
+                  <strong>Interprétation Helō:</strong>{" "}
+                  <AiInterpretation raw={dream.ai_interpretation} />
                 </div>
               )}
 
