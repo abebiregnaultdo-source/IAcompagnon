@@ -940,10 +940,35 @@ class TherapeuticEngine:
         """Génère un message d'accueil personnalisé."""
         system_prompt = self._build_system_prompt(user_name, user_state, extended_profile, user_msg_count=0)
 
-        # Instruction spéciale pour le message d'accueil
-        welcome_instruction = "\n\n## INSTRUCTION SPÉCIALE\nC'est le PREMIER message de la conversation. Accueille chaleureusement l'utilisateur, présente-toi brièvement, et invite-le à partager ce qu'il souhaite. Sois bref (2-3 phrases)."
+        # Déterminer ce qu'on SAIT déjà de la personne pour adapter l'accueil.
+        insights = (user_state or {}).get('conversation_insights') or {}
+        memory = (user_state or {}).get('conversation_memory') or []
+        has_reason = bool(isinstance(insights, dict) and str(insights.get('initial_reason', '')).strip())
+        has_facts = bool(isinstance(insights, dict) and insights.get('life_facts'))
+        has_history = bool(memory)
 
-        # Si profil étendu disponible, personnaliser davantage
+        # Instruction d'accueil ADAPTÉE au contexte (jamais un catalogue de problèmes).
+        welcome_instruction = "\n\n## INSTRUCTION SPÉCIALE — MESSAGE D'ACCUEIL\nC'est le tout premier message de cette conversation. Sois bref (2-3 phrases), chaleureux, jamais abrupt.\n"
+
+        if has_reason or has_facts or has_history:
+            # On CONNAÎT déjà la personne → accueil qui s'en souvient, avec délicatesse.
+            welcome_instruction += (
+                "Tu CONNAIS déjà cette personne (voir CONTEXTE DE VIE / MÉMOIRE plus haut). "
+                "Accueille-la comme un thérapeute qui se souvient : reprends AVEC DÉLICATESSE ce qu'elle t'a confié, "
+                "sans le lui resservir mécaniquement, et demande comment elle va aujourd'hui, là, maintenant. "
+                "Ne présente PAS une liste de problèmes possibles — tu sais déjà ce qu'elle traverse. "
+                "Anti-hallucination : appuie-toi UNIQUEMENT sur ce qu'elle a réellement dit, ne présume pas son état du jour."
+            )
+        else:
+            # Nouvelle personne, aucun contexte → accueil ouvert MAIS pas un menu déroulant.
+            welcome_instruction += (
+                "Tu ne connais pas encore cette personne. Présente-toi en une phrase, avec douceur, "
+                "et invite-la à partager ce qui l'amène — par une question ouverte et simple. "
+                "SURTOUT NE liste PAS les problèmes possibles ('deuil, anxiété, questionnements...') : "
+                "c'est froid, comme un menu. Laisse-lui l'espace de nommer sa situation avec ses propres mots."
+            )
+
+        # Nom traditionnel si disponible
         if extended_profile:
             nom_trad = None
             if 'identite' in extended_profile and 'prenoms_complets' in extended_profile['identite']:

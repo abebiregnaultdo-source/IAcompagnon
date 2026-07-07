@@ -303,7 +303,10 @@ export default function Chat({
               user_id_hash: user.id,
               is_first_message: true,
               extended_profile: user.extended_profile || null,
-              conversation_memory: conversationMemory
+              conversation_memory: conversationMemory,
+              // Contexte de vie sédimenté → accueil personnalisé (pas générique).
+              // C'est ce qui permet à Helō de "se souvenir" dès le bonjour.
+              conversation_insights: user.conversation_insights || null
             },
             policy: {
               tone: user.tone || "neutre",
