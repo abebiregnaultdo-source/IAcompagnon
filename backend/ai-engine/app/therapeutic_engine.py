@@ -955,19 +955,48 @@ class TherapeuticEngine:
         memory = (user_state or {}).get('conversation_memory') or []
         has_reason = bool(isinstance(insights, dict) and str(insights.get('initial_reason', '')).strip())
         has_facts = bool(isinstance(insights, dict) and insights.get('life_facts'))
-        has_history = bool(memory)
+
+        # Garde-fou qualité : on ne "rappelle" une session précédente QUE si c'était
+        # un VRAI échange (assez de messages, pas un test/2 lignes creuses).
+        def _vraie_session(m):
+            if not isinstance(m, dict):
+                return False
+            if (m.get('message_count') or 0) < 4:
+                return False
+            texte = (str(m.get('themes', '')) + str(m.get('last_topic', ''))).lower()
+            if 'test' in texte or 'message de test' in texte:
+                return False
+            return True
+
+        vraies_sessions = [m for m in memory if _vraie_session(m)]
+        has_real_history = bool(vraies_sessions)
 
         # Instruction d'accueil ADAPTÉE au contexte (jamais un catalogue de problèmes).
         welcome_instruction = "\n\n## INSTRUCTION SPÉCIALE — MESSAGE D'ACCUEIL\nC'est le tout premier message de cette conversation. Sois bref (2-3 phrases), chaleureux, jamais abrupt.\n"
 
-        if has_reason or has_facts or has_history:
-            # On CONNAÎT déjà la personne → accueil qui s'en souvient, avec délicatesse.
+        if has_real_history:
+            # Il y a un VRAI échange précédent → rouvrir la relation comme un thérapeute
+            # qui reprend là où on s'était arrêtés.
+            derniere = vraies_sessions[0]
+            date_str = str(derniere.get('date', ''))[:10]  # AAAA-MM-JJ
+            sujet = str(derniere.get('last_topic') or derniere.get('themes') or '').strip()[:120]
             welcome_instruction += (
-                "Tu CONNAIS déjà cette personne (voir CONTEXTE DE VIE / MÉMOIRE plus haut). "
-                "Accueille-la comme un thérapeute qui se souvient : reprends AVEC DÉLICATESSE ce qu'elle t'a confié, "
-                "sans le lui resservir mécaniquement, et demande comment elle va aujourd'hui, là, maintenant. "
+                f"Vous vous êtes DÉJÀ parlé (dernière fois autour du {date_str}, sujet évoqué : « {sujet} »). "
+                "Rouvre la relation comme un thérapeute qui se souvient de la séance précédente : "
+                "fais un LIEN TEMPOREL léger avec ce dont vous aviez parlé, puis demande comment ça va DEPUIS. "
+                "Ex d'esprit (à reformuler naturellement) : « La dernière fois, tu évoquais… Comment ça a été depuis ? ». "
+                "Reste bref et délicat, ne récite pas tout. Anti-hallucination : réfère-toi UNIQUEMENT à ce qui est écrit dans la MÉMOIRE, "
+                "ne présume pas ce qu'elle a ressenti, et n'invente aucun détail de la séance passée."
+            )
+        elif has_reason or has_facts:
+            # Pas de vrai échange antérieur, mais on connaît son contexte de vie.
+            welcome_instruction += (
+                "Tu CONNAIS déjà le contexte de cette personne (voir CONTEXTE DE VIE plus haut), "
+                "mais c'est votre premier vrai échange. Accueille-la comme un thérapeute qui se souvient : "
+                "reprends AVEC DÉLICATESSE ce qu'elle t'a confié, sans le resservir mécaniquement, "
+                "et demande comment elle va aujourd'hui, là, maintenant. "
                 "Ne présente PAS une liste de problèmes possibles — tu sais déjà ce qu'elle traverse. "
-                "Anti-hallucination : appuie-toi UNIQUEMENT sur ce qu'elle a réellement dit, ne présume pas son état du jour."
+                "Anti-hallucination : appuie-toi UNIQUEMENT sur ce qu'elle a réellement dit."
             )
         else:
             # Nouvelle personne, aucun contexte → accueil ouvert MAIS pas un menu déroulant.
