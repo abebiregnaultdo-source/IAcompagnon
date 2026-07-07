@@ -56,6 +56,35 @@ export default function Settings({
   const [passwordMessage, setPasswordMessage] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
+  // "Ce que je traverse" — équivalent du motif d'onboarding, accessible à tout
+  // moment (utile pour les comptes existants qui ne reverront jamais l'onboarding).
+  // Alimente conversation_insights.initial_reason → accueil personnalisé.
+  const [lifeContext, setLifeContext] = useState(
+    user?.conversation_insights?.initial_reason || ""
+  );
+  const [contextMessage, setContextMessage] = useState("");
+  const [isSavingContext, setIsSavingContext] = useState(false);
+
+  const handleSaveContext = async () => {
+    setIsSavingContext(true);
+    setContextMessage("");
+    try {
+      const existing = user?.conversation_insights || {};
+      const updated = {
+        ...existing,
+        initial_reason: lifeContext.trim() || null,
+        updated_at: new Date().toISOString(),
+      };
+      await updateProfile(user.id, { conversation_insights: updated });
+      if (user) user.conversation_insights = updated; // maj locale
+      setContextMessage("C'est noté. Helō s'en souviendra.");
+    } catch (e) {
+      setContextMessage("L'enregistrement a échoué. Réessayez.");
+    } finally {
+      setIsSavingContext(false);
+    }
+  };
+
   // RGPD — export & suppression
   const [isExporting, setIsExporting] = useState(false);
   const [rgpdMessage, setRgpdMessage] = useState("");
@@ -255,6 +284,64 @@ export default function Settings({
           }}
         >
           {/* Section 1 : Contact de confiance */}
+          <Panel className="settings-section">
+            <Text as="h2" className="settings-section-title">
+              Ce que je traverse
+            </Text>
+            <p
+              style={{
+                fontSize: "var(--font-size-sm)",
+                color: "var(--color-text-secondary)",
+                marginBottom: "var(--space-lg)",
+                lineHeight: "var(--line-height-relaxed)",
+              }}
+            >
+              Si vous le souhaitez, dites en quelques mots ce que vous vivez en ce
+              moment. Helō s'en souviendra pour vous accompagner avec justesse, dès
+              vos prochains échanges. C'est une invitation, jamais une obligation —
+              vous pouvez le modifier ou l'effacer quand vous voulez.
+            </p>
+
+            {contextMessage && (
+              <div
+                style={{
+                  padding: "var(--space-md)",
+                  background: "var(--color-surface-2)",
+                  borderRadius: "var(--radius-md)",
+                  fontSize: "var(--font-size-sm)",
+                  color: "var(--color-text-secondary)",
+                  marginBottom: "var(--space-md)",
+                }}
+              >
+                {contextMessage}
+              </div>
+            )}
+
+            <textarea
+              value={lifeContext}
+              onChange={(e) => setLifeContext(e.target.value)}
+              placeholder="Ce que vous vivez, ce qui vous pèse, ce qui compte pour vous en ce moment… avec vos mots."
+              rows={4}
+              disabled={isSavingContext}
+              style={{
+                width: "100%",
+                padding: "var(--space-lg)",
+                border: "1.5px solid var(--color-accent-calm)",
+                borderRadius: "var(--radius-md)",
+                background: "var(--color-surface-1)",
+                color: "var(--color-text-primary)",
+                fontFamily: "inherit",
+                fontSize: "var(--font-size-base)",
+                lineHeight: "var(--line-height-relaxed)",
+                resize: "vertical",
+                marginBottom: "var(--space-md)",
+              }}
+            />
+            <Button onClick={handleSaveContext} disabled={isSavingContext}>
+              {isSavingContext ? "Enregistrement…" : "Enregistrer"}
+            </Button>
+          </Panel>
+
           <Panel className="settings-section">
             <Text as="h2" className="settings-section-title">
               Contact de confiance
