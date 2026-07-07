@@ -1,28 +1,42 @@
 import React, { useEffect, useState } from 'react';
 
-export default function SubscriptionBanner({ userId }) {
+const TRIAL_DURATION_DAYS = 14;
+
+// Calcule l'état d'essai à partir de la date d'inscription (aucun backend requis).
+// Tant qu'il n'y a pas d'endpoint d'abonnement, c'est la source de vérité.
+function computeTrialFromCreatedAt(createdAt) {
+  if (!createdAt) return { status: 'trial', days_remaining: TRIAL_DURATION_DAYS };
+  const start = new Date(createdAt).getTime();
+  if (isNaN(start)) return { status: 'trial', days_remaining: TRIAL_DURATION_DAYS };
+  const elapsedDays = Math.floor((Date.now() - start) / (1000 * 60 * 60 * 24));
+  const remaining = TRIAL_DURATION_DAYS - elapsedDays;
+  if (remaining <= 0) return { status: 'expired', days_remaining: 0 };
+  return { status: 'trial', days_remaining: remaining };
+}
+
+export default function SubscriptionBanner({ userId, createdAt }) {
   const [subscription, setSubscription] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) return;
     fetchStatus();
-  }, [userId]);
+  }, [userId, createdAt]);
 
   const fetchStatus = async () => {
     try {
       const r = await fetch(`https://helo-backend.onrender.com/api/subscription/status?user_id=${encodeURIComponent(userId)}`);
       if (!r.ok) {
-        // Si l'endpoint n'existe pas, on assume un essai gratuit
-        setSubscription({ status: 'trial', days_remaining: 14 });
+        // Pas d'endpoint d'abonnement → on calcule depuis la date d'inscription.
+        setSubscription(computeTrialFromCreatedAt(createdAt));
         return;
       }
       const data = await r.json();
       setSubscription(data);
     } catch (e) {
       console.error('Error fetching subscription:', e);
-      // Fallback: essai gratuit par défaut
-      setSubscription({ status: 'trial', days_remaining: 14 });
+      // Fallback : calcul local depuis la date d'inscription.
+      setSubscription(computeTrialFromCreatedAt(createdAt));
     } finally {
       setLoading(false);
     }

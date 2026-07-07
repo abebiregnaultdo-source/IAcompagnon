@@ -441,6 +441,7 @@ export default function App() {
             setShowHome(false);
             setShowSpiritualProfile(true);
           }}
+          onOpenLegal={(page) => setShowLegalPage(page)}
           onLogout={handleLogout}
         />
       </EmotionalFeedback>

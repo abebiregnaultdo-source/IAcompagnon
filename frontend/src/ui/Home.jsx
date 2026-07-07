@@ -3,6 +3,7 @@ import Logo from "./components/Logo";
 import UserMenu from "./components/UserMenu";
 import SubscriptionBanner from "./components/SubscriptionBanner";
 import MantrasQuickAccess from "./components/MantrasQuickAccess";
+import AppFooter from "./components/AppFooter";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 
 /**
@@ -19,6 +20,7 @@ export default function Home({
   onOpenCreativity,
   onOpenDreams,
   onOpenSpiritualProfile,
+  onOpenLegal,
   onLogout,
 }) {
   const device = useDeviceDetection();
@@ -110,7 +112,7 @@ export default function Home({
       >
         {/* Subscription banner */}
         <div style={{ marginBottom: "24px" }}>
-          <SubscriptionBanner userId={user?.id} />
+          <SubscriptionBanner userId={user?.id} createdAt={user?.created_at} />
         </div>
 
         {/* Header */}
@@ -382,6 +384,9 @@ export default function Home({
             Se déconnecter
           </button>
         </div>
+
+        {/* Pied de page : accès permanent Réglages + pages légales */}
+        <AppFooter onOpenSettings={onOpenSettings} onOpenLegal={onOpenLegal} />
       </div>
 
       {/* Modal Mantras */}
