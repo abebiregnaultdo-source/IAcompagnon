@@ -8,6 +8,27 @@ import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import { saveConversation, getConversations } from "../lib/supabase";
 
 /**
+ * Nettoie un texte avant de le vocaliser (TTS) :
+ * retire les emojis, le markdown et les artefacts qui rendent la voix bizarre.
+ */
+function cleanForSpeech(text) {
+  if (!text) return "";
+  return String(text)
+    // Emojis et symboles (pictogrammes, émoticônes, symboles divers, drapeaux)
+    .replace(
+      /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FE0F}\u{1F1E6}-\u{1F1FF}]/gu,
+      ""
+    )
+    .replace(/\*\*(.*?)\*\*/g, "$1") // **gras**
+    .replace(/\*(.*?)\*/g, "$1")     // *italique*
+    .replace(/_{1,2}(.*?)_{1,2}/g, "$1") // _souligné_
+    .replace(/`+/g, "")              // `code`
+    .replace(/#{1,6}\s*/g, "")       // titres markdown
+    .replace(/\s{2,}/g, " ")         // espaces multiples
+    .trim();
+}
+
+/**
  * VoiceChat - Interface de conversation vocale native
  *
  * Fonctionne entièrement côté navigateur :
@@ -412,7 +433,11 @@ export default function VoiceChat({ api, user, onEmotionalStateChange, onBackToH
   }, [getVoice, autoListen]);
 
   // Fonction principale TTS : OpenAI TTS (qualité top) → Edge TTS → navigateur
-  const speakText = useCallback(async (text) => {
+  const speakText = useCallback(async (rawText) => {
+    if (!rawText) return;
+    // Nettoyer le texte AVANT de le vocaliser : sinon le TTS lit les emojis
+    // ("fleur de cerisier") et le markdown (**gras**), ce qui casse l'immersion.
+    const text = cleanForSpeech(rawText);
     if (!text) return;
     window.speechSynthesis.cancel();
 
