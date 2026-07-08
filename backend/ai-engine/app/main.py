@@ -311,19 +311,15 @@ def _persist_feedback(entry: dict):
 
 
 def _load_ietg():
-    try:
-        with open(IETG_PATH, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return { 'last': [] }
+    # Scalabilité : état global d'apprentissage dans Supabase (learning_state),
+    # plus dans un fichier local (perdu au redéploiement, incohérent multi-instance).
+    from .learning_store import get_state
+    return get_state('ietg', {'last': []})
 
 
 def _save_ietg(state: dict):
-    try:
-        with open(IETG_PATH, 'w', encoding='utf-8') as f:
-            json.dump(state, f, ensure_ascii=False, indent=2)
-    except Exception:
-        pass
+    from .learning_store import set_state
+    set_state('ietg', state)
 
 
 def _update_ietg(outcome: int, scores_before: dict, scores_after: dict | None = None):
@@ -969,11 +965,10 @@ async def prefs_get(user_id_hash: str):
 
 @app.post('/api/prefs')
 async def prefs_set(req: PrefsSet):
-    from .personalization import _load_profiles, _save_profiles
-    data = _load_profiles()
-    prof = data.setdefault(req.user_id_hash, { 'history': [], 'prefs': {}, 'feedbacks': [] })
+    from .personalization import _get_profile, _put_profile
+    prof = _get_profile(req.user_id_hash)
     prof['prefs'] = { **(prof.get('prefs') or {}), **(req.prefs or {}) }
-    _save_profiles(data)
+    _put_profile(req.user_id_hash, prof)
     return { 'status': 'ok', 'prefs': prof.get('prefs', {}) }
 
 @app.post('/api/learning/aggregate')

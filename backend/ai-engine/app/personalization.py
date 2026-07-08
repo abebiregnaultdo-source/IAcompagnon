@@ -2,27 +2,25 @@ from __future__ import annotations
 from typing import Dict, Any, Optional, Tuple
 import os, json, time, hashlib
 
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-STORE_DIR = os.path.join(BASE_DIR, 'backend', 'ai-engine', 'user_store')
-PROFILE_PATH = os.path.join(STORE_DIR, 'profiles.json')
-
-os.makedirs(STORE_DIR, exist_ok=True)
-if not os.path.exists(PROFILE_PATH):
-    with open(PROFILE_PATH, 'w', encoding='utf-8') as f:
-        json.dump({}, f)
+# Scalabilité : les profils d'apprentissage vivent maintenant dans Supabase
+# (table learning_state), pas dans un fichier local qui casse en multi-instance.
+# On stocke un profil PAR utilisateur sous la clé 'perso:<user_id_hash>' — ainsi
+# deux utilisateurs n'écrivent jamais le même enregistrement (pas de concurrence).
+from . import learning_store
 
 
-def _load_profiles() -> Dict[str, Any]:
-    try:
-        with open(PROFILE_PATH, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return {}
+def _perso_key(user_id_hash: str) -> str:
+    return f'perso:{user_id_hash}'
 
 
-def _save_profiles(data: Dict[str, Any]) -> None:
-    with open(PROFILE_PATH, 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+def _get_profile(user_id_hash: str) -> Dict[str, Any]:
+    """Profil d'apprentissage d'un utilisateur (history/prefs/feedbacks)."""
+    return learning_store.get_state(_perso_key(user_id_hash),
+                                    {'history': [], 'prefs': {}, 'feedbacks': []})
+
+
+def _put_profile(user_id_hash: str, prof: Dict[str, Any]) -> None:
+    learning_store.set_state(_perso_key(user_id_hash), prof)
 
 
 def normalize_user_id(raw_id: str) -> str:
@@ -31,8 +29,7 @@ def normalize_user_id(raw_id: str) -> str:
 
 
 def record_scores(user_id_hash: str, scores: Dict[str, int], ts: Optional[float] = None):
-    data = _load_profiles()
-    prof = data.get(user_id_hash, { 'history': [], 'prefs': {}, 'feedbacks': [] })
+    prof = _get_profile(user_id_hash)
     prof['history'].append({
         'ts': ts or time.time(),
         'scores': {
@@ -41,17 +38,18 @@ def record_scores(user_id_hash: str, scores: Dict[str, int], ts: Optional[float]
             'energie': int(scores.get('energie', 0)),
         }
     })
-    data[user_id_hash] = prof
-    _save_profiles(data)
+    # Borne l'historique pour ne pas faire grossir indéfiniment l'enregistrement.
+    prof['history'] = prof['history'][-200:]
+    _put_profile(user_id_hash, prof)
     return prof
 
 
 def record_explicit_feedback(user_id_hash: str, target: Dict[str, Any], thumbs_up: bool, ts: Optional[float] = None):
-    data = _load_profiles()
-    prof = data.get(user_id_hash, { 'history': [], 'prefs': {}, 'feedbacks': [] })
+    prof = _get_profile(user_id_hash)
     prof['feedbacks'].append({
         'type': 'explicit', 'thumbs_up': bool(thumbs_up), 'target': target, 'ts': ts or time.time()
     })
+    prof['feedbacks'] = prof['feedbacks'][-200:]
     # simple preference shift
     tone = target.get('tone')
     if tone:
@@ -61,14 +59,12 @@ def record_explicit_feedback(user_id_hash: str, target: Dict[str, Any], thumbs_u
     if tech:
         pref = prof.setdefault('prefs', {}).setdefault('technique_scores', {})
         pref[tech] = int(pref.get(tech, 0)) + (1 if thumbs_up else -1)
-    data[user_id_hash] = prof
-    _save_profiles(data)
+    _put_profile(user_id_hash, prof)
     return prof
 
 
 def record_implicit_feedback(user_id_hash: str, target: Dict[str, Any], reading_ms: Optional[int], response_latency_ms: Optional[int], ts: Optional[float] = None):
-    data = _load_profiles()
-    prof = data.get(user_id_hash, { 'history': [], 'prefs': {}, 'feedbacks': [] })
+    prof = _get_profile(user_id_hash)
     prof['feedbacks'].append({
         'type': 'implicit',
         'reading_ms': int(reading_ms or 0),
@@ -76,14 +72,14 @@ def record_implicit_feedback(user_id_hash: str, target: Dict[str, Any], reading_
         'target': target,
         'ts': ts or time.time()
     })
+    prof['feedbacks'] = prof['feedbacks'][-200:]
     # heuristic reward shaping
     if target.get('tone'):
         pref = prof.setdefault('prefs', {}).setdefault('tone_scores', {})
         delta = 1 if (reading_ms or 0) > 4000 else 0
         delta += 1 if (response_latency_ms or 0) < 60000 else 0
         pref[target['tone']] = int(pref.get(target['tone'], 0)) + delta
-    data[user_id_hash] = prof
-    _save_profiles(data)
+    _put_profile(user_id_hash, prof)
     return prof
 
 
@@ -107,4 +103,4 @@ def suggest_action(user_profile: Dict[str, Any], user_state: Dict[str, Any]) -> 
 
 
 def get_profile(user_id_hash: str) -> Dict[str, Any]:
-    return _load_profiles().get(user_id_hash, { 'history': [], 'prefs': {}, 'feedbacks': [] })
+    return _get_profile(user_id_hash)
