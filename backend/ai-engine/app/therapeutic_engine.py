@@ -369,7 +369,15 @@ class LLMClient:
             model="claude-sonnet-4-5",
             max_tokens=max_tokens,
             temperature=temperature,
-            system=system_prompt,
+            # Prompt caching : on passe le prompt système en bloc caché. Le TEXTE est
+            # STRICTEMENT identique (Claude lit exactement la même chose) — seul le coût
+            # change : Anthropic réutilise ce gros bloc depuis son cache (~-90% d'input
+            # sur la partie système). Aucun effet sur la qualité des réponses.
+            system=[{
+                "type": "text",
+                "text": system_prompt,
+                "cache_control": {"type": "ephemeral"},
+            }],
             messages=anthropic_messages,
         )
 
@@ -396,7 +404,12 @@ class LLMClient:
             model="claude-sonnet-4-5",
             max_tokens=max_tokens,
             temperature=temperature,
-            system=system_prompt,
+            # Prompt caching (texte identique, coût réduit) — voir _call_claude.
+            system=[{
+                "type": "text",
+                "text": system_prompt,
+                "cache_control": {"type": "ephemeral"},
+            }],
             messages=anthropic_messages,
         ) as stream:
             for text in stream.text_stream:
