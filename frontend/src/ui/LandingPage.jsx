@@ -1,5 +1,7 @@
 import Logo from "./components/Logo";
 import Resources from "./Resources";
+import HeloDemo from "./components/HeloDemo";
+import "../styles/helo-demo.css";
 import { useState } from "react";
 
 export default function LandingPage({ onGetStarted }) {
@@ -154,6 +156,11 @@ export default function LandingPage({ onGetStarted }) {
                 ressources, à avancer sans vous perdre.
               </p>
             </div>
+          </div>
+
+          {/* Démonstration animée : helō en action */}
+          <div style={{ marginTop: "48px" }}>
+            <HeloDemo />
           </div>
         </div>
       </section>
