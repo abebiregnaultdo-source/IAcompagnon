@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "../../styles/crisis.css"; // styles de l'animation de respiration (breathing-circle)
 
 /**
  * Exercice de grounding pour stabilisation immédiate

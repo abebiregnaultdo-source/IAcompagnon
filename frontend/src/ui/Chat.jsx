@@ -6,7 +6,21 @@ import Button from "./components/Button";
 import Text from "./components/Text";
 import Panel from "./components/Panel";
 import ContextualSuggestion from "./creativity/ContextualSuggestion";
+import GroundingExercise from "./components/GroundingExercise";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
+
+// Détecte si le dernier message de Helō PROPOSE un exercice de respiration/ancrage,
+// pour offrir le module guidé (animation) au lieu de laisser un texte "1, 2, 3...".
+function proposesBreathing(text) {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  const signals = [
+    "respire avec moi", "respirons ensemble", "on respire", "inspire",
+    "cohérence cardiaque", "exercice de respiration", "respiration guidée",
+    "prends une grande inspiration", "5-4-3-2-1", "ancrage",
+  ];
+  return signals.some((s) => t.includes(s));
+}
 import { saveConversation, getConversations, updateProfile, incrementSessionCount } from "../lib/supabase";
 
 // ============================================================================
@@ -118,6 +132,7 @@ export default function Chat({
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [showAvatarFullscreen, setShowAvatarFullscreen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showBreathing, setShowBreathing] = useState(false);
   const [savedConversations, setSavedConversations] = useState([]);
   const [conversationMemory, setConversationMemory] = useState(null);
   const [creativitySuggestion, setCreativitySuggestion] = useState(null);
@@ -1045,6 +1060,34 @@ export default function Chat({
             </div>
           )}
 
+          {/* Proposition d'exercice de respiration guidé (animation) quand Helō le suggère */}
+          {messages.length > 0 &&
+            messages[messages.length - 1].role === "assistant" &&
+            proposesBreathing(messages[messages.length - 1].content) && (
+              <div style={{ padding: "0 24px 12px", textAlign: "center" }}>
+                <button
+                  onClick={() => setShowBreathing(true)}
+                  style={{
+                    padding: "12px 24px",
+                    background: "linear-gradient(135deg, #5A8299, #3E6478)",
+                    color: "#F2F6F7",
+                    border: "none",
+                    borderRadius: "14px",
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    boxShadow: "0 4px 14px rgba(90, 130, 153, 0.25)",
+                    transition: "all 0.3s ease",
+                  }}
+                >
+                  🫧 Faire l'exercice guidé avec moi
+                </button>
+              </div>
+            )}
+
           {/* Zone de saisie */}
           <div
             style={{
@@ -1255,6 +1298,41 @@ export default function Chat({
               </Text>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Modale : exercice de respiration guidé (animation) */}
+      {showBreathing && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 1100,
+            background: "linear-gradient(180deg, #E8EFF2 0%, #F2F6F7 100%)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "24px",
+          }}
+        >
+          <button
+            onClick={() => setShowBreathing(false)}
+            style={{
+              position: "absolute",
+              top: "20px",
+              right: "24px",
+              background: "transparent",
+              border: "none",
+              color: "var(--color-text-secondary)",
+              fontSize: "15px",
+              cursor: "pointer",
+              padding: "8px 16px",
+            }}
+          >
+            Terminer ✕
+          </button>
+          <GroundingExercise type="respiration" userName={user.first_name} />
         </div>
       )}
 
