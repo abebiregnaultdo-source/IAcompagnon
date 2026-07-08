@@ -8,12 +8,12 @@ import { useEffect, useRef, useState } from "react";
  */
 
 const CAPS = {
-  deuils: ["Quel que soit votre deuil", "Perte d'un parent, d'un enfant, d'un conjoint, d'un proche — helō accompagne chaque histoire."],
-  chat: ["L'histoire de Camille", "helō se souvient de ce qu'elle confie, séance après séance, et la guide au lieu de la questionner sans fin."],
-  breath: ["Le corps, pas que les mots", "Cohérence cardiaque, ancrage, respiration : helō accompagne le système nerveux, en direct."],
-  voice: ["Aussi par la voix", "Un échange vocal apaisant, pour les moments où écrire est trop dur."],
-  library: ["La bibliothèque", "Lignes d'écoute, associations de deuil, poèmes, guides publics — de vraies aides à portée."],
-  create: ["Créer pour déposer", "Écrire une lettre, dessiner, un poème, colorier : la création comme voie d'expression du chagrin."],
+  deuils: ["Quel que soit votre deuil", "Un parent, un enfant, un conjoint, un proche. Ici, votre histoire a sa place."],
+  chat: ["Un accompagnement qui reste", "Pas besoin de tout réexpliquer à chaque fois. helō vous connaît, et avance à vos côtés."],
+  breath: ["Quand les mots ne suffisent plus", "Une respiration guidée, un ancrage, pour retrouver un peu de calme dans le corps."],
+  voice: ["Parler, tout simplement", "Certains soirs, écrire est trop dur. Alors on peut aussi se parler."],
+  library: ["Vous n'êtes jamais seul·e", "Lignes d'écoute, associations, poèmes, ressources fiables — de vraies aides, à portée de main."],
+  create: ["Poser ce qu'on ne peut pas dire", "Une lettre, un dessin, un poème. Parfois, créer aide à traverser."],
 };
 
 const CONVO = [
