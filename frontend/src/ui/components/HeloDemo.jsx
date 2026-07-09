@@ -17,13 +17,13 @@ const CAPS = {
 };
 
 const CONVO = [
-  { who: "helo", t: "Bonjour Camille 🌸 La dernière fois, tu me parlais de ce vide, depuis son départ. Comment se passent tes journées ?", think: 1100 },
-  { who: "user", t: "Les nuits sont les pires. Tout me revient d'un coup." },
-  { who: "helo", t: "Je t'entends. La nuit, il n'y a plus rien pour tenir le chagrin à distance — il remonte, entier.", think: 1300 },
-  { who: "helo", t: "Ce que tu vis a un nom : les vagues du deuil. Ce n'est pas un recul — c'est ton cœur qui fait son chemin.", think: 1400 },
-  { who: "user", t: "J'ai l'impression que ça ne s'arrêtera jamais." },
-  { who: "helo", t: "Tu n'as pas à traverser cette nuit seule. On va poser un peu ce poids, ensemble.", think: 1200 },
-  { who: "helo", t: "Pose une main sur ton cœur, l'autre sur ton ventre. On va respirer ensemble.", think: 1000, cta: true },
+  { who: "helo", t: "Bonjour Camille 🌸 Comment tu te sens ce matin ?", think: 900 },
+  { who: "user", t: "La chambre est prête depuis des mois. Je n'arrive pas à y entrer." },
+  { who: "helo", t: "Cette porte, c'est une des plus dures. Tu n'as pas à l'ouvrir aujourd'hui.", think: 1300 },
+  { who: "user", t: "Les gens me disent « tu es jeune, ça reviendra ». Comme si on pouvait le remplacer." },
+  { who: "helo", t: "Ce n'est pas « un » bébé. C'était le tien. Personne ne le remplace, et ton chagrin est légitime — même si les autres ne savent pas quoi en faire.", think: 1500 },
+  { who: "user", t: "J'ai l'impression d'être seule à me souvenir de lui." },
+  { who: "helo", t: "Ici, tu n'es pas seule à t'en souvenir. On peut lui garder une place, ensemble. Prends juste un moment pour respirer avec moi.", think: 1200, cta: true },
 ];
 
 const DEUILS = [
