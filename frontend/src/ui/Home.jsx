@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Logo from "./components/Logo";
+import Icon from "./components/Icon";
 import UserMenu from "./components/UserMenu";
 import SubscriptionBanner from "./components/SubscriptionBanner";
 import MantrasQuickAccess from "./components/MantrasQuickAccess";
@@ -184,7 +185,7 @@ export default function Home({
               flexShrink: 0,
             }}
           >
-            💬
+            <Icon name="chat" size={22} color="#F2F6F7" />
           </div>
           <div style={{ textAlign: "left" }}>
             <div
@@ -247,7 +248,7 @@ export default function Home({
             fontSize: device.isMobile ? "18px" : "20px",
             flexShrink: 0,
           }}>
-            🎙️
+            <Icon name="voice" size={22} color="#F2F6F7" />
           </div>
           <div style={{ textAlign: "left" }}>
             <div style={{
@@ -284,7 +285,7 @@ export default function Home({
             onMouseLeave={() => setHoveredCard(null)}
             style={cardStyle("parcours")}
           >
-            <div style={iconCircle("rgba(123, 168, 192, 0.12)")}>📖</div>
+            <div style={iconCircle("rgba(123, 168, 192, 0.12)")}><Icon name="compass" size={20} /></div>
             <span style={{ fontWeight: 450 }}>Parcours</span>
           </button>
 
@@ -295,7 +296,7 @@ export default function Home({
             onMouseLeave={() => setHoveredCard(null)}
             style={cardStyle("biblio")}
           >
-            <div style={iconCircle("rgba(138, 186, 168, 0.12)")}>📚</div>
+            <div style={iconCircle("rgba(138, 186, 168, 0.12)")}><Icon name="book" size={20} /></div>
             <span style={{ fontWeight: 450 }}>Bibliothèque</span>
           </button>
 
@@ -306,7 +307,7 @@ export default function Home({
             onMouseLeave={() => setHoveredCard(null)}
             style={cardStyle("crea")}
           >
-            <div style={iconCircle("rgba(192, 168, 123, 0.12)")}>🎨</div>
+            <div style={iconCircle("rgba(192, 168, 123, 0.12)")}><Icon name="palette" size={20} /></div>
             <span style={{ fontWeight: 450 }}>Créativité</span>
           </button>
 
@@ -318,7 +319,7 @@ export default function Home({
               onMouseLeave={() => setHoveredCard(null)}
               style={cardStyle("spirit")}
             >
-              <div style={iconCircle("rgba(168, 140, 192, 0.12)")}>🔮</div>
+              <div style={iconCircle("rgba(168, 140, 192, 0.12)")}><Icon name="compass" size={20} /></div>
               <span style={{ fontWeight: 450 }}>Profil Spirituel</span>
             </button>
           ) : (
@@ -341,7 +342,7 @@ export default function Home({
               onMouseLeave={() => setHoveredCard(null)}
               style={{ ...cardStyle("dreams"), flex: 1 }}
             >
-              <div style={iconCircle("rgba(140, 160, 192, 0.12)")}>🌙</div>
+              <div style={iconCircle("rgba(140, 160, 192, 0.12)")}><Icon name="moon" size={20} /></div>
               <span style={{ fontWeight: 450 }}>Journal des Rêves</span>
             </button>
 
@@ -352,7 +353,7 @@ export default function Home({
                 onMouseLeave={() => setHoveredCard(null)}
                 style={{ ...cardStyle("mantras"), flex: 1 }}
               >
-                <div style={iconCircle("rgba(192, 180, 140, 0.12)")}>✨</div>
+                <div style={iconCircle("rgba(192, 180, 140, 0.12)")}><Icon name="heart" size={20} /></div>
                 <span style={{ fontWeight: 450 }}>Mes Mantras</span>
               </button>
             )}

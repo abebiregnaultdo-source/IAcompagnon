@@ -1,6 +1,7 @@
 import Logo from "./components/Logo";
 import Resources from "./Resources";
 import HeloDemo from "./components/HeloDemo";
+import Icon from "./components/Icon";
 import "../styles/helo-demo.css";
 import { useState } from "react";
 
@@ -87,7 +88,7 @@ export default function LandingPage({ onGetStarted }) {
           </h2>
           <div className="landing-features-grid">
             <div className="landing-feature">
-              <div className="landing-feature-icon">🛡️</div>
+              <div className="landing-feature-icon"><Icon name="shield" size={30} /></div>
               <h3>Un espace sûr, sans jugement</h3>
               <p>
                 Ici, tous vos ressentis sont valides. Tristesse, colère,
@@ -95,7 +96,7 @@ export default function LandingPage({ onGetStarted }) {
               </p>
             </div>
             <div className="landing-feature">
-              <div className="landing-feature-icon">🕊️</div>
+              <div className="landing-feature-icon"><Icon name="checklist" size={30} /></div>
               <h3>Des outils concrets pour avancer</h3>
               <p>
                 Journal guidé, exercices d'apaisement, repères pour comprendre
@@ -104,7 +105,7 @@ export default function LandingPage({ onGetStarted }) {
               </p>
             </div>
             <div className="landing-feature">
-              <div className="landing-feature-icon">⏱️</div>
+              <div className="landing-feature-icon"><Icon name="waves" size={30} /></div>
               <h3>À votre rythme, vraiment</h3>
               <p>
                 Pas de pression, pas d'objectifs imposés. Vous avancez quand
@@ -112,7 +113,7 @@ export default function LandingPage({ onGetStarted }) {
               </p>
             </div>
             <div className="landing-feature">
-              <div className="landing-feature-icon">🤝</div>
+              <div className="landing-feature-icon"><Icon name="hands" size={30} /></div>
               <h3>Une présence constante</h3>
               <p>
                 Helō est disponible 24/7, quand la nuit est trop longue, quand

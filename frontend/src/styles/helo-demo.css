@@ -12,12 +12,13 @@
 .hd-cap-body { font-size: 14px; color: #5a6068; line-height: 1.5; margin-top: 6px; text-wrap: balance; }
 @keyframes hd-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Mockup téléphone : dimensionné pour TENIR dans la page (borne sur la hauteur
-   de fenêtre). Ratio ~19.5:9 conservé. */
+/* Mockup téléphone : taille FIXE et lisible (dans une page qui scrolle, on ne
+   dépend pas de vh — sinon le téléphone rétrécit et devient illisible).
+   Ratio ~19.5:9. La règle @media plus bas l'adapte au mobile. */
 .hd-phone {
-  height: min(540px, 68vh);
-  width: calc(min(540px, 68vh) * 0.54);
-  border-radius: clamp(30px, 4vh, 42px); padding: 10px;
+  height: 560px;
+  width: 302px;   /* 560 * 0.54 */
+  border-radius: 40px; padding: 10px;
   background: linear-gradient(160deg, #3a4048, #2d3238);
   box-shadow: 0 24px 60px rgba(50,70,90,.22); position: relative; flex-shrink: 0;
 }
@@ -130,9 +131,9 @@
 .hd-ct.on { border-color: #7ba8c0; background: rgba(123,168,192,.1); color: #3a4048; font-weight: 600; }
 
 /* Responsive : sur petit écran, le téléphone rétrécit un peu */
-/* Mobile : le téléphone rétrécit par sa largeur (pas de scale qui décale le layout) */
+/* Mobile : téléphone un peu réduit, taille fixe (lisible, pas dépendante de vh) */
 @media (max-width: 480px) {
-  .hd-phone { height: min(480px, 64vh); width: calc(min(480px, 64vh) * 0.54); }
+  .hd-phone { height: 500px; width: 270px; }
   .hd-cap-title { font-size: 18px; }
   .hd-cap-body { font-size: 13px; }
 }
