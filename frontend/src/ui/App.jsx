@@ -75,6 +75,7 @@ export default function App() {
 
   const [showLanding, setShowLanding] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
+  const [authMode, setAuthMode] = useState("login"); // 'login' ou 'register' selon le bouton cliqué
   const [user, setUser] = useState(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true); // Ajout: chargement initial
   const [step, setStep] = useState("intro");
@@ -305,7 +306,8 @@ export default function App() {
   if (showLanding) {
     return (
       <LandingPage
-        onGetStarted={() => {
+        onGetStarted={(mode) => {
+          setAuthMode(mode === "register" ? "register" : "login");
           setShowLanding(false);
           setShowAuth(true);
         }}
@@ -334,7 +336,7 @@ export default function App() {
     return (
       <EmotionalFeedback state="calm">
         <div className="auth-container">
-          <Auth onAuthenticated={handleAuthenticated} />
+          <Auth onAuthenticated={handleAuthenticated} mode={authMode} />
         </div>
       </EmotionalFeedback>
     );
@@ -713,7 +715,8 @@ export default function App() {
   // Si aucun état n'est actif, retour à la landing page
   return (
     <LandingPage
-      onGetStarted={() => {
+      onGetStarted={(mode) => {
+        setAuthMode(mode === "register" ? "register" : "login");
         setShowLanding(false);
         setShowAuth(true);
       }}

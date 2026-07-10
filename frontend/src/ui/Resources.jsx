@@ -2,7 +2,9 @@ import { useState } from "react";
 import Logo from "./components/Logo";
 import Icon from "./components/Icon";
 import Button from "./components/Button";
+import LandingFooter from "./components/LandingFooter";
 import "../styles/resources.css";
+import "../styles/landing.css";
 
 export default function Resources({ onBack, initialPage = "home" }) {
   const [activePage, setActivePage] = useState(initialPage);
@@ -1098,6 +1100,10 @@ export default function Resources({ onBack, initialPage = "home" }) {
           </div>
         </section>
       )}
+
+      {/* Footer complet, homogène avec la landing (composant partagé).
+          onNavigate = showPage → les liens marchent même hors landing. */}
+      <LandingFooter onNavigate={showPage} />
     </div>
   );
 }

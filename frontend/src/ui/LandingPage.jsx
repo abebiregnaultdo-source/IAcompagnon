@@ -2,6 +2,7 @@ import Logo from "./components/Logo";
 import Resources from "./Resources";
 import HeloDemo from "./components/HeloDemo";
 import Icon from "./components/Icon";
+import LandingFooter from "./components/LandingFooter";
 import "../styles/helo-demo.css";
 import { useState } from "react";
 
@@ -39,11 +40,11 @@ export default function LandingPage({ onGetStarted }) {
               />
             </div>
             <div className="landing-header-actions">
-              <button onClick={onGetStarted} className="landing-btn-text">
+              <button onClick={() => onGetStarted("login")} className="landing-btn-text">
                 Se connecter
               </button>
               <button
-                onClick={onGetStarted}
+                onClick={() => onGetStarted("register")}
                 className="landing-btn landing-btn-primary"
               >
                 Créer un compte
@@ -63,7 +64,7 @@ export default function LandingPage({ onGetStarted }) {
           </p>
           <div className="landing-cta-buttons">
             <button
-              onClick={onGetStarted}
+              onClick={() => onGetStarted("register")}
               className="landing-btn landing-btn-primary"
             >
               Commencer maintenant
@@ -214,7 +215,7 @@ export default function LandingPage({ onGetStarted }) {
             Pour avancer à votre rythme.
           </p>
           <button
-            onClick={onGetStarted}
+            onClick={() => onGetStarted("register")}
             className="landing-btn landing-btn-primary"
           >
             Commencer maintenant
@@ -226,58 +227,8 @@ export default function LandingPage({ onGetStarted }) {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="landing-footer">
-        <div className="landing-container">
-          <div className="landing-footer-content">
-            <div className="landing-footer-section">
-              <h4>À propos de Helō</h4>
-              <p>
-                Helō est une application d'accompagnement dans le deuil, conçue
-                avec empathie et rigueur scientifique.
-              </p>
-            </div>
-            <div className="landing-footer-section">
-              <h4>Ressources</h4>
-              <button
-                onClick={() => window.showResources?.("how-it-works")}
-                className="landing-footer-link"
-              >
-                Comment ça marche
-              </button>
-              <button
-                onClick={() => window.showResources?.("approaches")}
-                className="landing-footer-link"
-              >
-                Approches thérapeutiques
-              </button>
-              <button
-                onClick={() => window.showResources?.("faq")}
-                className="landing-footer-link"
-              >
-                Questions fréquentes
-              </button>
-              <button
-                onClick={() => window.showResources?.("security")}
-                className="landing-footer-link"
-              >
-                Confidentialité et sécurité
-              </button>
-            </div>
-            <div className="landing-footer-section">
-              <h4>Contact</h4>
-              <a href="mailto:support@helo-app.com">support@helo-app.com</a>
-              <a href="#how">Ressources d'urgence</a>
-            </div>
-          </div>
-          <div className="landing-footer-bottom">
-            <p>
-              © 2025 Helō. Tous droits réservés. • Helō ne remplace pas un
-              professionnel de santé mentale.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer (composant partagé avec les pages Ressources) */}
+      <LandingFooter />
     </div>
   );
 }

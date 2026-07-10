@@ -5,8 +5,8 @@ import Button from "./components/Button";
 import Input from "./components/Input";
 import { signIn, signUp, resetPasswordForEmail, getProfile } from "../lib/supabase";
 
-export default function Auth({ onAuthenticated }) {
-  const [mode, setMode] = useState("login"); // 'login', 'register' ou 'forgot'
+export default function Auth({ onAuthenticated, mode: initialMode = "login" }) {
+  const [mode, setMode] = useState(initialMode); // 'login', 'register' ou 'forgot'
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
