@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Logo from "./components/Logo";
+import Icon from "./components/Icon";
 import Button from "./components/Button";
 import Input from "./components/Input";
 import { updatePassword, supabase } from "../lib/supabase";
@@ -238,7 +239,7 @@ export default function ResetPassword({ onComplete }) {
                 aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
                 type="button"
               >
-                {showPassword ? "🙈" : "👀"}
+                <Icon name={showPassword ? "eye-off" : "eye"} size={19} color="#7a8088" />
               </button>
             </div>
 

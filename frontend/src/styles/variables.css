@@ -35,6 +35,32 @@
   --color-text-light: #9aa0a8;
   --color-success: #48bb78;
   --color-error: #d44d4d;
+  --color-white-soft: #f7f9fa;   /* « blanc » adouci — jamais #fff pur */
+
+  /* Fonds d'ambiance */
+  --color-bg-calm: #e8eff2;
+  --color-bg-warm: #f5efe6;
+  --color-bg-pro: #edeef1;
+  --color-accent-pro: #cdd4dd;
+  --color-accent-success: #c8dcc8;
+
+  /* Alertes / erreurs (sémantiques : rouge doux désaturé) */
+  --color-alert-bg: #f5e8e8;
+  --color-alert-bg-gradient-start: #f8eded;
+  --color-alert-bg-gradient-end: #f5e8e8;
+  --color-alert-border: #d4a5a5;
+  --color-alert-text: #8a5555;
+  --color-alert-text-dark: #6b4040;
+
+  /* Alias & états sémantiques (complètent les usages existants) */
+  --color-text: #3a4048;              /* alias de --color-text-primary */
+  --color-accent: #7ba8c0;            /* accent principal (= primary) */
+  --color-accent-alert: #b06a6a;      /* accent d'alerte (rouge doux) */
+  --color-surface-calm: #eef3f6;      /* surface apaisée bleu-gris */
+  --color-error-light: #f5e8e8;       /* fond d'erreur doux */
+  --color-warning: #b08a4a;           /* ambre doux */
+  --color-warning-light: #f5eede;     /* fond d'avertissement doux */
+  --color-success-light: #e2efe2;     /* fond de succès doux */
 
   /* ---- Espacements ---- */
   --space-xs: 6px;

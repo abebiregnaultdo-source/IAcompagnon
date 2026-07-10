@@ -34,6 +34,9 @@ export default function Icon({ name, size = 22, color = "#5a8299", strokeWidth =
     shield: <><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z" /></>,
     checklist: <><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M8 10l2 2 3-4M8 16h6" /></>,
     hands: <><path d="M8 13V6a1.5 1.5 0 0 1 3 0v5M11 11V4.5a1.5 1.5 0 0 1 3 0V11M14 11V6.5a1.5 1.5 0 0 1 3 0V13c0 4-2.5 7-6 7s-5-2-6-4l-2-3.5a1.5 1.5 0 0 1 2.6-1.5L8 13" /></>,
+    // Champ mot de passe (afficher / masquer)
+    eye: <><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="3" /></>,
+    "eye-off": <><path d="M9.9 5.1A9.5 9.5 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-2.2 3M6.1 6.1A17 17 0 0 0 2 12s3.5 7 10 7a9.5 9.5 0 0 0 3.9-.8" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18" /></>,
   };
   return <svg {...p} aria-hidden="true">{paths[name] || null}</svg>;
 }

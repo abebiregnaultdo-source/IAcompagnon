@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Logo from "./components/Logo";
+import Icon from "./components/Icon";
 import Button from "./components/Button";
 import Input from "./components/Input";
 import { signIn, signUp, resetPasswordForEmail, getProfile } from "../lib/supabase";
@@ -295,7 +296,7 @@ export default function Auth({ onAuthenticated }) {
                   }
                   type="button"
                 >
-                  {showPassword ? "🙈" : "👀"}
+                  <Icon name={showPassword ? "eye-off" : "eye"} size={19} color="#7a8088" />
                 </button>
               </div>
             </div>
@@ -457,7 +458,7 @@ export default function Auth({ onAuthenticated }) {
                   }
                   type="button"
                 >
-                  {showPassword ? "🙈" : "👀"}
+                  <Icon name={showPassword ? "eye-off" : "eye"} size={19} color="#7a8088" />
                 </button>
               </div>
               <div style={{ position: "relative" }}>
@@ -480,7 +481,7 @@ export default function Auth({ onAuthenticated }) {
                   }
                   type="button"
                 >
-                  {showConfirmPassword ? "🙈" : "👀"}
+                  <Icon name={showConfirmPassword ? "eye-off" : "eye"} size={19} color="#7a8088" />
                 </button>
               </div>
             </div>
