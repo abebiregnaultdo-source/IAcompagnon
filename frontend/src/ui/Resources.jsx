@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Logo from "./components/Logo";
+import Icon from "./components/Icon";
 import Button from "./components/Button";
 import "../styles/resources.css";
 
@@ -64,7 +65,7 @@ export default function Resources({ onBack, initialPage = "home" }) {
 
             <div className="feature-grid">
               <div className="feature-item fade-in">
-                <div className="feature-icon">📖</div>
+                <div className="feature-icon"><Icon name="book" size={32} /></div>
                 <h3>Comment ça marche</h3>
                 <p>
                   Découvrez le fonctionnement d'Helō, de votre arrivée à votre
@@ -79,7 +80,7 @@ export default function Resources({ onBack, initialPage = "home" }) {
               </div>
 
               <div className="feature-item fade-in">
-                <div className="feature-icon">🧘</div>
+                <div className="feature-icon"><Icon name="wind" size={32} /></div>
                 <h3>Approches thérapeutiques</h3>
                 <p>
                   Les méthodes scientifiques qui fondent votre accompagnement
@@ -93,7 +94,7 @@ export default function Resources({ onBack, initialPage = "home" }) {
               </div>
 
               <div className="feature-item fade-in">
-                <div className="feature-icon">💭</div>
+                <div className="feature-icon"><Icon name="chat" size={32} /></div>
                 <h3>Questions fréquentes</h3>
                 <p>Réponses aux questions que vous vous posez sur Helō</p>
                 <Button variant="secondary" onClick={() => showPage("faq")}>
@@ -102,7 +103,7 @@ export default function Resources({ onBack, initialPage = "home" }) {
               </div>
 
               <div className="feature-item fade-in">
-                <div className="feature-icon">🔒</div>
+                <div className="feature-icon"><Icon name="lock" size={32} /></div>
                 <h3>Confidentialité et sécurité</h3>
                 <p>Comment nous protégeons vos données et votre bien-être</p>
                 <Button
@@ -369,19 +370,19 @@ export default function Resources({ onBack, initialPage = "home" }) {
                 protocole le plus adapté.
               </p>
 
-              <h3>🎯 Détection intelligente</h3>
+              <h3 className="res-h3-ic"><Icon name="compass" size={20} /> Détection intelligente</h3>
               <p>
                 Notre moteur évalue votre état émotionnel et choisit la
                 meilleure réponse.
               </p>
 
-              <h3>🔄 Adaptation en temps réel</h3>
+              <h3 className="res-h3-ic"><Icon name="waves" size={20} /> Adaptation en temps réel</h3>
               <p>
                 Si un exercice ne convient pas, Helō propose autre chose
                 immédiatement.
               </p>
 
-              <h3>🧭 Mémoire de votre parcours</h3>
+              <h3 className="res-h3-ic"><Icon name="compass" size={20} /> Mémoire de votre parcours</h3>
               <p>
                 Helō se souvient de ce qui vous aide et adapte ses suggestions.
               </p>
@@ -391,19 +392,19 @@ export default function Resources({ onBack, initialPage = "home" }) {
             <div className="info-card fade-in">
               <h2>Les visages d'Helō</h2>
 
-              <h3>🌱 Le guide</h3>
+              <h3 className="res-h3-ic"><Icon name="compass" size={20} /> Le guide</h3>
               <p>
                 Quand vous avez besoin d'exercices pratiques : respiration,
                 ancrage, relaxation...
               </p>
 
-              <h3>💙 L'écoutant</h3>
+              <h3 className="res-h3-ic"><Icon name="heart" size={20} /> L'écoutant</h3>
               <p>
                 Quand vous avez besoin de parler : écoute active, validation,
                 soutien...
               </p>
 
-              <h3>🛡️ Le protecteur</h3>
+              <h3 className="res-h3-ic"><Icon name="shield" size={20} /> Le protecteur</h3>
               <p>
                 En cas de crise : stabilisation immédiate, accès aux urgences...
               </p>

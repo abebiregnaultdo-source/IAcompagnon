@@ -251,6 +251,19 @@
   font-size: 48px;
   margin-bottom: var(--space-md);
   line-height: 1;
+  display: flex;
+  justify-content: center;
+}
+
+/* Titres avec icône SVG en tête (approches thérapeutiques) — règle systémique
+   icônes, cohérente avec la landing et l'accueil. */
+.res-h3-ic {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.res-h3-ic svg {
+  flex-shrink: 0;
 }
 
 .feature-item h3 {
