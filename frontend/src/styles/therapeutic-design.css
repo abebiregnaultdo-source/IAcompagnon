@@ -9,8 +9,9 @@
  * - Espacements respirants
  */
 
-/* Import de la police douce */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Nunito:wght@400;600;700&display=swap");
+/* Import des polices de l'identité HELŌ (source unique, partagée par toute l'app).
+   Fraunces = titres (serif de la landing) · Inter = corps · Nunito conservé en secours. */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@300;400;500;600&family=Nunito:wght@400;600;700&subset=latin,latin-ext&display=swap");
 
 :root {
   /* === COULEURS DE BASE === */
@@ -84,7 +85,7 @@
 
   /* === TYPOGRAPHIE === */
   --font-family-base: "Inter", system-ui, -apple-system, sans-serif;
-  --font-family-display: "Nunito", "Inter", sans-serif;
+  --font-family-display: "Fraunces", "Nunito", "Inter", serif;
 
   --font-size-xs: 12px;
   --font-size-sm: 13px;

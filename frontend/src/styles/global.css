@@ -19,10 +19,17 @@ body {
     Roboto,
     "Helvetica Neue",
     Arial;
-  background: linear-gradient(180deg, var(--color-background) 0%, #f9feff 100%);
+  background: linear-gradient(180deg, var(--color-background) 0%, var(--color-bg-lighter) 100%);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Titres : police d'identité (Fraunces) par défaut, partout dans l'app —
+   règle systémique. Les classes dédiées peuvent surcharger si besoin. */
+h1, h2, h3, h4 {
+  font-family: var(--font-family-display);
+  color: var(--color-text-primary);
 }
 
 .container {

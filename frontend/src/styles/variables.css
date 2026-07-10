@@ -1,21 +1,42 @@
+/* ============================================================
+   SOURCE DE VÉRITÉ UNIQUE du design HELŌ.
+   Chargée en tout premier (global.css → variables.css), donc ces tokens
+   s'appliquent à TOUTE l'app : accueil, landing, Resources, crisis, chat.
+   Identité alignée sur la landing : titres Fraunces, corps Inter,
+   palette crème + bleu-gris, jamais de blanc/noir purs.
+   ============================================================ */
+
+/* Polices de l'identité — importées ici pour être disponibles partout.
+   Fraunces = titres (serif douce, élégante) · Inter = corps. */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@300;400;500;600&family=Inter:wght@300;400;500;600&subset=latin,latin-ext&display=swap");
+
 :root {
-  /* Colors (therapeutic palette) */
-  --color-background: #f6fbfc;
-  --color-bg-light: #f9fbfc;
-  --color-surface-1: #f2f6f7;
-  --color-surface-2: #f7f9fb;
-  --color-border: #e6eef2;
-  --color-primary: #4b9ab3;
-  --color-primary-light: #7ba8c0;
-  --color-accent-calm: #c7e7f2;
-  --color-accent-warm: #fff4f0;
-  --color-text-primary: #0f2b33;
-  --color-text-secondary: #506a73;
-  --color-text-tertiary: #8aa0a8;
-  --color-success: #2e8b57;
+  /* ---- Familles de police (identité landing, partagée) ---- */
+  --font-family-base: "Inter", system-ui, -apple-system, sans-serif;
+  --font-family-display: "Fraunces", Georgia, serif;
+
+  /* ---- Couleurs (palette thérapeutique alignée sur la landing) ---- */
+  --color-background: #f2f6f7;
+  --color-bg-light: #f2f6f7;
+  --color-bg-lighter: #f9f5f0;
+  --color-surface-1: #f5f2ed;   /* crème doux (jamais de blanc pur) */
+  --color-surface-2: #f2f6f7;
+  --color-surface-3: #f4f5f7;
+  --color-border: #e2e8f0;
+  --color-primary: #7ba8c0;
+  --color-primary-light: #a5c5d8;
+  --color-primary-dark: #5a8aa5;
+  --color-accent-calm: #dbe8ee;
+  --color-accent-info: #eef3f6;
+  --color-accent-warm: #f5efe6;
+  --color-text-primary: #3a4048;
+  --color-text-secondary: #5a6068;
+  --color-text-tertiary: #7a8088;
+  --color-text-light: #9aa0a8;
+  --color-success: #48bb78;
   --color-error: #d44d4d;
 
-  /* Spacing */
+  /* ---- Espacements ---- */
   --space-xs: 6px;
   --space-sm: 12px;
   --space-md: 16px;
@@ -24,13 +45,14 @@
   --space-2xl: 48px;
   --space-3xl: 72px;
 
-  /* Radii */
-  --radius-sm: 6px;
+  /* ---- Rayons ---- */
+  --radius-sm: 8px;
   --radius-md: 12px;
-  --radius-lg: 18px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
-  /* Typography */
+  /* ---- Typographie ---- */
   --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-md: 16px;
@@ -40,11 +62,18 @@
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
 
-  /* Shadows & transitions */
-  --shadow-xs: 0 1px 4px rgba(15, 43, 51, 0.06);
-  --shadow-sm: 0 6px 20px rgba(15, 43, 51, 0.08);
+  /* ---- Ombres & transitions ---- */
+  --shadow-xs: 0 2px 8px rgba(100, 100, 110, 0.03);
+  --shadow-sm: 0 4px 12px rgba(100, 100, 110, 0.04);
+  --shadow-md: 0 6px 20px rgba(100, 100, 110, 0.06);
+  --shadow-lg: 0 8px 28px rgba(100, 100, 110, 0.08);
   --transition-fast: 120ms;
+  --transition-base: 220ms;
   --transition-medium: 220ms;
   --transition-normal: 320ms;
 }

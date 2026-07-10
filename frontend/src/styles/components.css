@@ -600,7 +600,6 @@
   margin-bottom: var(--space-md);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
-  border-left: 4px solid var(--color-primary);
   color: var(--color-text-primary);
 }
 .creativity-suggestions {
