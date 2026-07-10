@@ -688,7 +688,7 @@ export default function Auth({ onAuthenticated, mode: initialMode = "login" }) {
             lineHeight: "var(--line-height-relaxed)",
           }}
         >
-          <p>HELŌ ne remplace pas un professionnel de santé mentale.</p>
+          <p>Helō ne remplace pas un professionnel de santé mentale.</p>
           <p style={{ marginTop: "var(--space-sm)" }}>
             Vos données sont chiffrées et restent privées.
           </p>
