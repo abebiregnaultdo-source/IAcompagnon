@@ -209,7 +209,7 @@ export default function DreamJournal({ user, onBack }) {
           messages: [
             {
               role: "user",
-              content: `Je voudrais ton éclairage sur ce rêve que j'ai fait :\n\n${dreamContext}`,
+              content: `J'aimerais explorer ce rêve avec toi — pas pour qu'on lui trouve une signification toute faite, mais pour voir ce qu'il évoque pour MOI :\n\n${dreamContext}`,
             },
           ],
           profile: {
