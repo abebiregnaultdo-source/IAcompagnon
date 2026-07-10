@@ -6,7 +6,7 @@ import LandingFooter from "./components/LandingFooter";
 import "../styles/resources.css";
 import "../styles/landing.css";
 
-export default function Resources({ onBack, initialPage = "home" }) {
+export default function Resources({ onBack, initialPage = "home", onGetStarted }) {
   const [activePage, setActivePage] = useState(initialPage);
 
   const showPage = (pageId) => {
@@ -19,12 +19,41 @@ export default function Resources({ onBack, initialPage = "home" }) {
 
   return (
     <div className="resources-wrapper">
-      {/* Navigation */}
-      <nav className="resources-nav">
-        <div className="resources-nav-content">
-          <div onClick={handleBack} style={{ cursor: "pointer" }}>
-            <Logo size={40} showText={true} />
+      {/* Header d'identité — homogène avec la page d'accueil
+          (logo + slogan à gauche, connexion/inscription à droite) */}
+      <header className="landing-header">
+        <div className="landing-container">
+          <div className="landing-header-content">
+            <div
+              className="landing-logo-wrapper"
+              onClick={handleBack}
+              style={{ cursor: "pointer" }}
+            >
+              <Logo size={44} showText={true} tagline="Vous n'êtes pas seul·e" />
+            </div>
+            {onGetStarted && (
+              <div className="landing-header-actions">
+                <button
+                  onClick={() => onGetStarted("login")}
+                  className="landing-btn-text"
+                >
+                  Se connecter
+                </button>
+                <button
+                  onClick={() => onGetStarted("register")}
+                  className="landing-btn landing-btn-primary"
+                >
+                  Créer un compte
+                </button>
+              </div>
+            )}
           </div>
+        </div>
+      </header>
+
+      {/* Sous-navigation interne au centre de ressources */}
+      <nav className="resources-nav resources-nav--sub">
+        <div className="resources-nav-content resources-nav-tabs-only">
           <div className="resources-nav-links">
             <button
               className={`resources-nav-link ${activePage === "how-it-works" ? "active" : ""}`}

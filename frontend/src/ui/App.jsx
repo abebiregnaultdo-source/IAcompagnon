@@ -707,6 +707,15 @@ export default function App() {
             }
           }}
           initialPage={resourcesPage}
+          onGetStarted={
+            user
+              ? undefined
+              : (mode) => {
+                  setAuthMode(mode === "register" ? "register" : "login");
+                  setShowResources(false);
+                  setShowAuth(true);
+                }
+          }
         />
       </EmotionalFeedback>
     );

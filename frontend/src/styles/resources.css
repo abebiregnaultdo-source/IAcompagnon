@@ -30,6 +30,18 @@
   gap: var(--space-lg);
 }
 
+/* Quand la barre ne contient que les onglets (le logo + connexion sont dans le
+   header d'identité au-dessus) : onglets centrés, barre non-sticky pour ne pas
+   se superposer au header sticky de la landing. */
+.resources-nav-tabs-only {
+  justify-content: center;
+}
+/* Sous-nav (onglets seuls) : non-sticky pour ne pas se superposer au header
+   d'identité sticky au-dessus. */
+.resources-nav--sub {
+  position: static;
+}
+
 .resources-nav-links {
   display: flex;
   gap: var(--space-xl);

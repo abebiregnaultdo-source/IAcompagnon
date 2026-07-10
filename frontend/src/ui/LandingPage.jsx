@@ -23,6 +23,7 @@ export default function LandingPage({ onGetStarted }) {
       <Resources
         onBack={() => setShowResources(false)}
         initialPage={resourcesPage}
+        onGetStarted={onGetStarted}
       />
     );
   }
