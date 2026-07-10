@@ -192,16 +192,15 @@
   padding: 36px;
   background: var(--landing-bg-blue-light);
   border-radius: 18px;
+  box-shadow: var(--shadow-sm);
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-  border: 1px solid rgba(123, 168, 192, 0.15);
 }
 
 .landing-feature:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 24px rgba(123, 168, 192, 0.15);
-  border-color: rgba(123, 168, 192, 0.3);
 }
 
 .landing-feature-icon {
@@ -294,7 +293,7 @@
   padding: 32px;
   background: var(--landing-bg-blue-light);
   border-radius: 14px;
-  border: 1px solid rgba(123, 168, 192, 0.15);
+  box-shadow: var(--shadow-sm);
 }
 
 .landing-why-item h3 {
