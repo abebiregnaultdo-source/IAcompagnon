@@ -24,6 +24,8 @@ const Ic = ({ name, size = 20, color = "#5a8299" }) => {
     pen: <><path d="M4 20h16" /><path d="M14 4l6 6-9 9H5v-6l9-9z" /></>,
     brush: <><path d="M14 3l7 7-6 3-4-4 3-6z" /><path d="M11 13c-2 2-2 5-6 6 1-4 4-4 6-6z" /></>,
     scroll: <><path d="M8 3h9a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M5 6a2 2 0 0 0 4 0V4M9 8h7M9 12h7" /></>,
+    wind: <><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h9a2.5 2.5 0 1 1-2.5 2.5" /></>,
+    heart: <><path d="M20.8 6.6a5 5 0 0 0-7.1 0L12 8.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 22l8.8-8.3a5 5 0 0 0 0-7.1z" /></>,
   };
   return <svg {...p}>{paths[name] || null}</svg>;
 };
@@ -48,10 +50,10 @@ const CONVO = [
 ];
 
 const DEUILS = [
-  { ic: "🕊️", t: "Sophie — « Depuis que maman est partie… »", d: "La perte d'un parent" },
-  { ic: "💗", t: "Camille — « Notre bébé n'a pas pu rester. »", d: "Le deuil périnatal" },
-  { ic: "🤍", t: "Marc — « Ma femme, après 40 ans… »", d: "La perte d'un conjoint" },
-  { ic: "🌱", t: "Lucie — « Mon frère, si jeune. »", d: "La perte d'un proche" },
+  { ic: "heart", t: "Sophie — « Depuis que maman est partie… »", d: "La perte d'un parent" },
+  { ic: "heart", t: "Camille — « Notre bébé n'a pas pu rester. »", d: "Le deuil périnatal" },
+  { ic: "heart", t: "Marc — « Ma femme, après 40 ans… »", d: "La perte d'un conjoint" },
+  { ic: "heart", t: "Lucie — « Mon frère, si jeune. »", d: "La perte d'un proche" },
 ];
 
 const TOOLS = [
@@ -154,7 +156,7 @@ export default function HeloDemo() {
             <div className="hd-deuils-list">
               {DEUILS.map((d, i) => (
                 <div key={d.t} className={`hd-dl ${scene === "deuils" && i < deuilsIn ? "in" : ""}`}>
-                  <span className="hd-dl-ic">{d.ic}</span>
+                  <span className="hd-dl-ic"><Ic name={d.ic} size={20} color="#7ba8c0" /></span>
                   <div><b>{d.t}</b><i>{d.d}</i></div>
                 </div>
               ))}
@@ -172,7 +174,7 @@ export default function HeloDemo() {
                 <div key={i} className={`hd-msg ${m.who} show`} dangerouslySetInnerHTML={{ __html: m.t }} />
               ))}
               {typing && <div className="hd-typing show"><i /><i /><i /></div>}
-              {showCta && <div className="hd-breathe-cta show">🫧 Faire l'exercice guidé avec moi</div>}
+              {showCta && <div className="hd-breathe-cta show"><Ic name="wind" size={15} color="#F2F6F7" /> Faire l'exercice guidé avec moi</div>}
             </div>
             <div className="hd-chat-input"><div className="hd-box">Écris ce qui te vient…</div><div className="hd-send">➤</div></div>
           </div>
