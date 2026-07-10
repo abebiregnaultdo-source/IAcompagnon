@@ -7,6 +7,27 @@ import { useEffect, useRef, useState } from "react";
  * Design fidèle : couleurs, wordmark helō minuscule, statut réel "Je t'écoute".
  */
 
+/* Jeu d'icônes outline uniformes (trait fin, couleur de charte) — remplace les
+   emojis système disparates pour un rendu soigné et cohérent. */
+const Ic = ({ name, size = 20, color = "#5a8299" }) => {
+  const p = { width: size, height: size, viewBox: "0 0 24 24", fill: "none",
+    stroke: color, strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" };
+  const paths = {
+    chat: <><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 9 9 0 0 1-4-1L3 20l1-5.5a8.5 8.5 0 1 1 17-3z" /></>,
+    voice: <><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M6 11a6 6 0 0 0 12 0M12 17v4" /></>,
+    book: <><path d="M4 5a2 2 0 0 1 2-2h9v16H6a2 2 0 0 0-2 2V5z" /><path d="M15 3h3a1 1 0 0 1 1 1v15" /></>,
+    palette: <><circle cx="12" cy="12" r="9" /><circle cx="8.5" cy="9.5" r="1" /><circle cx="15" cy="8.5" r="1" /><circle cx="16" cy="13" r="1" /><path d="M12 21a3 3 0 0 0 0-6 2 2 0 0 1 0-4" /></>,
+    candle: <><path d="M12 3s2 2 2 3.5S12 8 12 8s-2-1-2-1.5S12 3 12 3z" /><rect x="9" y="9" width="6" height="11" rx="1" /><path d="M12 9v-1" /></>,
+    lock: <><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></>,
+    moon: <><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z" /></>,
+    compass: <><circle cx="12" cy="12" r="9" /><path d="M15.5 8.5l-2 5-5 2 2-5 5-2z" /></>,
+    pen: <><path d="M4 20h16" /><path d="M14 4l6 6-9 9H5v-6l9-9z" /></>,
+    brush: <><path d="M14 3l7 7-6 3-4-4 3-6z" /><path d="M11 13c-2 2-2 5-6 6 1-4 4-4 6-6z" /></>,
+    scroll: <><path d="M8 3h9a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M5 6a2 2 0 0 0 4 0V4M9 8h7M9 12h7" /></>,
+  };
+  return <svg {...p}>{paths[name] || null}</svg>;
+};
+
 const CAPS = {
   deuils: ["Quel que soit votre deuil", "Un parent, un enfant, un conjoint, un proche. Ici, votre histoire a sa place."],
   chat: ["Un accompagnement qui reste", "Pas besoin de tout réexpliquer à chaque fois. helō vous connaît, et avance à vos côtés."],
@@ -34,10 +55,10 @@ const DEUILS = [
 ];
 
 const TOOLS = [
-  { k: "write", ic: "✍️", label: "Écrire", cap: "Une lettre à l'être disparu" },
-  { k: "draw", ic: "🖌️", label: "Dessiner", cap: "Un dessin libre, sans mots" },
-  { k: "poem", ic: "📜", label: "Poème", cap: "Un poème pour accompagner" },
-  { k: "color", ic: "🎨", label: "Colorier", cap: "Un coloriage apaisant" },
+  { k: "write", ic: "pen", label: "Écrire", cap: "Une lettre à l'être disparu" },
+  { k: "draw", ic: "brush", label: "Dessiner", cap: "Un dessin libre, sans mots" },
+  { k: "poem", ic: "scroll", label: "Poème", cap: "Un poème pour accompagner" },
+  { k: "color", ic: "palette", label: "Colorier", cap: "Un coloriage apaisant" },
 ];
 
 export default function HeloDemo() {
@@ -175,7 +196,7 @@ export default function HeloDemo() {
 
           {/* BIBLIOTHÈQUE */}
           <div className={`hd-view hd-library ${scene === "library" ? "on" : ""}`}>
-            <div className="hd-lib-head">📚 Bibliothèque</div>
+            <div className="hd-lib-head"><Ic name="book" size={18} /> Bibliothèque</div>
             <div className="hd-lib-tabs"><span className="lt on">Aide</span><span className="lt">Inspiration</span><span className="lt">Comprendre</span></div>
             <div className="hd-lib-list">
               {[
@@ -193,7 +214,7 @@ export default function HeloDemo() {
 
           {/* CRÉATIVITÉ */}
           <div className={`hd-view hd-create ${scene === "create" ? "on" : ""}`}>
-            <div className="hd-create-head">🎨 Créativité</div>
+            <div className="hd-create-head"><Ic name="palette" size={18} /> Créativité</div>
             <div className="hd-preview">
               {tool === "write" && <div className="hd-cp"><div className="hd-lines"><i /><i /><i /><i style={{ width: "60%" }} /></div><div className="hd-cp-cap">{currentTool.cap}</div></div>}
               {tool === "draw" && <div className="hd-cp"><svg viewBox="0 0 200 100" style={{ width: "72%" }}><path d="M20,80 C45,25 80,95 110,50 S170,20 185,65" fill="none" stroke="#7BA8C0" strokeWidth="4" strokeLinecap="round" /><circle cx="150" cy="38" r="8" fill="#C0A87B" opacity=".55" /></svg><div className="hd-cp-cap">{currentTool.cap}</div></div>}
@@ -202,7 +223,9 @@ export default function HeloDemo() {
             </div>
             <div className="hd-tools">
               {TOOLS.map((t) => (
-                <div key={t.k} className={`hd-ct ${tool === t.k ? "on" : ""}`}><span>{t.ic}</span>{t.label}</div>
+                <div key={t.k} className={`hd-ct ${tool === t.k ? "on" : ""}`}>
+                  <span><Ic name={t.ic} size={18} color={tool === t.k ? "#3E6478" : "#7a8088"} /></span>{t.label}
+                </div>
               ))}
             </div>
           </div>

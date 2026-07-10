@@ -4,7 +4,8 @@
    ============================================================ */
 .hd-wrap {
   display: flex; flex-direction: column; align-items: center; gap: 20px;
-  padding: 4px 0 8px;
+  padding: 4px 12px 8px;
+  width: 100%; max-width: 100%; box-sizing: border-box; overflow: hidden;
 }
 .hd-cap { text-align: center; max-width: 500px; min-height: 68px; animation: hd-fade .6s ease; }
 .hd-cap-title { font-size: 20px; font-weight: 600; color: #3a4048; line-height: 1.3; text-wrap: balance; }
@@ -94,9 +95,10 @@
 /* BIBLIOTHÈQUE */
 .hd-library { padding: 54px 17px 20px; overflow-y: auto; }
 .hd-library::-webkit-scrollbar { width: 0; }
-.hd-lib-head { font-size: 15px; font-weight: 600; color: #3a4048; margin-bottom: 13px; }
-.hd-lib-tabs { display: flex; gap: 7px; margin-bottom: 13px; }
-.hd-lib-tabs .lt { font-size: 11px; padding: 6px 12px; border-radius: 20px; color: #7a8088; background: rgba(123,168,192,.08); white-space: nowrap; flex-shrink: 0; }
+.hd-lib-head { font-size: 15px; font-weight: 600; color: #3a4048; margin-bottom: 13px; display:flex; align-items:center; gap:7px; }
+.hd-lib-tabs { display: flex; gap: 6px; margin-bottom: 13px; overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
+.hd-lib-tabs::-webkit-scrollbar { height: 0; }
+.hd-lib-tabs .lt { font-size: 10.5px; padding: 5px 11px; border-radius: 20px; color: #7a8088; background: rgba(123,168,192,.08); white-space: nowrap; flex-shrink: 0; }
 .hd-lib-tabs .lt.on { background: linear-gradient(135deg,#5A8FA8,#7BA8C0); color: #F2F6F7; font-weight: 600; }
 .hd-lib-list { display: flex; flex-direction: column; gap: 10px; }
 .hd-lib-card { background: #fff; border: 1px solid rgba(123,168,192,.14); border-radius: 13px; padding: 12px 14px;
@@ -109,7 +111,7 @@
 /* CRÉATIVITÉ */
 .hd-create { padding: 54px 17px 20px; overflow-y: auto; }
 .hd-create::-webkit-scrollbar { width: 0; }
-.hd-create-head { font-size: 15px; font-weight: 600; color: #3a4048; margin-bottom: 13px; }
+.hd-create-head { font-size: 15px; font-weight: 600; color: #3a4048; margin-bottom: 13px; display:flex; align-items:center; gap:7px; }
 .hd-preview { position: relative; background: #fff; border: 1px solid rgba(123,168,192,.16); border-radius: 15px; height: 190px; box-shadow: 0 4px 16px rgba(90,130,153,.08); overflow: hidden; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; }
 .hd-cp { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 16px; animation: hd-fade .5s ease; }
 .hd-cp-cap { font-size: 11.5px; color: #7a8088; font-style: italic; text-align: center; }
@@ -124,12 +126,15 @@
 .hd-mandala span:nth-child(4){width:16px;height:16px;background:#7ba8c0}
 .hd-tools { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
 .hd-ct { min-width: 0; background: #fff; border: 1px solid rgba(123,168,192,.14); border-radius: 11px; padding: 10px 4px; text-align: center; font-size: 10px; color: #5a6068; }
-.hd-ct span { display: block; font-size: 18px; margin-bottom: 3px; }
+.hd-ct span { display: flex; align-items:center; justify-content:center; margin-bottom: 4px; }
 .hd-ct.on { border-color: #7ba8c0; background: rgba(123,168,192,.1); color: #3a4048; font-weight: 600; }
 
 /* Responsive : sur petit écran, le téléphone rétrécit un peu */
-@media (max-width: 420px) {
-  .hd-phone { transform: scale(.9); margin: -30px 0; }
+/* Mobile : le téléphone rétrécit par sa largeur (pas de scale qui décale le layout) */
+@media (max-width: 480px) {
+  .hd-phone { height: min(480px, 64vh); width: calc(min(480px, 64vh) * 0.54); }
+  .hd-cap-title { font-size: 18px; }
+  .hd-cap-body { font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hd-circles span, .hd-orb span, .hd-wave b, .hd-typing i { animation: none; }
