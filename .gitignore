@@ -27,3 +27,6 @@ Thumbs.db
 # Logs locaux (données — ne jamais committer)
 **/analytics_logs.jsonl
 **/feedback_logs.json
+
+# Fichiers temporaires vite
+*.timestamp-*.mjs
