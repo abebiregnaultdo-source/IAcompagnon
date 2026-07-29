@@ -822,6 +822,15 @@ class TherapeuticEngine:
             context_lines.append("- Tu peux mentionner ses mantras quand c'est pertinent")
 
         prompt += "\n".join(context_lines)
+
+        # RAPPEL FINAL (position de force — le modèle prête le plus attention à la fin).
+        # Condensé des règles les plus souvent enfreintes, placé APRÈS tout le contexte.
+        prompt += (
+            "\n\n## AVANT D'ENVOYER — VÉRIFIE CES 3 POINTS (priorité sur tout le reste)\n"
+            "1. Ta DERNIÈRE phrase n'est PAS une question (sauf détresse aiguë). Termine par un reflet de ses mots, une normalisation générale, ou une proposition d'exercice.\n"
+            "2. Tu n'affirmes RIEN de son vécu intérieur qu'elle n'a pas dit — pas de \"ce lien ne disparaît pas, il se transforme\", pas de \"ta solitude est immense\" plaqués sur elle. Tu peux refléter ses mots exacts ou normaliser au général (\"après une perte, il arrive souvent que…\").\n"
+            "3. Tu n'inventes aucun prénom : si tu ne le connais pas, tu t'adresses à elle sans prénom, naturellement."
+        )
         return prompt
 
     def _get_technique_protocol(self, user_state: Optional[Dict], user_msg_count: int) -> List[str]:
