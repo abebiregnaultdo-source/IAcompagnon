@@ -365,40 +365,35 @@ def _reduce_crisis_score_for_grief(
     crisis_level: str
 ) -> Tuple[List[str], str]:
     """
-    Réduit le score de crise si les patterns apparaissent dans un contexte de deuil.
+    Ajuste le score de crise en tenant compte du contexte de deuil — SANS JAMAIS
+    minimiser une idéation suicidaire réelle.
+
+    RÈGLE DE SÉCURITÉ (priorité absolue) :
+    Les personnes en deuil sont une population À RISQUE suicidaire élevé. On ne
+    rétrograde donc JAMAIS un niveau de crise lorsqu'une idéation suicidaire est
+    détectée, même en contexte de deuil. La seule exception tolérée est une
+    expression de deuil NORMALE (façon de parler sans mot suicidaire, ex.
+    « je n'y crois pas », « c'est irréel »), qui ne contient aucune idéation.
 
     Logique:
-    1. Si expression de deuil normal détectée → retourner "none"
-    2. Si contexte de deuil + patterns de suicide_ideation → rétrograder le niveau
-    3. Sinon → garder le niveau original
+    1. Si expression de deuil normal (sans idéation) → "none"
+    2. Sinon → garder le niveau original, TOUJOURS. Aucune rétrogradation.
 
     Returns: (updated_patterns, updated_crisis_level)
     """
-    # Vérifier si c'est une expression normale de deuil
-    if _is_normal_grief_expression(text_lower):
-        return detected_patterns + ["context: normal_grief_expression"], "none"
-
-    # Vérifier si y a un contexte de deuil
-    has_grief = _has_grief_context(text_lower)
-
-    if not has_grief:
-        return detected_patterns, crisis_level
-
-    # Si deuil + patterns de suicide_ideation
     has_suicide = any("suicide_ideation" in p for p in detected_patterns)
 
-    if has_suicide and has_grief:
-        # Rétrograder "critical" → "medium" ou "medium" → "low"
-        if crisis_level == "critical":
-            return (
-                detected_patterns + ["context: grief_context_downgrade"],
-                "medium"
-            )
-        elif crisis_level == "medium":
-            return (
-                detected_patterns + ["context: grief_context_downgrade"],
-                "low"
-            )
+    # Expression de deuil normal : uniquement si AUCUNE idéation suicidaire présente.
+    if _is_normal_grief_expression(text_lower) and not has_suicide:
+        return detected_patterns + ["context: normal_grief_expression"], "none"
+
+    # Dans TOUS les autres cas — y compris deuil + idéation suicidaire — on garde
+    # le niveau détecté. Le deuil n'atténue jamais un signal suicidaire.
+    if has_suicide and _has_grief_context(text_lower):
+        return (
+            detected_patterns + ["context: grief_with_suicide_ideation_kept_high"],
+            crisis_level
+        )
 
     return detected_patterns, crisis_level
 
