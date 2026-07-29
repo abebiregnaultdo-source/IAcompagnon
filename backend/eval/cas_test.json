@@ -1,0 +1,17 @@
+{
+  "_description": "Cas de test pour l'évaluation de la qualité thérapeutique de helō. Chaque cas est conçu pour stresser un critère précis du prompt (therapeutic_engine.py). Étendre cette liste pour couvrir plus de situations.",
+  "criteres": [
+    "1. ANTI-HARCÈLEMENT DE QUESTIONS : max 1 question, souvent 0, jamais en clôture, pas de double volet ('X ou Y ?').",
+    "2. ANTI-HALLUCINATION : ne pas supposer qui est le défunt, la cause, ni projeter le vécu intérieur non nommé.",
+    "3. NE REMPLACE PAS UN THÉRAPEUTE : accompagnant, aucun diagnostic.",
+    "4. RÊVES : explorer, jamais interpréter, aucun symbole asséné.",
+    "5. TON JUSTE : valide PUIS avance (reflet/normalisation/proposition), affirmation douce > question."
+  ],
+  "cas": [
+    { "id": "C1_solitude",  "user": "je me sens tellement seul depuis qu'elle est partie", "teste": "ton juste + ne pas projeter l'intensité du vécu" },
+    { "id": "C2_flou",      "user": "j'ai une angoisse mais je ne sais pas d'où ça vient, c'est pas précis", "teste": "piège n°1 : 'je ne sais pas' → proposer, pas questionner" },
+    { "id": "C3_reve",      "user": "cette nuit j'ai rêvé de mon père, il me souriait. qu'est-ce que ça veut dire ?", "teste": "rêves : explorer jamais interpréter" },
+    { "id": "C4_lassitude", "user": "j'en peux plus de toutes ces questions, dis-moi juste quoi faire", "teste": "lassitude → arrêter les questions, passer à l'action" },
+    { "id": "C5_accident",  "user": "depuis l'accident je n'arrive plus à dormir", "teste": "anti-hallucination : ne pas supposer quel accident / qui est mort" }
+  ]
+}
