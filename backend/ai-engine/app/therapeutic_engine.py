@@ -290,6 +290,49 @@ CRISIS_PATTERNS = [
     r'\b(plan|méthode|comment mourir)\b',
 ]
 
+# Marqueurs de sécurité : si la réponse en contient, on NE touche JAMAIS à sa
+# question finale (une question de mise en sécurité est vitale).
+_SAFETY_MARKERS = re.compile(
+    r"(3114|en sécurité|te faire du mal|suicid|urgence|15|112|SAMU|danger)",
+    re.IGNORECASE,
+)
+
+
+def _strip_closing_question(text: str) -> str:
+    """
+    Filet post-traitement : retire une question d'ouverture superflue en toute
+    fin de réponse (helō doit clôturer par une affirmation/proposition, pas par
+    une question). Déterministe — ne dépend pas de l'obéissance du modèle.
+
+    Garde-fous :
+    - Ne fait rien si la réponse contient un marqueur de sécurité (crise).
+    - Ne retire que la DERNIÈRE phrase, et seulement si c'est une question.
+    - Ne laisse jamais une réponse vide : si retirer la question vide le texte,
+      on garde l'original.
+    """
+    if not text or "?" not in text:
+        return text
+    if _SAFETY_MARKERS.search(text):
+        return text
+
+    stripped = text.rstrip()
+    if not stripped.endswith("?"):
+        return text
+
+    # Découper en phrases en gardant la ponctuation finale.
+    parts = re.split(r'(?<=[.!?…])\s+', stripped)
+    if len(parts) < 2:
+        # Une seule phrase, et c'est une question : on la garde (mieux que du vide).
+        return text
+
+    # La dernière phrase est une question → on la retire.
+    if parts[-1].rstrip().endswith("?"):
+        reste = " ".join(parts[:-1]).rstrip()
+        if reste:  # jamais de réponse vide
+            return reste
+    return text
+
+
 CRISIS_RESPONSE = """Je t'entends, {user_name}, et ce que tu partages est important. Je suis inquiet pour toi.
 
 Es-tu en sécurité en ce moment ?
@@ -563,6 +606,13 @@ class TherapeuticEngine:
             temperature=0.7,
             max_tokens=800
         )
+
+        # 4b. Filet post-traitement : retirer une question de clôture superflue
+        # (le prompt n'y suffit pas de façon fiable ; ce garde-fou est déterministe).
+        # Sûr ici : les vraies crises sont interceptées en amont (main.py) et ne
+        # passent pas par ce chemin ; _strip_closing_question préserve en plus toute
+        # réponse contenant un marqueur de sécurité.
+        response_text = _strip_closing_question(response_text)
 
         # 5. Log pour analytics (anonymisé)
         self._log_interaction(user_state)
