@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import Button from "./components/Button";
+import { getConversations } from "../lib/supabase";
 
 /**
  * Page Parcours - Historique des sessions
@@ -19,18 +20,23 @@ export function Dashboard({ user, onClose, onResumeSession }) {
   async function loadSessions() {
     try {
       setLoading(true);
-      const response = await fetch(`https://helo-backend.onrender.com/api/history/${user.id}`);
-
-      if (!response.ok) {
-        throw new Error("Impossible de charger l'historique");
-      }
-
-      const data = await response.json();
-      setSessions(data.sessions || []);
+      setError(null);
+      // Lecture directe depuis Supabase (source de vérité des conversations),
+      // au lieu d'un endpoint backend /api/history qui n'existe pas (404).
+      const conversations = await getConversations(user.id, 50);
+      // Adapter au format attendu par le rendu (created_at, emotional_themes…).
+      const mapped = (conversations || []).map((c) => ({
+        id: c.id,
+        created_at: c.created_at || c.updated_at,
+        messages: c.messages || [],
+        summary: c.summary || "",
+        emotional_themes:
+          (c.emotional_state && c.emotional_state.themes) || [],
+      }));
+      setSessions(mapped);
     } catch (err) {
       console.error("Error loading sessions:", err);
       setError(err.message);
-      // Mode démo si erreur
       setSessions([]);
     } finally {
       setLoading(false);
