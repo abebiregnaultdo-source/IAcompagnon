@@ -29,6 +29,7 @@ export function Dashboard({ user, onClose, onResumeSession }) {
         id: c.id,
         created_at: c.created_at || c.updated_at,
         messages: c.messages || [],
+        message_count: Array.isArray(c.messages) ? c.messages.length : 0,
         summary: c.summary || "",
         emotional_themes:
           (c.emotional_state && c.emotional_state.themes) || [],
