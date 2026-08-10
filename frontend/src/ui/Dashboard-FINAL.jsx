@@ -178,8 +178,6 @@ export function Dashboard({ user, onClose, onResumeSession }) {
               }}
             >
               {sessions.map((session) => {
-                const isToday = formatDate(session.created_at).startsWith("Aujourd'hui");
-
                 return (
                   <div
                     key={session.id}
@@ -256,29 +254,14 @@ export function Dashboard({ user, onClose, onResumeSession }) {
                         flexWrap: "wrap",
                       }}
                     >
-                      {isToday && (
-                        <Button
-                          onClick={() => onResumeSession && onResumeSession(session.id)}
-                          style={{
-                            flex: "1 1 auto",
-                            minWidth: "120px",
-                          }}
-                        >
-                          Reprendre
-                        </Button>
-                      )}
                       <Button
-                        variant="secondary"
-                        onClick={() => {
-                          // TODO: Implémenter vue détaillée session
-                          console.log("View session:", session.id);
-                        }}
+                        onClick={() => onResumeSession && onResumeSession(session.id)}
                         style={{
                           flex: "1 1 auto",
                           minWidth: "120px",
                         }}
                       >
-                        Relire
+                        Reprendre cette conversation
                       </Button>
                     </div>
                   </div>

@@ -425,6 +425,9 @@ export default function App() {
         <Home
           user={user}
           onStartConversation={() => {
+            // Nouveau chat (pas une reprise) : helō accueillera en se souvenant
+            // de la dernière fois grâce à conversation_memory (message d'accueil dédié).
+            setResumeSessionId(null);
             setShowHome(false);
             setShowChat(true);
           }}
