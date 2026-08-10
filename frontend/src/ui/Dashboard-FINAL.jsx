@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDeviceDetection } from "../hooks/useDeviceDetection";
 import Button from "./components/Button";
 import { getConversations } from "../lib/supabase";
+import { analyzeParcours } from "../lib/parcoursAnalysis";
 
 /**
  * Page Parcours - Historique des sessions
@@ -10,6 +11,7 @@ import { getConversations } from "../lib/supabase";
 export function Dashboard({ user, onClose, onResumeSession }) {
   const device = useDeviceDetection();
   const [sessions, setSessions] = useState([]);
+  const [parcours, setParcours] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -35,6 +37,8 @@ export function Dashboard({ user, onClose, onResumeSession }) {
           (c.emotional_state && c.emotional_state.themes) || [],
       }));
       setSessions(mapped);
+      // Analyse d'évolution (thèmes récurrents) à partir du contenu réel.
+      setParcours(analyzeParcours(conversations));
     } catch (err) {
       console.error("Error loading sessions:", err);
       setError(err.message);
@@ -136,6 +140,86 @@ export function Dashboard({ user, onClose, onResumeSession }) {
 
           <div style={{ width: "60px" }} /> {/* Spacer for flex centering */}
         </header>
+
+        {/* Synthèse d'évolution — le "parcours" au sens propre : ce qui revient,
+            ce qui émerge, ce qui s'apaise. Fondé sur le contenu réel des échanges. */}
+        {parcours && parcours.topThemes.length > 0 && (
+          <div
+            style={{
+              background: "var(--color-surface-1)",
+              borderRadius: "var(--radius-lg)",
+              padding: "var(--space-xl)",
+              marginBottom: "var(--space-xl)",
+              boxShadow: "var(--shadow-sm)",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "var(--font-size-lg)",
+                fontFamily: "var(--font-family-display)",
+                color: "var(--color-text-primary)",
+                margin: "0 0 var(--space-md)",
+              }}
+            >
+              Votre cheminement
+            </h2>
+            <p
+              style={{
+                fontSize: "var(--font-size-sm)",
+                color: "var(--color-text-secondary)",
+                margin: "0 0 var(--space-md)",
+                lineHeight: 1.6,
+              }}
+            >
+              Sur {parcours.sessionCount} conversations, voici ce qui revient le
+              plus souvent dans ce que vous avez déposé :
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-sm)" }}>
+              {parcours.topThemes.map((t) => (
+                <span
+                  key={t.key}
+                  style={{
+                    fontSize: "var(--font-size-sm)",
+                    padding: "6px 14px",
+                    borderRadius: "var(--radius-full)",
+                    background: "var(--color-accent-calm)",
+                    color: "var(--color-text-primary)",
+                  }}
+                >
+                  {t.label}
+                </span>
+              ))}
+            </div>
+            {(parcours.emerging || parcours.fading) && (
+              <p
+                style={{
+                  fontSize: "var(--font-size-sm)",
+                  color: "var(--color-text-secondary)",
+                  margin: "var(--space-md) 0 0",
+                  lineHeight: 1.6,
+                }}
+              >
+                {parcours.emerging && (
+                  <>Depuis quelque temps, un nouveau fil apparaît : <strong>{parcours.emerging.label}</strong>. </>
+                )}
+                {parcours.fading && (
+                  <>Un thème qui revient moins qu'avant : <strong>{parcours.fading.label}</strong>.</>
+                )}
+              </p>
+            )}
+            <p
+              style={{
+                fontSize: "var(--font-size-xs)",
+                color: "var(--color-text-tertiary)",
+                margin: "var(--space-md) 0 0",
+                fontStyle: "italic",
+              }}
+            >
+              Un reflet de vos mots, pas un diagnostic. Vous seul·e savez ce que
+              vous traversez.
+            </p>
+          </div>
+        )}
 
         {/* Sessions list */}
         <div style={{ marginBottom: "var(--space-xl)" }}>
