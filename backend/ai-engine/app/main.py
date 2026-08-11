@@ -1564,3 +1564,34 @@ async def admin_analytics(key: str = ''):
         'phases': phase_counts,
         'total_interactions': len(memory_logs),
     }
+
+
+@app.get('/api/parcours/{user_id}')
+async def get_parcours(user_id: str):
+    """
+    Synthèse d'ÉVOLUTION du parcours d'une personne (thèmes récurrents, ce qui
+    émerge, ce qui s'apaise), analysée par Haiku à partir de ses conversations.
+    Reflète les mots de la personne — ne diagnostique jamais.
+    """
+    sb = get_supabase()
+    if not sb:
+        return {'available': False, 'reason': 'no_db'}
+    try:
+        res = (sb.table('conversations')
+               .select('created_at, messages')
+               .eq('user_id', user_id)
+               .order('created_at', desc=False)
+               .limit(50)
+               .execute())
+        conversations = res.data or []
+    except Exception as e:
+        logger.warning("get_parcours: lecture Supabase échouée: %s", e)
+        return {'available': False, 'reason': 'db_error'}
+
+    from .parcours_analyzer import analyze_parcours
+    synthese = analyze_parcours(engine.llm, conversations)
+    if synthese is None:
+        return {'available': False, 'reason': 'analysis_unavailable'}
+
+    has_content = bool(synthese.get('themes_recurrents')) or bool(synthese.get('reflet'))
+    return {'available': has_content, 'parcours': synthese}

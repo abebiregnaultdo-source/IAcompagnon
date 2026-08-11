@@ -37,8 +37,9 @@ export function Dashboard({ user, onClose, onResumeSession }) {
           (c.emotional_state && c.emotional_state.themes) || [],
       }));
       setSessions(mapped);
-      // Analyse d'évolution (thèmes récurrents) à partir du contenu réel.
-      setParcours(analyzeParcours(conversations));
+      // Analyse d'évolution par IA (Haiku lit le sens, tous vocabulaires) ;
+      // fallback local par mots-clés si le backend est indisponible.
+      loadParcoursSynthese(conversations);
     } catch (err) {
       console.error("Error loading sessions:", err);
       setError(err.message);
@@ -46,6 +47,41 @@ export function Dashboard({ user, onClose, onResumeSession }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Récupère la synthèse d'évolution : d'abord l'IA (backend), sinon fallback
+  // local par mots-clés. On normalise vers un format d'affichage commun.
+  async function loadParcoursSynthese(conversations) {
+    try {
+      const res = await fetch(
+        `https://helo-backend.onrender.com/api/parcours/${user.id}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.available && data.parcours) {
+          const p = data.parcours;
+          setParcours({
+            source: "ia",
+            themes: p.themes_recurrents || [],
+            emerging: p.ce_qui_emerge || null,
+            fading: p.ce_qui_sapaise || null,
+            reflet: p.reflet || "",
+          });
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("[HELO] parcours IA indisponible, fallback local:", e);
+    }
+    // Fallback : analyse locale par mots-clés.
+    const local = analyzeParcours(conversations);
+    setParcours({
+      source: "local",
+      themes: (local.topThemes || []).map((t) => t.label),
+      emerging: local.emerging ? local.emerging.label : null,
+      fading: local.fading ? local.fading.label : null,
+      reflet: "",
+    });
   }
 
   function formatDate(dateString) {
@@ -142,8 +178,9 @@ export function Dashboard({ user, onClose, onResumeSession }) {
         </header>
 
         {/* Synthèse d'évolution — le "parcours" au sens propre : ce qui revient,
-            ce qui émerge, ce qui s'apaise. Fondé sur le contenu réel des échanges. */}
-        {parcours && parcours.topThemes.length > 0 && (
+            ce qui émerge, ce qui s'apaise. Analysé par IA (Haiku) à partir du sens
+            des échanges, avec fallback local par mots-clés. */}
+        {parcours && parcours.themes && parcours.themes.length > 0 && (
           <div
             style={{
               background: "var(--color-surface-1)",
@@ -163,6 +200,18 @@ export function Dashboard({ user, onClose, onResumeSession }) {
             >
               Votre cheminement
             </h2>
+            {parcours.reflet && (
+              <p
+                style={{
+                  fontSize: "var(--font-size-md)",
+                  color: "var(--color-text-primary)",
+                  margin: "0 0 var(--space-lg)",
+                  lineHeight: 1.7,
+                }}
+              >
+                {parcours.reflet}
+              </p>
+            )}
             <p
               style={{
                 fontSize: "var(--font-size-sm)",
@@ -171,13 +220,12 @@ export function Dashboard({ user, onClose, onResumeSession }) {
                 lineHeight: 1.6,
               }}
             >
-              Sur {parcours.sessionCount} conversations, voici ce qui revient le
-              plus souvent dans ce que vous avez déposé :
+              Ce qui revient le plus souvent dans ce que vous avez déposé :
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-sm)" }}>
-              {parcours.topThemes.map((t) => (
+              {parcours.themes.map((label, i) => (
                 <span
-                  key={t.key}
+                  key={i}
                   style={{
                     fontSize: "var(--font-size-sm)",
                     padding: "6px 14px",
@@ -186,7 +234,7 @@ export function Dashboard({ user, onClose, onResumeSession }) {
                     color: "var(--color-text-primary)",
                   }}
                 >
-                  {t.label}
+                  {label}
                 </span>
               ))}
             </div>
@@ -200,10 +248,10 @@ export function Dashboard({ user, onClose, onResumeSession }) {
                 }}
               >
                 {parcours.emerging && (
-                  <>Depuis quelque temps, un nouveau fil apparaît : <strong>{parcours.emerging.label}</strong>. </>
+                  <>Depuis quelque temps, un nouveau fil apparaît : <strong>{parcours.emerging}</strong>. </>
                 )}
                 {parcours.fading && (
-                  <>Un thème qui revient moins qu'avant : <strong>{parcours.fading.label}</strong>.</>
+                  <>Un thème qui revient moins qu'avant : <strong>{parcours.fading}</strong>.</>
                 )}
               </p>
             )}
